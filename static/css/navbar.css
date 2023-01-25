@@ -1,0 +1,250 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    box-sizing: border-box;
+}
+
+
+/* Appearance */
+
+.links {
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #0E1C37;
+    color: white;
+    /* Centering Horizantly */
+    align-items: center;
+    text-align: center;
+    width: 85%;
+    height: 6vh;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 10px 11px 35px 2px rgba(0, 0, 0, 0.14);
+    display: grid;
+    grid-template-columns: repeat(var(--items), 1fr);
+    top: 0;
+    position: sticky;
+    z-index: 2;
+}
+
+.links>a {
+    color: rgb(255, 255, 255);
+    padding: .75em;
+    text-align: center;
+    text-decoration: none;
+    transition: all .5s;
+}
+
+.links>a:hover {
+    color: rgb(136, 203, 248);
+    text-decoration: none;
+}
+
+.links>.line {
+    background: rgb(255, 255, 255);
+    height: 3px;
+    pointer-events: none;
+}
+
+.links-right {
+    float: right;
+    right: 0;
+    margin-left: 20%;
+}
+
+.notactiveright {
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+    padding: 0.25rem;
+    border-radius: 15px;
+}
+
+
+/* The Magic */
+
+#header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.links>.line {
+    opacity: 0;
+    transition: all .5s;
+    position: absolute;
+    bottom: 0;
+    left: var(--left, calc(100% / var(--items) * (var(--index) - 1)));
+    width: var(--width, calc(100% / var(--items)));
+    --index: 0;
+}
+
+.links>a:hover~.line {
+    opacity: 1;
+}
+
+.links>a:nth-of-type(1):hover~.line {
+    --index: 1;
+}
+
+.links>a:nth-of-type(2):hover~.line {
+    --index: 2;
+}
+
+.links>a:nth-of-type(3):hover~.line {
+    --index: 3;
+}
+
+.links>a:nth-of-type(4):hover~.line {
+    --index: 4;
+}
+
+.links>a:nth-of-type(5):hover~.line {
+    --index: 5;
+}
+
+.links>a:nth-of-type(6):hover~.line {
+    --index: 6;
+}
+
+.links>a:nth-of-type(7):hover~.line {
+    --index: 7;
+}
+
+.links>a:nth-of-type(8):hover~.line {
+    --index: 8;
+}
+
+.links>a:nth-of-type(9):hover~.line {
+    --index: 9;
+}
+
+.links>a:nth-of-type(10):hover~.line {
+    --index: 10;
+}
+
+.links>.line2 {
+    background: rgb(255, 255, 255);
+    height: 3px;
+    pointer-events: none;
+}
+
+.links>.line2 {
+    opacity: 0;
+    transition: all .5s;
+    position: absolute;
+    bottom: 0;
+    left: var(--left, calc(100% / var(--items) * (var(--index) - 1)));
+    width: var(--width, calc(100% / var(--items)));
+    --index: 0;
+}
+
+.links>a.active~.line2 {
+    opacity: 1;
+}
+
+.links>a:nth-of-type(1).active~.line2 {
+    --index: 1;
+}
+
+.links>a:nth-of-type(2).active~.line2 {
+    --index: 2;
+}
+
+.links>a:nth-of-type(3).active~.line2 {
+    --index: 3;
+}
+
+.links>a:nth-of-type(4).active~.line2 {
+    --index: 4;
+}
+
+.links>a:nth-of-type(5).active~.line2 {
+    --index: 5;
+}
+
+.links>a:nth-of-type(6).active~.line2 {
+    --index: 6;
+}
+
+.links>a:nth-of-type(7).active~.line2 {
+    --index: 7;
+}
+
+.links>a:nth-of-type(8).active~.line2 {
+    --index: 8;
+}
+
+.links>a:nth-of-type(8).active~.line2 {
+    --index: 8;
+}
+
+.links>a:nth-of-type(9).active~.line2 {
+    --index: 9;
+}
+
+.social-links {
+    border-left: 1px solid #fff;
+    transform: scale(1.2);
+    display: flex;
+    margin-left: 25%;
+    margin-top: 7%;
+}
+
+ul.social-links li {
+    display: inline-block;
+    margin: 0 4px;
+}
+
+.social-links li a {
+    background-color: #fff;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    
+}
+
+.social-links li a span:hover {
+    transform: scale(1.5);
+}
+
+.social-links li a:hover {
+    transform: scale(1.5);
+}
+
+@media screen and (max-width: 750px) {
+    .links {
+        visibility: hidden;
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    .social-links {
+        margin-left: 0px;
+    }
+    .links {
+        width: 90%;
+    }
+}
+
+@media screen and (max-height: 700px) {
+    .links {
+        height: 12vh;
+    }
+}
+
+@media screen and (max-width: 1601px) {
+    .links {
+        height: 7%;
+    }
+}
+
+@media screen and (max-height: 420px) {
+    .links {
+        height: 10%;
+    }
+}

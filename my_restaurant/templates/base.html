@@ -1,0 +1,69 @@
+<!-- djangotemplates/example/templates/base.html -->
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Django Sample Site - {% block title %}{% endblock %}</title>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <!-- This is how to include a static file -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
+    <link
+      rel="stylesheet"
+      href="{% static 'css/navbar.css' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">Home</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'data' %}">Menu</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
+    <p>You are not logged in</p>
+    {%endif%}
+
+    <div class="container">{% block pagecontent %} {% endblock %}</div>
+  </body>
+</html>
