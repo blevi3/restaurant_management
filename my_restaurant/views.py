@@ -6,6 +6,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
 from .models import Menuitem
+from django.shortcuts import get_object_or_404
 
 # Add the two views we have been talking about  all this time :)
 class HomePageView(TemplateView):
@@ -28,40 +29,9 @@ def getdata(request):
             item = newitem.save(commit=False)
             item.save()
 
+    item_list = Menuitem.objects.all()
+    return render(request, 'data.html', {'files': item_list})
 
-
-    con = sqlite3.connect("db.sqlite3")
-    cur = con.cursor()
-    for row in cur.execute("SELECT * FROM my_restaurant_menuitem"+";"):
-        files0 = row[0]
-        files1 = row[1]
-        files2 = row[2]
-        files3 = row[3]
-        files4 = row[4]
-        files = cur.fetchall()
-
-    filedictlist = []
-
-    filedict0 = {}
-    filedict0['id'] = files0
-    filedict0['name'] = files1
-    filedict0['category'] = files2
-    filedict0['type'] = files3
-    filedict0['price'] = files4
-    filedictlist.append(filedict0)
-
-    for i in range(len(files)):
-        filedict = {}
-        filedict['id'] = files[i][0]
-        filedict['name'] = files[i][1]
-        filedict['category'] = files[i][2]
-        filedict['type'] = files[i][3]
-        filedict['price'] = files[i][4]
-        print(files[i][0])
-        filedictlist.append(filedict)
-   
-
-    return render(request, 'data.html', {"files": filedictlist})
 
 def modifydata(request,id):
     print("hello")
@@ -76,6 +46,34 @@ def modifydata(request,id):
     else:
         data = NewItemForm(instance=obj)
     return render(request, 'data.html', {"olddata": data})
+
+
+def items_list(request):
+    item_list = Menuitem.objects.all()
+    print("fsaf")
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            item = get_object_or_404(Menuitem, pk=request.POST['edit'])
+            item.name = request.POST.get('add')
+            item.price = request.POST.get('price')
+            print(item.category)
+            item.save()
+        elif 'remove' in request.POST:
+            item = get_object_or_404(Menuitem, pk=request.POST['remove'])
+            print("remove")
+            item.delete()
+        elif 'add' in request.POST:
+            if request.POST.get('type') == "Food":
+                newtype = 0
+            else:
+                newtype = 1
+            Menuitem.objects.create(
+                name=request.POST.get('add'),
+                price=request.POST.get('price'),
+                type = newtype,
+                category = request.POST.get('category')
+            )
+    return render(request, 'data.html', {'item_list': item_list})
 
 
 def register_request(request):
