@@ -6,6 +6,13 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+
+   
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
   </head>
   <body>
     {% block pagecontent %}
@@ -27,7 +34,7 @@
             <form method="post" class="form-inline">
               {% csrf_token %}
               <input type="hidden" name="edit" value="{{ item.id }}">
-              <button type="submit" class="btn btn-primary">Modify</button>
+              <button type="submit" class="btn btn-primary" onclick="openModal('myModal')">Modify</button>
             </form>
           </td>
           <td>
@@ -78,6 +85,85 @@
         
       </form>
     </div>
+
+    <script>
+      function openModal() {
+        document.getElementById("myModal").style.display = "block";
+    }
+    
+    </script>
+
+<button type="button" class="btn btn-primary" onclick="openModal()" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+<script>
+  function updateCategory(){
+    var Type = document.getElementById("Type").value;
+    var category = document.getElementById("category");
+
+    var option1 = document.createElement("option");
+    option1.value = "option1";
+    option1.text = "Option 1";
+    
+    var option2 = document.createElement("option");
+    option2.value = "option2";
+    option2.text = "Option 2";
+
+    if(Type == "Option 1"){
+      category.appendChild(option1);
+      
+    }
+    else if(Type == "Option 2"){
+      category.appendChild(option2);
+    }
+}
+</script>
+<div class="modal" id="myModal">
+<div class="modal-dialog">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h4 class="modal-title">Add Item</h4>
+      <button type="button" class="close" data-dismiss="modal" onclick="closeForm('myModal')">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <form>
+        <div class="form-group">
+        <label for="Type">Type</label>
+        <select class="form-control" id="Type" onchange="updateCategory()">
+        <option>Option 1</option>
+        <option>Option 2</option>
+        </select>
+        </div>
+        <div class="form-group">
+        <label for="category">Category</label>
+        <select class="form-control" id="category">
+        </select>
+        </div>
+        <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+        <label for="price">Price</label>
+        <input type="text" class="form-control" id="price" placeholder="Enter price">
+        </div>
+        </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closeForm('myModal')">Close</button>
+          <button type="button" class="btn btn-success">Save</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+  
+
+
+
+
+
 
 
     <script>
