@@ -26,3 +26,15 @@
       }
   });
   
+  <script>
+  function updateCategory(){
+    var Type = document.getElementById("Type").value;
+    var category = document.getElementById("category");
+    if(Type == "Option 1"){
+        category.innerHTML = "<option>Option 1.1</option><option>Option 1.2</option>";
+    }
+    else if(Type == "Option 2"){
+        category.innerHTML = "<option>Option 2.1</option><option>Option 2.2</option>";
+    }
+}
+</script>
