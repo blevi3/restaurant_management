@@ -75,9 +75,7 @@
     <button class="btn btn-primary" type="submit" onclick="openForm('myForm')">
       Add
     </button>
-    <button class="btn btn-primary" type="submit" onclick="openForm('myForm')">
-      Add
-    </button>
+
     <div class="form-popup" id="myForm">
       <form action="" method="post" class="form-container">
         {% csrf_token %}
@@ -93,7 +91,7 @@
         <br />
 
         <label for="category" id="category"><b>Category</b></label>
-        <label for="category" id="category"><b>Category</b></label>
+        
         <select name="category" id="category">
           <option value="Beer">Beer</option>
           <option value="Wine">Wine</option>
@@ -107,20 +105,15 @@
         <label for="add"><b>Name</b></label>
         <input placeholder="Enter name" name="add" required />
         <br />
-        <input placeholder="Enter name" name="add" required />
-        <br />
-        <label for="price"><b>Price</b></label>
-        <input type="number" placeholder="Enter price" name="price" required />
 
+        <label for="price"><b>Price</b></label>
         <input type="number" placeholder="Enter price" name="price" required />
 
         <button type="submit" class="btn">Add Item</button>
         <button type="button" class="btn cancel" onclick="closeForm('myForm')">
           Close
         </button>
-        <button type="button" class="btn cancel" onclick="closeForm('myForm')">
-          Close
-        </button>
+
       </form>
     </div>
 
@@ -215,7 +208,7 @@
       }
     </script>
     {% endif %} {% endblock %}
-    {% endif %} {% endblock %}
+    
   </body>
 </html>
 
