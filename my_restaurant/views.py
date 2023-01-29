@@ -52,11 +52,13 @@ def items_list(request):
     item_list = Menuitem.objects.all()
     print("fsaf")
     if request.method == 'POST':
+    
         if 'edit' in request.POST:
-            item = get_object_or_404(Menuitem, pk=request.POST['edit'])
-            item.name = request.POST.get('add')
+            print("edit")
+            item = get_object_or_404(Menuitem, pk=request.POST['editItemID'])
+            item.name = request.POST.get('edit')
             item.price = request.POST.get('price')
-            print(item.category)
+    
             item.save()
         elif 'remove' in request.POST:
             item = get_object_or_404(Menuitem, pk=request.POST['remove'])
