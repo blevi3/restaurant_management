@@ -13,3 +13,52 @@
     border: 3px solid #f1f1f1;
     z-index: 9;
   }
+
+
+
+
+
+  .nav-link {
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #031D44;
+    padding: 20px 0px;
+    margin: 0px 20px;
+    display: inline-block;
+    position: relative;
+    opacity: 0.75;
+  }
+  
+  .nav-link:hover {
+    opacity: 1;
+  }
+  
+  .nav-link::before {
+    transition: 300ms;
+    height: 2px;
+    content: "";
+    position: absolute;
+    background-color: #ffffff;
+    left: 0;
+    bottom: 0;
+    width: 0;
+  }
+  
+  .nav-link:hover::before {
+    width: 100%;
+  }
+  
+  
+  .navbar .active::after {
+    content: "";
+    width: 100%;
+    height: 2px;
+    background-color: #fff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform: scaleX(1);
+  }
+  

@@ -16,36 +16,8 @@ class HomePageView(TemplateView):
 class AboutPageView(TemplateView):
     template_name = "about.html"
 
-
-def getdata(request):
-
-    print(id)
-    files = []
-    if request.method == "POST":
-        print("posted")
-        newitem = NewItemForm(request.POST)
-        if newitem.is_valid(): 
-            print("valid")
-            item = newitem.save(commit=False)
-            item.save()
-
-    item_list = Menuitem.objects.all()
-    return render(request, 'data.html', {'files': item_list})
-
-
-def modifydata(request,id):
-    print("hello")
-
-    if request.method == 'POST':
-        obj = Menuitem.objects.get(pk=id)
-
-        data = NewItemForm(request.POST, instance=obj)
-        if data.is_valid():
-            data.save()
-            return redirect(to='users-profile')
-    else:
-        data = NewItemForm(instance=obj)
-    return render(request, 'data.html', {"olddata": data})
+class test(TemplateView):
+    template_name = "home.html"
 
 
 def items_list(request):

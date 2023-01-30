@@ -42,3 +42,12 @@ $(document).on('click', '.modify-button', function() {
     document.getElementById("price").value = tdPriceValue
     document.getElementById("myModal").style.display = "block";
 });
+
+$(document).ready(function() {
+  var path = window.location.pathname;
+  $('.navbar-nav a').each(function() {
+    if ($(this).attr('href') == path) {
+      $(this).addClass('active');
+    }
+  });
+});
