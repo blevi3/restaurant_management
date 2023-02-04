@@ -1,0 +1,35 @@
+Project Scope:
+    - functionality
+    - layout
+Functionality:
+    - Menu:
+        * listing: drinks/foods - categories (search field)
+        * modify (admin)
+        * delete (admin)
+    - Authentication:
+        * registration
+            -> third party authentication methods (e. g. Google)
+        * login
+    - Admin (Django)
+        * superuser privileges
+    - Shopping cart:
+        * user: order drinks/foods
+        * order:
+         -> additional fields (comment, special  requests) - user's competence
+         -> managing orders (e. g. delete, modify) - ???
+         -> promo codes, coupons, any other discounts
+    - Contact page/About us:
+        * email, send message (optional feedback)
+        * Google maps API
+    - Booking system
+    - User groups: superuser, admin, employee, user
+Layout:
+    - Gallery
+    - Responsitvity (flexbox model)
+    - Footer
+    - Navbar:
+        * bootstrap geci hivatkozás törlése
+        * helyette bootstrap gecit letölteni, .navbar-collapse.collapse beállításainak manuális törlése
+    
+
+    

@@ -1,18 +1,128 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block pagecontent %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+	
+	$(document).ready(function(){
+		console.log("kiir")
+                $("#asztal_form ").validate({
+                    rules:{
+                        nev: "required",
+                        
+                        email:{
+                            required: true,
+                            email: true
+                        },
+                        
+                    },
+                    messages:{
+                        nev: "Adja meg a nevét!",
+                        
+                        email: "Érvényes e-mail címet adjon meg!",
+                        
+                    },
+                });
+            });
+            
+</script>
 
-{% block pagecontent %} 
+{% load crispy_forms_tags %}
 
-{% load crispy_forms_tags %}         
-
-<!--Register--> 
+<!--Register-->
 <div class="container py-5">
-	<h1>Register</h1>
-	<form method="POST">
-		{% csrf_token %}
-		{{ register_form|crispy }}                    
-		<button class="btn btn-primary" type="submit">Register</button>
-	</form>
-	<p class="text-center">If you already have an account, <a href="/accounts/login">login</a> instead.</p>
+  <h1>Register</h1>
+  <form method="POST" id ="asztal_form" novalidate="novalidate">
+    {% csrf_token %}
+
+    <div id="div_id_username" class="form-group">
+      <label for="id_username" class="requiredField">
+        Username<span class="asteriskField">*</span>
+      </label>
+      <div>
+        <input
+          type="text"
+          name="username"
+          maxlength="150"
+          autofocus=""
+          class="textinput textInput form-control"
+          required=""
+          id="id_username"
+        />
+        <small id="hint_id_username" class="form-text text-muted"
+          >Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+          only.</small
+        >
+      </div>
+    </div>
+    <input
+      type="hidden"
+      name="csrfmiddlewaretoken"
+      value="tZW1Ln0QXU8ERAQkkApffagi33FaoU7cs0PQRDOGZOac5l8IgpPNf75ljFHsvHYh"
+    />
+    <div id="div_id_email" class="form-group">
+      <label for="id_email" class="requiredField">
+        Email<span class="asteriskField">*</span>
+      </label>
+      <div>
+        <input
+          type="email"
+          name="email"
+          class="emailinput form-control"
+          required=""
+          id="id_email"
+        />
+      </div>
+    </div>
+    <div id="div_id_password1" class="form-group">
+      <label for="id_password1" class="requiredField">
+        Password<span class="asteriskField">*</span>
+      </label>
+      <div>
+        <input
+          type="password"
+          name="password1"
+          autocomplete="new-password"
+          class="textinput textInput form-control"
+          required=""
+          id="id_password1"
+        />
+        <small id="hint_id_password1" class="form-text text-muted"
+          ><ul>
+            <li>
+              Your password can’t be too similar to your other personal
+              information.
+            </li>
+            <li>Your password must contain at least 8 characters.</li>
+            <li>Your password can’t be a commonly used password.</li>
+            <li>Your password can’t be entirely numeric.</li>
+          </ul></small
+        >
+      </div>
+    </div>
+    <div id="div_id_password2" class="form-group">
+      <label for="id_password2" class="requiredField">
+        Password confirmation<span class="asteriskField">*</span>
+      </label>
+      <div>
+        <input
+          type="password"
+          name="password2"
+          autocomplete="new-password"
+          class="textinput textInput form-control"
+          required=""
+          id="id_password2"
+        />
+        <small id="hint_id_password2" class="form-text text-muted"
+          >Enter the same password as before, for verification.</small
+        >
+      </div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Register</button>
+
+  </form>
+  <p class="text-center">
+    If you already have an account, <a href="/accounts/login">login</a> instead.
+  </p>
 </div>
 
 {% endblock %}

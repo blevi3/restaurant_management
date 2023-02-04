@@ -1,5 +1,15 @@
-.container {
-
+.container thead tr th{
+  background-color: rgba(78, 130, 92, 0.9);
+  color: white;
+}
+.container tbody {
+  background-color: #F5F5DC;
+}
+.container tbody tr:nth-child(2n){
+  background-color: #eddfb3;
+}
+html body{
+  background-color: #9fb673;
 }
 
 .nav a {
@@ -51,7 +61,7 @@
   }
   
   
-  .navbar .active::after {
+  .navibar .active::after {
     content: "";
     width: 100%;
     height: 2px;
@@ -61,4 +71,34 @@
     left: 0;
     transform: scaleX(1);
   }
+  
+  .panel-body{
+    display: none;
+    background-color: rgb(74, 112, 17);
+  }
+
+  .panel{
+    border-color: #9fb673;
+    background-color: transparent;
+  }
+
+  .panel .panel-heading{
+    
+    background-color: #9fb673;;
+  }
+
+  .panel .panel-body{
+    
+    background-color: #9fb673;;
+  }
+  .clickable{
+    cursor: pointer;
+    padding: 2px;
+    border: 1px solid gray;
+  }
+
+  .clickable:hover{
+    background-color: #fff;
+  }
+
   

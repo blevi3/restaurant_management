@@ -26,11 +26,12 @@
   }
 
   .main {
-    background-color: #f2f2f2;
+    background-color: #6cba2b8a;
     padding: 20px;
   }
   
   .welcome {
+    background-color: rgb(74, 112, 17);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -39,7 +40,7 @@
   .menu,
   .specials {
     width: 50%;
-    background-color: #fff;
+    background-color: #199758;
     padding: 20px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease-in-out;

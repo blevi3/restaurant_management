@@ -9,5 +9,5 @@ urlpatterns = [
     path('data', views.items_list, name='data'),
     path('', views.test.as_view(), name='home'),
     #path(r'^data/modify$', views.modifydata, name='data'),
-    path(r'^register/$', views.register_request, name="register"),
+    path('register', views.register_request, name="register"),
 ]
