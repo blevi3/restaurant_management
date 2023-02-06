@@ -30,6 +30,7 @@
         <tr>
           <th>Drinks</th>
           <th>Price</th>
+          
           {% if request.user.is_staff %}
           <th>Modify</th>
           <th>Remove</th>
@@ -41,6 +42,7 @@
         <tr>
           <td id="tdName">{{ item.name }}</td>
           <td id="tdPrice">{{ item.price }}</td>
+          <td><a href="{% url 'add_to_cart' item.id %}">Add to cart</a></td>
           {% if request.user.is_staff %}
           <td>
             <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />

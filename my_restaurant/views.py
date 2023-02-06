@@ -5,8 +5,41 @@ from .forms import NewUserForm, NewItemForm
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
-from .models import Menuitem
+from .models import Menuitem, Cart, CartItem
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+@login_required()
+def add_to_cart(request, item_id):
+    item = get_object_or_404(Menuitem, pk=item_id)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    if not created:
+        cart.save()
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+        print(cart_item.quantity)
+        print("növelve")
+    else:
+        print("setto 1")
+        cart_item.quantity = 1
+        cart_item.total_price = item.price * cart_item.quantity
+        cart_item.save()
+    return redirect('data')
+
+
+
+def item_list(request):
+    items = Menuitem.objects.all()
+    return render(request, 'item_list.html', {'items': items})
+
+def cart(request):
+    cart = Cart.objects.get(user=request.user)
+    cart_items = CartItem.objects.filter(cart=cart)
+    return render(request, 'cart.html', {'cart_items': cart_items})
+
+
 
 # Add the two views we have been talking about  all this time :)
 class HomePageView(TemplateView):
@@ -22,7 +55,6 @@ class test(TemplateView):
 
 def items_list(request):
     item_list = Menuitem.objects.all()
-    print("fsaf")
     if request.method == 'POST':
     
         if 'edit' in request.POST:
