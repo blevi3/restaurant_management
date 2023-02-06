@@ -5,6 +5,9 @@
     <h1 class="text-center">All Orders</h1>
     {% for cart in carts %}
       <h2 class="my-3">Order for {{ cart.user.username }}</h2>
+      <a href="{% url 'cart_paid' cart.id %}">
+        <button  class="btn btn-danger" onclick="return confirm('Are you sure?');">Cart paid</button>
+    </a>
       <table class="table table-striped">
         <thead>
           <tr>
@@ -25,7 +28,8 @@
           {% endfor %}
         </tbody>
       </table>
-      <p>Total: </p>
+      <p>Total: {{cart.amount_to_be_paid}}</p>
+      <br>
     {% endfor %}
   </div>
 {% endblock %}

@@ -29,6 +29,7 @@ def add_to_cart(request, item_id):
         cart_item.total_price = item.price * cart_item.quantity
         cart_item.final_price = item.price
         cart_item.save()
+    
     return redirect('data')
 
 def cart(request):
@@ -37,7 +38,8 @@ def cart(request):
     final_price = 0
     for cart_item in cart_items:
         final_price+=cart_item.quantity*cart_item.total_price
-    
+    cart.amount_to_be_paid = final_price
+    cart.save()
     return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price})
 
 def remove_from_cart(request, cart_item_id):
@@ -61,12 +63,15 @@ def add_to_cart_from_cart(request, item_id):
     print(cart_item.quantity)
     return redirect('cart')
 
-
 def all_orders(request):
     carts = Cart.objects.all()
     return render(request, 'all_orders.html', {'carts': carts})
 
-
+def cart_paid(request, id):
+    cart = Cart.objects.get(pk = id)
+    cart.delete()
+    return redirect('all_orders')
+    
 # Add the two views we have been talking about  all this time :)
 class HomePageView(TemplateView):
     template_name = "index.html"
