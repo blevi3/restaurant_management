@@ -33,14 +33,15 @@ def add_to_cart(request, item_id):
     return redirect('data')
 
 def cart(request):
-    cart = Cart.objects.get(user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
-    final_price = 0
-    for cart_item in cart_items:
-        final_price+=cart_item.quantity*cart_item.total_price
-    cart.amount_to_be_paid = final_price
-    cart.save()
-    return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price})
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    if not created:
+        cart_items = CartItem.objects.filter(cart=cart)
+        final_price = 0
+        for cart_item in cart_items:
+            final_price+=cart_item.quantity*cart_item.total_price
+        cart.amount_to_be_paid = final_price
+        cart.save()
+    return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id})
 
 def remove_from_cart(request, cart_item_id):
     cart_item = CartItem.objects.get(id=cart_item_id)
@@ -64,13 +65,22 @@ def add_to_cart_from_cart(request, item_id):
     return redirect('cart')
 
 def all_orders(request):
-    carts = Cart.objects.all()
-    return render(request, 'all_orders.html', {'carts': carts})
+    
+    carts = Cart.objects.get()
+    ordered_carts= Cart.objects.filter(ordered=1)
+    return render(request, 'all_orders.html', {'carts': ordered_carts})
 
 def cart_paid(request, id):
     cart = Cart.objects.get(pk = id)
     cart.delete()
     return redirect('all_orders')
+    
+def order(request, id):
+    cart = Cart.objects.get(pk = id)
+    cart.ordered = 1
+    cart.save()
+    return redirect('cart')
+    
     
 # Add the two views we have been talking about  all this time :)
 class HomePageView(TemplateView):
