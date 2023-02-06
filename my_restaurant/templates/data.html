@@ -6,9 +6,7 @@
     <meta charset="utf-8" />
     <title></title>
 
-    
-
-
+ 
   </head>
   <body>
     {% block pagecontent %}
@@ -30,7 +28,7 @@
         <tr>
           <th>Drinks</th>
           <th>Price</th>
-          
+          <th></th>
           {% if request.user.is_staff %}
           <th>Modify</th>
           <th>Remove</th>
@@ -42,7 +40,7 @@
         <tr>
           <td id="tdName">{{ item.name }}</td>
           <td id="tdPrice">{{ item.price }}</td>
-          <td><a href="{% url 'add_to_cart' item.id %}">Add to cart</a></td>
+          <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
           {% if request.user.is_staff %}
           <td>
             <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />
@@ -59,7 +57,7 @@
               {% csrf_token %}
               <input type="hidden" name="remove" value="{{ item.id }}" />
               <input type="hidden" name="remove" value="{{ item.id }}" />
-              <button type="submit" class="btn btn-danger">Remove</button>
+              <button type="submit" class="btn  btn-danger" >Remove</button>
             </form>
           </td>
           {% endif %}
@@ -176,7 +174,7 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-danger"
+              class="btn btn-danger close-btn"
               data-dismiss="modal"
               onclick="closeForm('myModal')"
             >

@@ -34,6 +34,8 @@ def add_to_cart(request, item_id):
 
 def cart(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_items = {}
+    final_price = 0
     if not created:
         cart_items = CartItem.objects.filter(cart=cart)
         final_price = 0
@@ -66,7 +68,6 @@ def add_to_cart_from_cart(request, item_id):
 
 def all_orders(request):
     
-    carts = Cart.objects.get()
     ordered_carts= Cart.objects.filter(ordered=1)
     return render(request, 'all_orders.html', {'carts': ordered_carts})
 
