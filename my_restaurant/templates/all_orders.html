@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block pagecontent %}
+  <div class="container my-5">
+    <h1 class="text-center">All Orders</h1>
+    {% for cart in carts %}
+      <h2 class="my-3">Order for {{ cart.user.username }}</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart.cartitem_set.all %}
+            <tr>
+              <td>{{ item.item.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.item.price }}</td>
+              <td>{{ item.final_price }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p>Total: </p>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -31,7 +31,6 @@ def add_to_cart(request, item_id):
         cart_item.save()
     return redirect('data')
 
-
 def cart(request):
     cart = Cart.objects.get(user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
@@ -40,7 +39,6 @@ def cart(request):
         final_price+=cart_item.quantity*cart_item.total_price
     
     return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price})
-
 
 def remove_from_cart(request, cart_item_id):
     cart_item = CartItem.objects.get(id=cart_item_id)
@@ -53,7 +51,6 @@ def remove_from_cart(request, cart_item_id):
 
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
-    print(item)
     cart, created = Cart.objects.get_or_create(user=request.user)
     if not created:
         cart.save()
@@ -63,6 +60,11 @@ def add_to_cart_from_cart(request, item_id):
     cart_item.save()
     print(cart_item.quantity)
     return redirect('cart')
+
+
+def all_orders(request):
+    carts = Cart.objects.all()
+    return render(request, 'all_orders.html', {'carts': carts})
 
 
 # Add the two views we have been talking about  all this time :)
