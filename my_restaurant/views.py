@@ -16,19 +16,20 @@ def add_to_cart(request, item_id):
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     if not created:
         cart.save()
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
-    if not created:
-        cart_item.quantity += 1
-        cart_item.final_price = item.price * cart_item.quantity
-        cart_item.save()
-        print(cart_item.quantity)
-        print("növelve")
-    else:
-        print("setto 1")
-        cart_item.quantity = 1
-        cart_item.total_price = item.price * cart_item.quantity
-        cart_item.final_price = item.price
-        cart_item.save()
+    if not cart.ordered:
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
+        if not created:
+            cart_item.quantity += 1
+            cart_item.final_price = item.price * cart_item.quantity
+            cart_item.save()
+            print(cart_item.quantity)
+            print("növelve")
+        else:
+            print("setto 1")
+            cart_item.quantity = 1
+            cart_item.total_price = item.price * cart_item.quantity
+            cart_item.final_price = item.price
+            cart_item.save()
     
     return redirect('data')
 
@@ -52,12 +53,16 @@ def previous_orders(request):
     return render(request, 'previous_orders.html', {'previous_carts': previous_carts})
 
 def remove_from_cart(request, cart_item_id):
+    print(cart_item_id)
+
     cart_item = CartItem.objects.get(id=cart_item_id)
-    if cart_item.quantity > 1:
-        cart_item.quantity -= 1
-        cart_item.save()
-    else:
-        cart_item.delete()
+    cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
+    if cart:
+        if cart_item.quantity > 1:
+            cart_item.quantity -= 1
+            cart_item.save()
+        else:
+            cart_item.delete()
     return redirect(reverse('cart'))
 
 def add_to_cart_from_cart(request, item_id):
@@ -65,11 +70,12 @@ def add_to_cart_from_cart(request, item_id):
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     if not created:
         cart.save()
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
-    cart_item.quantity += 1
-    cart_item.final_price = item.price * cart_item.quantity
-    cart_item.save()
-    print(cart_item.quantity)
+    if not cart.ordered:
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
+        cart_item.quantity += 1
+        cart_item.final_price = item.price * cart_item.quantity
+        cart_item.save()
+        print(cart_item.quantity)
     return redirect('cart')
 
 def all_orders(request):
