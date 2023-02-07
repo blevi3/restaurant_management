@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 def add_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
     print(item)
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     if not created:
         cart.save()
     cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
@@ -33,7 +33,7 @@ def add_to_cart(request, item_id):
     return redirect('data')
 
 def cart(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     cart_items = {}
     final_price = 0
     if not created:
@@ -44,6 +44,12 @@ def cart(request):
         cart.amount_to_be_paid = final_price
         cart.save()
     return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id})
+
+
+def previous_orders(request):
+    previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
+    print(previous_carts)
+    return render(request, 'previous_orders.html', {'previous_carts': previous_carts})
 
 def remove_from_cart(request, cart_item_id):
     cart_item = CartItem.objects.get(id=cart_item_id)
@@ -56,7 +62,7 @@ def remove_from_cart(request, cart_item_id):
 
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     if not created:
         cart.save()
     cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
@@ -68,12 +74,13 @@ def add_to_cart_from_cart(request, item_id):
 
 def all_orders(request):
     
-    ordered_carts= Cart.objects.filter(ordered=1)
+    ordered_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 0)
     return render(request, 'all_orders.html', {'carts': ordered_carts})
 
 def cart_paid(request, id):
     cart = Cart.objects.get(pk = id)
-    cart.delete()
+    cart.is_delivered = 1
+    cart.save()
     return redirect('all_orders')
     
 def order(request, id):

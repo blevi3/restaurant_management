@@ -14,6 +14,7 @@ class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount_to_be_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     ordered = models.BooleanField(default=0)
+    is_delivered = models.BooleanField(default=0)
 
 
 class CartItem(models.Model):

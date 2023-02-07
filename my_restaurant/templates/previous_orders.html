@@ -1,0 +1,30 @@
+{% extends "base.html" %} {% block pagecontent %}
+<div class="container">
+  <h1 class="text-center my-5">Your previous orders</h1>
+  {% for cart in previous_carts %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart.cartitem_set.all %}
+            <tr>
+              <td>{{ item.item.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.item.price }}</td>
+              <td>{{ item.final_price }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p>Total: {{cart.amount_to_be_paid}}</p>
+      <br>
+    {% endfor %}
+
+</div>
+{% endblock %}

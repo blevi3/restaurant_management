@@ -11,6 +11,7 @@ urlpatterns = [
     #path(r'^data/modify$', views.modifydata, name='data'),
     path('add_to_cart/<int:item_id>', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart, name='cart'),
+    path('previous_orders/', views.previous_orders, name='previous_orders'),
     path('remove_from_cart/<int:cart_item_id>', views.remove_from_cart, name='remove_from_cart'),
     path('add/<int:item_id>', views.add_to_cart_from_cart, name='add_to_cart_from_cart'),
     path('all_orders/', views.all_orders, name='all_orders'),
