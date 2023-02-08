@@ -60,10 +60,27 @@ def remove_from_cart(request, cart_item_id):
     if cart:
         if cart_item.quantity > 1:
             cart_item.quantity -= 1
+            cart_item.final_price = cart_item.total_price * cart_item.quantity
             cart_item.save()
         else:
             cart_item.delete()
     return redirect(reverse('cart'))
+
+
+def trash_item(request, cart_item_id):
+    cart_item = CartItem.objects.get(id=cart_item_id)
+    cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
+    if cart:
+        cart_item.delete()
+    return redirect(reverse('cart'))
+
+def empty_cart(request):
+
+    cart = Cart.objects.filter(user = request.user ,ordered=0)
+    if cart:
+        cart.delete()
+    return redirect(reverse('cart'))
+
 
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)

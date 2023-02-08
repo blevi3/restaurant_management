@@ -105,3 +105,20 @@ $(function () {
   });
   $('[data-toggle="tooltip"]').tooltip();
 });
+
+
+function toggler(){
+  const navbar = document.getElementById("navbarNav");
+  const nav = document.querySelector(".navbar-collapse");
+
+
+
+    if (navbar.style.display === "none") {
+      navbar.style.display = "block";
+    } else {
+      navbar.style.display = "none";
+    }
+
+  }
+
+  $(".navbar-collapse").collapse('toggle');

@@ -6,10 +6,8 @@
     <thead>
       <tr>
         <th>Item name</th>
-        <th>Quantity</th>
         <th>Price</th>
-        <th>Total</th>
-        <th></th>
+        <th>Quantity</th>
         <th></th>
       </tr>
     </thead>
@@ -17,20 +15,16 @@
       {% for item in cart_items %}
       <tr>
         <td>{{ item.item.name }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.total_price }}</td>
         <td>{{item.final_price}} Ft</td>
         <td>
-          <a href="{% url 'add_to_cart_from_cart' item.item_id %}">
-            <button class="btn btn-primary">+</button>
-          </a>
+          <a href="{% url 'add_to_cart_from_cart' item.item_id %}"
+            ><button class="btn btn-primary">+</button></a>
+          &nbsp {{ item.quantity }} &nbsp
+          <a href="{% url 'remove_from_cart' item.id%}"
+            ><button type="submit" class="btn btn-danger">-</button></a>
         </td>
-        <td>
-          <form method="post" action="{% url 'remove_from_cart' item.id%}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">-</button>
-          </form>
-        </td>
+        <td><a href="{% url 'trash_item' item.id %}"><img src="\static\pics\trash.png"  width="30" height="30"></a></td>
+        
       </tr>
 
       {% endfor %}
@@ -41,17 +35,18 @@
     <p class="lead">Total: ${{ final_price }}</p>
   </div>
 
-  {% else %}
-  <p class="lead text-center">Your cart is empty.</p>
-
-  {% endif %} 
-
   {% if ordered %}
   <p>Your order has been placed</p>
   {% else %}
   <a href="{% url 'order' cartid %}">
     <button class="btn btn-primary">Place order</button>
   </a>
-  {% endif %} 
+  <a href="{% url 'empty_cart' %}">
+    <button class="btn btn-danger">Empty cart</button>
+  </a>
+  {% endif %} {% else %}
+  <p class="lead text-center">Your cart is empty.</p>
+
+  {% endif %}
 </div>
 {% endblock %}
