@@ -68,50 +68,112 @@
 
 
     {% if request.user.is_staff %}
-    <button class="btn btn-primary" type="submit" onclick="openForm('myForm')">
+    <button class="btn btn-primary" type="submit" onclick="openForm('AddModal')">
       Add
     </button>
 
-    <div class="form-popup" id="myForm">
-      <form action="" method="post" class="form-container">
-        {% csrf_token %}
-        <h1>Add new item</h1>
 
 
-        <label for="type"><b>Type</b></label>
-        <select name="type" id="type">
-          <option value="Food">Food</option>
-          <option value="Drink">Drink</option>
-        </select>
-        <br />
-        <br />
+    <div class="modal" id="AddModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Item</h4>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              onclick="closeForm('AddModal')"
+            >
+              &times;
+            </button>
+          </div>
 
-        <label for="category" id="category"><b>Category</b></label>
-        
-        <select name="category" id="category">
-          <option value="Beer">Beer</option>
-          <option value="Wine">Wine</option>
-          <option value="Wine">Hamburgers</option>
-          <option value="Wine">Dips</option>
-          <option value="Wine">Snacks</option>
-        </select>
-        <br />
-        <br />
+          <div class="modal-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" id = "AddItemID" name="AddItemID" />
+              <div class="form-group">
+                <label for="AddType">Type</label>
+                <select
+                  class="form-control"
+                  id="AddType"
+                  onchange="updateCategory('AddType', 'Addcategory')"
+                  name = "type"
+                >
+                  <option>Food</option>
+                  <option>Drink</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="Addcategory">Category</label>
+                <select class="form-control" id="Addcategory" name = "category">
+                  <option>Hamburger</option>
+                  <option>Hot-Dog</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="Addname"
+                  name="add"
+                  placeholder="Enter name"
+                />
+              </div>
 
-        <label for="add"><b>Name</b></label>
-        <input placeholder="Enter name" name="add" required />
-        <br />
-
-        <label for="price"><b>Price</b></label>
-        <input type="number" placeholder="Enter price" name="price" required />
-
-        <button type="submit" class="btn">Add Item</button>
-        <button type="button" class="btn cancel" onclick="closeForm('myForm')">
-          Close
-        </button>
-
-      </form>
+              <div class="form-group">
+                <label for="price">Price</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="Addprice"
+                  name="price"
+                  placeholder="Enter price"
+                />
+              </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-danger close-btn"
+              data-dismiss="modal"
+              onclick="closeForm('AddModal')"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-success">Add</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     <div class="modal" id="myModal">
@@ -138,15 +200,17 @@
                 <select
                   class="form-control"
                   id="Type"
-                  onchange="updateCategory()"
+                  onchange="updateCategory('Type', 'category')"
                 >
-                  <option>Option 1</option>
-                  <option>Option 2</option>
+                  <option>Food</option>
+                  <option>Drink</option>
                 </select>
               </div>
               <div class="form-group">
                 <label for="category">Category</label>
-                <select class="form-control" id="category"></select>
+                <select class="form-control" id="category">
+                  <option>Hamburger</option><option>Hot-Dog</option>
+                </select>
               </div>
               <div class="form-group">
                 <label for="name">Name</label>
@@ -188,20 +252,7 @@
     </div>
 
     <script>
-      function openForm(id) {
-        document.getElementById(id).style.display = "block";
-      }
 
-      function closeForm(id) {
-        document.getElementById(id).style.display = "none";
-      }
-      function openForm(id) {
-        document.getElementById(id).style.display = "block";
-      }
-
-      function closeForm(id) {
-        document.getElementById(id).style.display = "none";
-      }
     </script>
     {% endif %} {% endblock %}
     
