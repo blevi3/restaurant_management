@@ -113,8 +113,8 @@ def reservation_table(request, table_id, date1):
                 starter = date1+" "+start_time_str
                 ender = date1+" "+end_time_str
                 print(starter)
-                start_time = datetime.strptime(starter, '%Y-%m-%d %H:%M')
-                end_time = datetime.strptime(ender, '%Y-%m-%d %H:%M')
+                start_time = datetime.strptime(starter, '%Y-%m-%d %H:%M:%S')
+                end_time = datetime.strptime(ender, '%Y-%m-%d %H:%M:%S')
                 reservation.start_time = start_time
                 reservation.end_time = end_time
                 reservation.save()

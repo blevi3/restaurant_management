@@ -59,7 +59,7 @@ class CustomTimeWidget(Select):
 
     def _get_choices(self):
         choices = []
-        for hour in range(0, 24, self.hour_step):
+        for hour in range(8, 24, self.hour_step):
             for minute in range(0, 60, self.minute_step):
                 if minute == 0:
                     choices.append((time(hour=hour, minute=minute), f'{hour:02d}:{minute:02d}'))
@@ -77,7 +77,7 @@ from datetime import time
 class CustomTimeField(forms.TimeField):
     def __init__(self, *args, **kwargs):
         interval = 15  # time interval in minutes
-        choices = [(time(hour=h, minute=m).strftime('%H:%M'), time(hour=h, minute=m).strftime('%I:%M %p')) for h in range(0, 24) for m in range(0, 60, interval)]
+        choices = [(time(hour=h, minute=m).strftime('%H:%M'), time(hour=h, minute=m).strftime('%I:%M %p')) for h in range(8, 24) for m in range(0, 60, interval)]
         super().__init__(*args, **kwargs)
         self.widget = forms.Select(choices=choices)
 
@@ -92,10 +92,11 @@ class CustomTimeField(forms.TimeField):
 
 
 class ReservationForm(forms.ModelForm):
-    #starttime = forms.TimeField(widget=CustomTimeWidget(hour_step=1, minute_step=15))
+    starttime = forms.TimeField(widget=CustomTimeWidget(hour_step=1, minute_step=15))
 	
-    endtime = CustomTimeField()
-    starttime = CustomTimeField()
+    endtime = forms.TimeField(widget=CustomTimeWidget(hour_step=1, minute_step=15))
+    #endtime = CustomTimeField()
+    #starttime = CustomTimeField()
 
     class Meta:
         model = Reservation
