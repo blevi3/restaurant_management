@@ -23,3 +23,34 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+
+class Table(models.Model):
+    name = models.CharField(max_length=50)
+    max_capacity = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+    
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
+class Reservation(models.Model):
+    table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(blank=True, null=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    party_size = models.IntegerField(validators=[MinValueValidator(1)])
+    
+
+
+    def __str__(self):
+        
+        return f"{self.name} at Table {self.table} ({self.start_time.strftime('%Y-%m-%d %H:%M')})"
+    
+
+
+
+
+

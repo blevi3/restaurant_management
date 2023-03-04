@@ -1,13 +1,142 @@
 # djangotemplates/example/views.py
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import TemplateView # Import TemplateView
-from .forms import NewUserForm, NewItemForm
+from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
-from .models import Menuitem, Cart, CartItem
+from .models import Menuitem, Cart, CartItem, Table, Reservation
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+
+
+
+from django.utils import timezone
+
+@login_required
+def date_selection(request):
+    
+    if request.method == 'POST':
+        form = DateSelectionForm(request.POST)
+        if form.is_valid():
+            date1 = form.cleaned_data['date']
+            return redirect('available_tables', date=date1)
+    else:
+        form = DateSelectionForm()
+    return render(request, 'date_selection.html', {'form': form})
+
+from datetime import date
+
+@login_required
+def available_tables(request):
+    date_str = request.POST.get('date')
+    
+    if date_str:
+        date1 = datetime.strptime(date_str, '%Y-%m-%d').date()
+    else:
+        date1 = date.today()
+    
+    tables = Table.objects.all()
+    '''reserved_tables = Reservation.objects.filter(start_time__date=date1).values_list('table_id', flat=True)
+    available_tables = tables.exclude(id__in=reserved_tables)
+    print(available_tables)
+    table_times = {}
+    for table in available_tables:
+        
+        reserved_times = Reservation.objects.filter(table=table, start_time__date=date1).order_by('start_time').values_list('start_time', 'end_time')
+        available_times = get_available_times(date1, table)
+        table_times[table.id] = available_times'''
+    
+    reserved = {}
+    for table in tables:
+        reserv = Reservation.objects.all().filter(table_id = table.id)
+        
+        reserved[table.id] = reserv
+    print(reserved)
+
+    return render(request, 'available_tables.html', {'tables': tables,  'date': date1, })
+
+from datetime import datetime, time, timedelta
+
+def get_available_times(date1, table):
+    
+    reserved_times = Reservation.objects.filter(start_time__date=date1, table=table).order_by('start_time')
+    reserved_times_list = list(reserved_times.values_list('start_time', 'end_time'))
+
+    # Create a list of all the possible time slots
+    time_slots = []
+    
+    start_time = datetime.combine(date1, time(9, 0))  # Start time for reservations
+    end_time = datetime.combine(date1, time(23, 0))  # End time for reservations
+    while start_time < end_time:
+        time_slots.append((start_time.time(), (start_time + timedelta(minutes=30)).time()))
+        start_time += timedelta(minutes=30)
+
+    # Remove any time slots that are already reserved
+    available_times = []
+    for time_slot in time_slots:
+        if time_slot not in reserved_times_list:
+            available_times.append(time_slot)
+
+    return available_times
+
+
+from datetime import datetime
+
+@login_required
+def reservation_table(request, table_id, date1):
+    table = get_object_or_404(Table, id=table_id)
+    reserved_times = Reservation.objects.all().filter(table_id = table_id).filter(start_time__contains=date1)
+    reserved_times_values = []
+    for i in range(len(reserved_times)):
+        reserved_times_values.append({'start_time': reserved_times[i].start_time.strftime("%Y-%m-%d %H:%M"), 'end_time': reserved_times[i].end_time.strftime("%Y-%m-%d %H:%M")})
+    #date1 = request.POST.get('date')
+    #available_times = get_available_times(date1, table)
+    
+    if request.method == 'POST':
+        form = ReservationForm(request.POST)
+        if form.is_valid():
+            reservation = form.save(commit=False)
+            reservation.user = request.user
+            reservation.table = table
+            start_time_str = request.POST.get('starttime')
+            end_time_str = request.POST.get('endtime')
+            party_size = request.POST.get('party_size')
+            print(party_size)
+            print(table.max_capacity)
+            try:
+            
+            # Validate the party size
+                if int(party_size) > table.max_capacity:
+                    raise ValidationError(f"Party size cannot exceed {table.max_capacity}.")
+                starter = date1+" "+start_time_str
+                ender = date1+" "+end_time_str
+                print(starter)
+                start_time = datetime.strptime(starter, '%Y-%m-%d %H:%M')
+                end_time = datetime.strptime(ender, '%Y-%m-%d %H:%M')
+                reservation.start_time = start_time
+                reservation.end_time = end_time
+                reservation.save()
+                messages.success(request, 'Reservation successful!')
+                return redirect('home')
+            
+            except ValidationError as e:
+            # Display the error message on the screen
+                error_message = str(e)
+                cleaned_message = error_message[2:-2]
+                return render(request, 'reservation_table.html', {'table': table, 'error_message': cleaned_message,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values})
+    else:
+        form = ReservationForm()
+    print(reserved_times_values)
+        
+
+    return render(request, 'reservation_table.html', {'table': table,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values})
+
+
+
+
+
 
 @login_required()
 def add_to_cart(request, item_id):

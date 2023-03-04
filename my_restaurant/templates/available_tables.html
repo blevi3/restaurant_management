@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block pagecontent %}
+    <h1>Available Tables for {{ date }}</h1>
+    {% if tables %}
+        <ul>
+            {% for table in tables %}
+                <li><a href="{% url 'reservation_table' table.id date %}">{{ table }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tables available for this date.</p>
+    {% endif %}
+{% endblock %}

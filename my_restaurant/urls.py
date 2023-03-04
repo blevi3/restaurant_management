@@ -19,6 +19,10 @@ urlpatterns = [
     path('all_orders/', views.all_orders, name='all_orders'),
     path('cart_paid/<int:id>', views.cart_paid, name='cart_paid'),
     path('order/<int:id>', views.order, name='order'),
-
     path('register', views.register_request, name="register"),
+
+
+    path('date_selection/', views.date_selection, name='date_selection'),
+    path('available_tables/', views.available_tables, name='available_tables'),
+    path('reservation/<int:table_id>/<str:date1>', views.reservation_table, name='reservation_table'),
 ]

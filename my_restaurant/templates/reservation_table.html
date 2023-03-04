@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block pagecontent %}
+    <h1>Table Reservation: {{ table }} for {{date1}}</h1>
+    {% if reserved_time %}
+  <ul>
+    {% for time in reserved_time %}
+      <li>{{ time.start_time }} to {{ time.end_time }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No times reserved yet.</p>
+    {% endif %}
+
+    {% if error_message %}
+    <li>{{error_message}}</li>
+    {% endif %}
+    <h3>Make a Reservation</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Reserve</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            console.log("tableSize");
+            var tableSize = {{ table.max_capacity }};
+            
+            $('#id_party_size').attr('min', 1);
+            $('#id_party_size').attr('max', tableSize);
+        });
+    </script>
+{% endblock %}
+
+
+
+

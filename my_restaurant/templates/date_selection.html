@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block pagecontent %}
+  <h1>Select a date:</h1>
+  <form method="POST" action="{% url 'available_tables' %}">
+    {% csrf_token %}
+    {{ form.date }}
+    <button type="submit">Select</button>
+  </form>
+{% endblock %}
