@@ -183,8 +183,10 @@ def previous_orders(request):
 
 def remove_from_cart(request, cart_item_id):
     print(cart_item_id)
-
+    
     cart_item = CartItem.objects.get(id=cart_item_id)
+    item = Menuitem.objects.get(id = cart_item.item_id)
+    cart_item.total_price = item.price
     cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
     if cart:
         if cart_item.quantity > 1:
@@ -266,14 +268,15 @@ def items_list(request):
     
             item.save()
         elif 'remove' in request.POST:
+            print("remove")
             item = get_object_or_404(Menuitem, pk=request.POST['remove'])
             print("remove")
             item.delete()
         elif 'add' in request.POST:
             if request.POST.get('type') == "Food":
-                newtype = 0
-            else:
                 newtype = 1
+            else:
+                newtype = 0
             Menuitem.objects.create(
                 name=request.POST.get('add'),
                 price=request.POST.get('price'),

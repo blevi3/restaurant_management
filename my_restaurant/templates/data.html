@@ -37,6 +37,7 @@
       </thead>
       <tbody>
         {% for item in item_list %}
+          {% if not item.type %}
         <tr>
           <td id="tdName">{{ item.name }}</td>
           <td id="tdPrice">{{ item.price }}</td>
@@ -56,15 +57,69 @@
             <form method="post" class="form-inline">
               {% csrf_token %}
               <input type="hidden" name="remove" value="{{ item.id }}" />
-              <input type="hidden" name="remove" value="{{ item.id }}" />
               <button type="submit" class="btn  btn-danger" >Remove</button>
             </form>
           </td>
           {% endif %}
         </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
+
+
+
+
+    <table class="table table-striped" id="tbl2">
+      <thead>
+        <tr>
+          <th>Foods</th>
+          <th>Price</th>
+          <th></th>
+          {% if request.user.is_staff %}
+          <th>Modify</th>
+          <th>Remove</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in item_list %}
+          {% if item.type %}
+        <tr>
+          <td id="tdName">{{ item.name }}</td>
+          <td id="tdPrice">{{ item.price }}</td>
+          <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
+          {% if request.user.is_staff %}
+          <td>
+            <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />
+            <button
+              type="submit"
+              class="btn btn-primary modify-button"
+              id="modify-button"
+            >
+              Modify
+            </button>
+          </td>
+          <td>
+            <form method="post" class="form-inline">
+              {% csrf_token %}
+              <input type="hidden" name="remove" value="{{ item.id }}" />
+              <button type="submit" class="btn  btn-danger" >Remove</button>
+            </form>
+            
+          </td>
+          {% endif %}
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+
+
+
+
 
 
     {% if request.user.is_staff %}
@@ -153,29 +208,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <div class="modal" id="myModal">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -195,23 +227,8 @@
             <form method="post">
               {% csrf_token %}
               <input type="hidden" id = "editItemID" name="editItemID" />
-              <div class="form-group">
-                <label for="Type">Type</label>
-                <select
-                  class="form-control"
-                  id="Type"
-                  onchange="updateCategory('Type', 'category')"
-                >
-                  <option>Food</option>
-                  <option>Drink</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="category">Category</label>
-                <select class="form-control" id="category">
-                  <option>Hamburger</option><option>Hot-Dog</option>
-                </select>
-              </div>
+              
+
               <div class="form-group">
                 <label for="name">Name</label>
                 <input
@@ -231,6 +248,7 @@
                   id="price"
                   name="price"
                   placeholder="Enter price"
+
                 />
               </div>
             

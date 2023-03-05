@@ -23,15 +23,15 @@ function closeForm(id) {
 
 
 $(document).on("click", ".modify-button", function () {
-  var tdNameValue = $(this).closest("td").siblings("td#tdTpye").text();
-  var tdNameValue = $(this).closest("td").siblings("td#tdCategory").text();
-  var tdPriceValue = $(this).closest("td").siblings("td#tdPrice").text();
-  var tdNameValue = $(this).closest("td").siblings("td#tdName").text();
+
+  var tdPriceValue = $(this).closest("td").siblings("#tdPrice").text();
+  var tdNameValue = $(this).closest("td").siblings("#tdName").text();
   var inputValue = $(this).closest("tr").find("input#editdata").val();
   
   document.getElementById("editItemID").value = inputValue;
   document.getElementById("name").value = tdNameValue;
   document.getElementById("price").value = tdPriceValue;
+
   document.getElementById("myModal").style.display = "block";
 });
 
@@ -118,3 +118,52 @@ function toggler(){
   }
 
   $(".navbar-collapse").collapse('toggle');
+
+
+
+//--------------------------------------------------------------------------------------
+ //Reservation timerange Set
+  var startTimeSelect = document.getElementById("id_starttime");
+  var endTimeSelect = document.getElementById("id_endtime");
+
+  var firstOption = document.createElement("option");
+  firstOption.value = "";
+  firstOption.selected = true;
+  firstOption.text = "Select end time";
+  endTimeSelect.insertBefore(firstOption, endTimeSelect.firstChild);
+  var defaultOption = endTimeSelect.options[0];
+
+  var originalEndTimeOptions = endTimeSelect.innerHTML;
+
+  startTimeSelect.addEventListener("change", function() {
+    var selectedStartTime = this.value;
+
+    endTimeSelect.innerHTML = "";
+
+    endTimeSelect.innerHTML = originalEndTimeOptions;
+ 
+    for (var i = 0; i < endTimeSelect.options.length; i++) {
+      var optionValue = endTimeSelect.options[i].value;
+      if (optionValue <= selectedStartTime || optionValue > addMinutes(selectedStartTime, 30)) {
+        endTimeSelect.options[i].disabled = true;
+        
+      } else {
+        endTimeSelect.options[i].disabled = false;
+      }
+    }
+  });
+  
+  function addMinutes(time, minutes) {
+    var date = new Date("2000-01-01T" + time + ":00Z");
+    date.setMinutes(date.getMinutes() + minutes);
+    return date.toISOString().slice(11, 16);
+  }
+
+  endTimeSelect.addEventListener("change", function() {
+    var startTimeValue = startTimeSelect.value;
+    var endTimeValue = endTimeSelect.value;
+    if (endTimeValue <= startTimeValue) {
+      endTimeSelect.selectedIndex = defaultOption.index;
+    }
+  });
+  
