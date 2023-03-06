@@ -1,0 +1,174 @@
+{% extends 'base.html' %} {% load humanize %} 
+
+{% block pagecontent %}
+
+
+<style type="text/css">
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        padding: 50px 20px;
+        background-color: #f8f8f8;
+    }
+    h1 {
+        text-align: center;
+        font-size: 3rem;
+        margin: 0;
+        margin-bottom: 30px;
+        color: #222;
+        text-shadow: 2px 2px #eee;
+    }
+    h2 {
+        font-size: 2rem;
+        margin: 0;
+        margin-top: 30px;
+        color: #222;
+        text-shadow: 2px 2px #eee;
+    }
+    p {
+        font-size: 1.2rem;
+        margin: 0;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        color: #777;
+        line-height: 1.5;
+        text-align: justify;
+        text-justify: inter-word;
+    }
+    .section {
+        margin-top: 50px;
+    }
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: -10px;
+    }
+    .col {
+        flex: 1;
+        margin: 10px;
+    }
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        background-color: #fff;
+    }
+    .card img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        transition: transform .5s ease;
+    }
+    .card:hover img {
+        transform: scale(1.1);
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        margin: 0;
+        margin-bottom: 10px;
+        color: #222;
+        text-shadow: 2px 2px #eee;
+    }
+    .card-text {
+        font-size: 1.2rem;
+        margin: 0;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        color: #777;
+        line-height: 1.5;
+        text-align: justify;
+        text-justify: inter-word;
+    }
+    .price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #222;
+        text-shadow: 2px 2px #eee;
+    }
+</style>
+
+
+
+<div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'beer')">Beer</button>
+    <button class="tablinks" onclick="openTab(event, 'wine')">Wine</button>
+    <button class="tablinks" onclick="openTab(event, 'cocktails')">Cocktails</button>
+  
+    <div id="beer" class="tabcontent">
+      <h3>Beer</h3>
+      <table>
+        <tr>
+          <th>Drink</th>
+          <th>Price</th>
+        </tr>
+        {% for drink in drinks %}
+        {% if drink.category == "Beer" %}
+        <tr>
+          <td>{{drink.name}} &nbsp</td>
+          <td>{{ drink.price }} Ft</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        
+      </table>
+    </div>
+  
+    <div id="wine" class="tabcontent">
+      <h3>Wine</h3>
+      <table>
+        <tr>
+          <th>Drink</th>
+          <th>Price</th>
+        </tr>
+
+        {% for drink in drinks %}
+        {% if drink.category == "Wine" %}
+        <tr>
+          <td>{{drink.name}} &nbsp</td>
+          <td>{{ drink.price }} Ft</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        
+      </table>
+    </div>
+  
+    <div id="cocktails" class="tabcontent">
+        <div class="section">
+            <div class="row">
+                {% for drink in drinks %}
+                {% if drink.category == "Cocktail" %}
+                <div class="col">
+                    <div class="card">
+                        <img src="https://via.placeholder.com/500x250.png?text=Coctail1" alt="Coctail 1">
+                        <div class="card-body">
+                            <h3 class="card-title">{{drink.name}}</h3>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non felis eget urna sodales feugiat at vel urna. Suspendisse potenti.</p>
+                            <p class="price">{{drink.price}} </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                
+            </div>
+        </div>
+    </div>
+  </div>
+
+  
+  
+
+  
+
+
+{% endblock %}

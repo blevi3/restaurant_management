@@ -7,17 +7,14 @@
     <meta charset="utf-8" />
     <title>MyPub - {% block title %}{% endblock %}</title>
 
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
 
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-  
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <style>.navbar-collapse.collapse{
-      display: none;
-    }</style>
-
-
-
-
+    <style>
+      .navbar-collapse.collapse {
+        display: none;
+      }
+    </style>
 
     <!-- This is how to include a static file -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
@@ -29,17 +26,25 @@
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/ju/dt-1.11.4/datatables.min.css"/>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.11.4/datatables.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/v/ju/dt-1.11.4/datatables.min.css"
+    />
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/v/ju/dt-1.11.4/datatables.min.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
 
     <script type="text/javascript" src="{% static 'css/scripts.js' %}"></script>
-
   </head>
   <body>
     <header>
-      <nav class="navibar navbar-expand-lg navbar-dark bg-dark" >
+      <nav class="navibar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="{% url 'home' %}">Home</a>
         <button
           id="lenyilo_menu"
@@ -54,13 +59,25 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav" style="display: none;">
+        <div
+          class="collapse navbar-collapse"
+          id="navbarNav"
+          style="display: none"
+        >
           <ul class="navbar-nav">
             <li class="nav-item">
               <a
                 class="nav-link{% if request.path == '/data/' %} active{% endif %}"
                 href="{% url 'data' %}"
                 >Menu</a
+              >
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link{% if request.path == '/drinks/' %} active{% endif %}"
+                href="{% url 'drinks' %}"
+                >drinks</a
               >
             </li>
             <li class="nav-item">
@@ -78,24 +95,26 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">Login</a>
             </li>
-            {% endif %}
-            {% if request.user.is_staff %}
+            {% endif %} {% if request.user.is_staff %}
             <li class="nav-item">
               <a class="nav-link" href="/admin">Admin</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/all_orders">Orders</a>
             </li>
-            {% endif %}
-            {% if user.is_authenticated %}
+            {% endif %} {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link " href="{% url 'cart' %}">Cart</a>
+              <a class="nav-link" href="{% url 'cart' %}">Cart</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link " href="{% url 'previous_orders' %}">Previous orders</a>
+              <a class="nav-link" href="{% url 'previous_orders' %}"
+                >Previous orders</a
+              >
             </li>
             <li class="nav-item">
-              <a class="nav-link " href="{% url 'date_selection' %}">Reservation</a>
+              <a class="nav-link" href="{% url 'date_selection' %}"
+                >Reservation</a
+              >
             </li>
             {% endif %}
           </ul>

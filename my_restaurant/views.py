@@ -9,9 +9,7 @@ from .models import Menuitem, Cart, CartItem, Table, Reservation
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-
-
-
+from datetime import datetime, time, timedelta, date
 from django.utils import timezone
 
 @login_required
@@ -26,7 +24,6 @@ def date_selection(request):
         form = DateSelectionForm()
     return render(request, 'date_selection.html', {'form': form})
 
-from datetime import date
 
 @login_required
 def available_tables(request):
@@ -57,7 +54,6 @@ def available_tables(request):
 
     return render(request, 'available_tables.html', {'tables': tables,  'date': date1, })
 
-from datetime import datetime, time, timedelta
 
 def get_available_times(date1, table):
     
@@ -80,9 +76,6 @@ def get_available_times(date1, table):
             available_times.append(time_slot)
 
     return available_times
-
-
-from datetime import datetime
 
 @login_required
 def reservation_table(request, table_id, date1):
@@ -134,7 +127,15 @@ def reservation_table(request, table_id, date1):
     return render(request, 'reservation_table.html', {'table': table,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values})
 
 
+def drinks(request):
+    drinks = Menuitem.objects.all().filter(type = 0)
+    print(drinks)
+    
+    return render(request, 'drinks.html', {'drinks': drinks})
 
+def foods(request):
+    return 0
+ 
 
 
 

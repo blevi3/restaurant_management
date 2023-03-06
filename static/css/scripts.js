@@ -1,3 +1,35 @@
+function openTab(evt, tabName) {
+  // Get all elements with class="tabcontent" and hide them
+  let tabcontent = document.getElementsByClassName("tabcontent");
+  for (let i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].classList.remove("show");
+  }
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  let tablinks = document.getElementsByClassName("tablinks");
+  for (let i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+
+  // Show the current tab and add the "active" class to the button that opened the tab
+  document.getElementById(tabName).classList.add("show");
+  evt.currentTarget.classList.add("active");
+}
+
+// Set the default tab to be the first one
+document.getElementById("beer").classList.add("show");
+document.getElementsByClassName("tablinks")[0].classList.add("active");
+
+
+
+
+
+
+
+
+
+
+
 function updateCategory(Type, Category) {
   var type = document.getElementById(Type).value;
   console.log(type);

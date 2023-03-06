@@ -20,6 +20,8 @@ urlpatterns = [
     path('cart_paid/<int:id>', views.cart_paid, name='cart_paid'),
     path('order/<int:id>', views.order, name='order'),
     path('register', views.register_request, name="register"),
+    path('drinks', views.drinks, name='drinks'),
+    path('foods', views.foods, name='foods'),
 
 
     path('date_selection/', views.date_selection, name='date_selection'),
