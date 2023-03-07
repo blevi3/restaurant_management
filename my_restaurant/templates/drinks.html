@@ -58,6 +58,7 @@
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         overflow: hidden;
         background-color: #fff;
+        height: 27em;
     }
     .card img {
         width: 100%;
@@ -70,6 +71,7 @@
     }
     .card-body {
         padding: 20px;
+        padding-bottom: 0;
     }
     .card-title {
         font-size: 1.5rem;
@@ -93,6 +95,7 @@
         font-weight: bold;
         color: #222;
         text-shadow: 2px 2px #eee;
+        text-align: center;
     }
 </style>
 
@@ -153,8 +156,9 @@
                         <div class="card-body">
                             <h3 class="card-title">{{drink.name}}</h3>
                             <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non felis eget urna sodales feugiat at vel urna. Suspendisse potenti.</p>
-                            <p class="price">{{drink.price}} </p>
+                            
                         </div>
+                        <p class="price">{{drink.price}} </p>
                     </div>
                 </div>
                 {% endif %}
@@ -164,11 +168,5 @@
         </div>
     </div>
   </div>
-
-  
-  
-
-  
-
 
 {% endblock %}

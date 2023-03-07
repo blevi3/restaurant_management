@@ -128,13 +128,14 @@ def reservation_table(request, table_id, date1):
 
 
 def drinks(request):
-    drinks = Menuitem.objects.all().filter(type = 0)
-    print(drinks)
-    
+    drinks = Menuitem.objects.all().filter(type = 0)  
     return render(request, 'drinks.html', {'drinks': drinks})
 
-def foods(request):
-    return 0
+def menu(request):
+    foods = Menuitem.objects.all().filter(type = 1)
+    return render(request, 'foods.html', {'foods': foods})
+
+
  
 
 

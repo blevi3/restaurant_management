@@ -6,7 +6,7 @@ from django.urls import path, include
 urlpatterns = [
     
     path('about', views.AboutPageView.as_view(), name='about'),
-    path('data', views.items_list, name='data'),
+    path('order', views.items_list, name='order'),
     path('', views.test.as_view(), name='home'),
     #path(r'^data/modify$', views.modifydata, name='data'),
     path('add_to_cart/<int:item_id>', views.add_to_cart, name='add_to_cart'),
@@ -21,7 +21,9 @@ urlpatterns = [
     path('order/<int:id>', views.order, name='order'),
     path('register', views.register_request, name="register"),
     path('drinks', views.drinks, name='drinks'),
-    path('foods', views.foods, name='foods'),
+    path('menu', views.menu, name='menu'),
+
+   
 
 
     path('date_selection/', views.date_selection, name='date_selection'),

@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% load humanize %} 
+
+{% block pagecontent %}
+
+<div id="cocktails" class="tabcontent foodcontent">
+    <div class="section">
+        <div class="row">
+            {% for food in foods %}
+            {% if food.category == "Hamburger" %}
+            <div class="col">
+                <div class="card">
+                    <img src="https://via.placeholder.com/500x250.png?text=Hamburger1" alt="Hamburger 1">
+                    <div class="card-body">
+                        <h3 class="card-title">{{food.name}}</h3>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non felis eget urna sodales feugiat at vel urna. Suspendisse potenti.</p>
+                    </div>
+                    <p class="price">{{food.price}} </p>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
