@@ -54,18 +54,7 @@ function closeForm(id) {
 }
 
 
-$(document).on("click", ".modify-button", function () {
 
-  var tdPriceValue = $(this).closest("td").siblings("#tdPrice").text();
-  var tdNameValue = $(this).closest("td").siblings("#tdName").text();
-  var inputValue = $(this).closest("tr").find("input#editdata").val();
-  
-  document.getElementById("editItemID").value = inputValue;
-  document.getElementById("name").value = tdNameValue;
-  document.getElementById("price").value = tdPriceValue;
-
-  document.getElementById("myModal").style.display = "block";
-});
 
 $(document).ready(function () {
   var path = window.location.pathname;

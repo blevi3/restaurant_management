@@ -1,13 +1,5 @@
 {% extends 'base.html' %} {% load humanize %} 
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title></title>
-
- 
-  </head>
   <body>
     {% block pagecontent %}
     <div class = "panel" style="border:none;background-color: transparent;">
@@ -23,7 +15,20 @@
       <input type="text" class="form-control" id="dev-table-filter" data-action="filter" data-filters="#tbl" placeholder="Filter Drinks" />
     </div>
   </div>
-    <table class="table table-striped" id="tbl">
+
+
+  <form>
+    {% for category in categories %}
+      <label>
+        <input type="checkbox" name="category" value="{{ category }}" checked> {{ category }}
+      </label>
+    {% endfor %}
+  </form>
+
+  {% if item_list %}
+  {% for category in categories %}
+    <h2>{{ category }}</h2>
+    <table class="table table-striped" id="tbl-{{category}}">
       <thead>
         <tr>
           <th>Drinks</th>
@@ -37,99 +42,40 @@
       </thead>
       <tbody>
         {% for item in item_list %}
-          {% if not item.type %}
-        <tr>
-          <td id="tdName">{{ item.name }}</td>
-          <td id="tdPrice">{{ item.price }}</td>
-          <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
-          {% if request.user.is_staff %}
-          <td>
-            <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />
-            <button
-              type="submit"
-              class="btn btn-primary modify-button"
-              id="modify-button"
-            >
-              Modify
-            </button>
-          </td>
-          <td>
-            <form method="post" class="form-inline">
-              {% csrf_token %}
-              <input type="hidden" name="remove" value="{{ item.id }}" />
-              <button type="submit" class="btn  btn-danger" >Remove</button>
-            </form>
-          </td>
+          {% if item.category == category %}
+            <tr>
+              <td id="tdName">{{ item.name }}</td>
+              <td id="tdPrice">{{ item.price }} Ft</td>
+              <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
+              {% if request.user.is_staff %}
+              <td>
+                <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />
+                <button
+                  type="submit"
+                  class="btn btn-primary modify-button"
+                  id="modify-button"
+                  onclick="openForm('myModal')"
+                >
+                  Modify
+                </button>
+              </td>
+              <td>
+                <form method="post" class="form-inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="remove" value="{{ item.id }}" />
+                  <button type="submit" class="btn  btn-danger" >Remove</button>
+                </form>
+              </td>
+              {% endif %}
+            </tr>
           {% endif %}
-        </tr>
-        {% endif %}
         {% endfor %}
       </tbody>
     </table>
-
-
-
-    <div class = "panel" style="border:none;background-color: transparent;">
-      <div class = "panel-heading">
-      <div class="pull-right">
-        <span class="clickable filter" data-toggle="tooltip"  data-container="body">
-          <i class="glyphicon glyphicon-filter" ></i>
-        </span>
-      </div>
-      </div>
-      <br>
-      <div class="panel-body" >
-        <input type="text" class="form-control" id="dev-table-filter" data-action="filter" data-filters="#tbl2" placeholder="Filter Foods" />
-      </div>
-    </div>
-    <table class="table table-striped" id="tbl2">
-      <thead>
-        <tr>
-          <th>Foods</th>
-          <th>Price</th>
-          <th></th>
-          {% if request.user.is_staff %}
-          <th>Modify</th>
-          <th>Remove</th>
-          {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in item_list %}
-          {% if item.type %}
-        <tr>
-          <td id="tdName">{{ item.name }}</td>
-          <td id="tdPrice">{{ item.price }}</td>
-          <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
-          {% if request.user.is_staff %}
-          <td>
-            <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />
-            <button
-              type="submit"
-              class="btn btn-primary modify-button"
-              id="modify-button"
-            >
-              Modify
-            </button>
-          </td>
-          <td>
-            <form method="post" class="form-inline">
-              {% csrf_token %}
-              <input type="hidden" name="remove" value="{{ item.id }}" />
-              <button type="submit" class="btn  btn-danger" >Remove</button>
-            </form>
-            
-          </td>
-          {% endif %}
-        </tr>
-        {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-
-
-
-
+  {% endfor %}
+{% else %}
+  <p>No items found.</p>
+{% endif %}
 
 
 
@@ -281,11 +227,47 @@
       </div>
     </div>
 
-    <script>
-
-    </script>
-    {% endif %} {% endblock %}
     
-  </body>
-</html>
+    {% endif %} 
+    
+    
+    <script>
+      $(document).on("click", ".modify-button", function () {
 
+        var tdPriceValue = $(this).closest("td").siblings("#tdPrice").text();
+        console.log("tdNameValue");
+        var tdNameValue = $(this).closest("td").siblings("#tdName").text();
+        var inputValue = $(this).closest("tr").find("input#editdata").val();
+        
+        document.getElementById("editItemID").value = inputValue;
+        document.getElementById("name").value = tdNameValue;
+        document.getElementById("price").value = tdPriceValue;
+        
+      
+        document.getElementById("myModal").style.display = "block";
+      });
+    </script>
+    
+    <script>
+  // Function to show or hide tables based on the selected categories
+  function filterCategories() {
+    var checkboxes = document.querySelectorAll('input[name="category"]');
+    checkboxes.forEach(function(checkbox) {
+      var category = checkbox.value;
+      var table = document.getElementById('tbl-' + category);
+      if (checkbox.checked) {
+        table.style.display = 'table';
+      } else {
+        table.style.display = 'none';
+      }
+    });
+  }
+
+  // Add event listener to the checkboxes
+  var checkboxes = document.querySelectorAll('input[name="category"]');
+  checkboxes.forEach(function(checkbox) {
+    checkbox.addEventListener('change', filterCategories);
+  });
+</script>
+    
+    {% endblock %}

@@ -142,59 +142,59 @@
     }
 
     /* Style for the beer table */
-#beer table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 0 auto;
-  max-width: 800px;
-}
+    #beer table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 auto;
+    max-width: 800px;
+    }
 
-/* Style for the beer table header */
-#beer th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-  text-align: left;
-  padding: 12px;
-}
-
-/* Style for the beer table rows */
-#beer td {
-  border: 1px solid #ddd;
-  text-align: left;
-  padding: 12px;
-}
-
-/* Style for the beer table alternate rows */
-#beer tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-/* Style for the beer table hover */
-#beer tr:hover {
-  background-color: #ddd;
-}
-
-/* Style for the beer table header on mobile */
-@media only screen and (max-width: 600px) {
-  #beer th {
-    display: none;
-  }
-  
-  #beer td {
-    display: block;
-    text-align: right;
-  }
-  
-  #beer td::before {
-    content: attr(data-label);
+    /* Style for the beer table header */
+    #beer th {
+    background-color: #f2f2f2;
     font-weight: bold;
     text-align: left;
-    display: inline-block;
-    width: 100px;
-    margin-right: 10px;
-  }
-  
-}
+    padding: 12px;
+    }
+
+    /* Style for the beer table rows */
+    #beer td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 12px;
+    }
+
+    /* Style for the beer table alternate rows */
+    #beer tr:nth-child(even) {
+    background-color: #f2f2f2;
+    }
+
+    /* Style for the beer table hover */
+    #beer tr:hover {
+    background-color: #ddd;
+    }
+
+    /* Style for the beer table header on mobile */
+    @media only screen and (max-width: 600px) {
+    #beer th {
+        display: none;
+    }
+    
+    #beer td {
+        display: block;
+        text-align: right;
+    }
+    
+    #beer td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        text-align: left;
+        display: inline-block;
+        width: 100px;
+        margin-right: 10px;
+    }
+    
+    }
 
 
 

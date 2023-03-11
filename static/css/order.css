@@ -1,0 +1,48 @@
+/* Style the tables */
+table[id^="tbl-"] {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table[id^="tbl-"] th,
+  table[id^="tbl-"] td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  table[id^="tbl-"] th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  table[id^="tbl-"] td {
+    background-color: #fff;
+  }
+  
+  table[id^="tbl-"] td:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  table[id^="tbl-"] a {
+    color: #333;
+  }
+  
+  table[id^="tbl-"] a:hover {
+    text-decoration: none;
+  }
+  
+  /* Style the filter checkboxes */
+  .filter-group {
+    margin-bottom: 20px;
+  }
+  
+  .filter-group label {
+    margin-right: 10px;
+  }
+  
+  .filter-group input[type="checkbox"] {
+    margin-right: 5px;
+  }
+  

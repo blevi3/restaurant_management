@@ -261,7 +261,9 @@ class test(TemplateView):
 def items_list(request):
     item_list = Menuitem.objects.all()
     if request.method == 'POST':
-    
+        categories = item_list.values_list('category', flat=True).distinct()
+        print(categories)
+
         if 'edit' in request.POST:
             print("edit")
             item = get_object_or_404(Menuitem, pk=request.POST['editItemID'])
@@ -285,7 +287,8 @@ def items_list(request):
                 type = newtype,
                 category = request.POST.get('category')
             )
-    return render(request, 'data.html', {'item_list': item_list})
+            
+    return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
 
 
 def register_request(request):
