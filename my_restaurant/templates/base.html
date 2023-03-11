@@ -19,9 +19,12 @@
     <!-- This is how to include a static file -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
     <link rel="stylesheet" href="{% static 'css/home.css' %}" type="text/css" />
-    <link rel="stylesheet" href="{% static 'css/dropdown.css' %}" type="text/css" />
-    <link rel="stylesheet" href="/static/css/order.css" type="text/css">
-
+    <link
+      rel="stylesheet"
+      href="{% static 'css/dropdown.css' %}"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/static/css/order.css" type="text/css" />
 
     <link
       rel="stylesheet"
@@ -43,35 +46,80 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script type="text/javascript" src="{% static 'css/scripts.js' %}"></script>
   </head>
   <body>
     <header>
-      <nav class="navibar navbar-expand-lg navbar-dark bg-dark">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="{% url 'home' %}">Home</a>
-        <button id="lenyilo_menu" class="navbar-toggler" type="button" data-toggle="collapse"
-          data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
-          onclick="toggler()">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav" style="display: none">
-          <ul class="navbar-nav">
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mr-auto">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdownMenuLink"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
                 Menu
               </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item{% if request.path == '/drinks/' %} active{% endif %}" href="{% url 'drinks' %}">Drinks</a>
-                <a class="dropdown-item{% if request.path == '/menu/' %} active{% endif %}" href="{% url 'menu' %}">Food</a>
+              <div
+                class="dropdown-menu"
+                aria-labelledby="navbarDropdownMenuLink"
+              >
+                <a
+                  class="dropdown-item{% if request.path == '/drinks/' %} active{% endif %}"
+                  href="{% url 'drinks' %}"
+                  >Drinks</a
+                >
+                <a
+                  class="dropdown-item{% if request.path == '/menu/' %} active{% endif %}"
+                  href="{% url 'menu' %}"
+                  >Food</a
+                >
                 {% if user.is_authenticated %}
-                <a class="dropdown-item{% if request.path == '/order/' %} active{% endif %}" href="{% url 'order' %}">Order</a>
+                <a
+                  class="dropdown-item{% if request.path == '/order/' %} active{% endif %}"
+                  href="{% url 'order' %}"
+                  >Order</a
+                >
                 {% endif %}
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link{% if request.path == '/about/' %} active{% endif %}" href="{% url 'about' %}">About</a>
+              <a
+                class="nav-link{% if request.path == '/about/' %} active{% endif %}"
+                href="{% url 'about' %}"
+                >About</a
+              >
             </li>
             {% if request.user.is_staff %}
             <li class="nav-item">
@@ -81,29 +129,71 @@
               <a class="nav-link" href="/all_orders">Orders</a>
             </li>
             {% endif %}
+          </ul>
+
+          <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'cart' %}">Cart</a>
             </li>
+
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'previous_orders' %}">Previous Orders</a>
+              <a class="nav-link" href="{% url 'date_selection' %}"
+                >Reservation</a
+              >
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'date_selection' %}">Reservation</a>
+
+
+
+
+            {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdownMenuLink"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Profile
+              </a>
+              <div
+                class="dropdown-menu"
+                aria-labelledby="navbarDropdownMenuLink"
+              >
+
+                <a
+                  class="dropdown-item{% if request.path == '/previous_orders/' %} active{% endif %}"
+                  href="{% url 'previous_orders' %}"
+                  >previous_orders</a
+                >
+                
+                <a
+                  class="dropdown-item{% if request.path == '/order/' %} active{% endif %}"
+                  href="{% url 'order' %}"
+                  >Reservations</a
+                >
+
+                  <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+
+                {% endif %}
+                {% else %}
+                
+                  <a class="nav-link" href="{% url 'login' %}">Login</a>
+              </div>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
+
+
+            
             {% endif %}
+
+
+
           </ul>
         </div>
       </nav>
-      
-      
     </header>
 
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}

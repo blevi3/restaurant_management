@@ -162,7 +162,7 @@ def add_to_cart(request, item_id):
             cart_item.final_price = item.price
             cart_item.save()
     
-    return redirect('data')
+    return redirect('order')
 
 def cart(request):
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
