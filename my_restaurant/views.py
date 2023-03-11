@@ -260,8 +260,9 @@ class test(TemplateView):
 
 def items_list(request):
     item_list = Menuitem.objects.all()
+    categories = item_list.values_list('category', flat=True).distinct()
     if request.method == 'POST':
-        categories = item_list.values_list('category', flat=True).distinct()
+        
         print(categories)
 
         if 'edit' in request.POST:
