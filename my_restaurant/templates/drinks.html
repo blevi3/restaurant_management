@@ -97,6 +97,107 @@
         text-shadow: 2px 2px #eee;
         text-align: center;
     }
+
+
+
+
+
+    /* Wine menu */
+    #wine {
+      
+      
+      padding: 30px;
+    }
+  
+    #wine h3 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+  
+    #wine table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      width: 100%;
+    }
+  
+    #wine th,
+    #wine td {
+      border: 2px solid #f7d68f;
+      padding: 10px;
+      text-align: center;
+    }
+  
+    #wine th {
+      font-size: 20px;
+    }
+  
+    #wine td {
+      font-size: 18px;
+    }
+  
+    /* Cocktail menu */
+    #cocktail {
+      background-color: #fff;
+      padding: 30px;
+    }
+
+    /* Style for the beer table */
+#beer table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+/* Style for the beer table header */
+#beer th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  text-align: left;
+  padding: 12px;
+}
+
+/* Style for the beer table rows */
+#beer td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 12px;
+}
+
+/* Style for the beer table alternate rows */
+#beer tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Style for the beer table hover */
+#beer tr:hover {
+  background-color: #ddd;
+}
+
+/* Style for the beer table header on mobile */
+@media only screen and (max-width: 600px) {
+  #beer th {
+    display: none;
+  }
+  
+  #beer td {
+    display: block;
+    text-align: right;
+  }
+  
+  #beer td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    display: inline-block;
+    width: 100px;
+    margin-right: 10px;
+  }
+  
+}
+
+
+
 </style>
 
 
@@ -127,7 +228,7 @@
   
     <div id="wine" class="tabcontent">
       <h3>Wine</h3>
-      <table>
+      <table  id="wine-table">
         <tr>
           <th>Drink</th>
           <th>Price</th>
@@ -168,5 +269,38 @@
         </div>
     </div>
   </div>
+
+  <script>
+    // Add a search bar to the wine table
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Search wine...";
+    searchInput.addEventListener("input", function() {
+      const filter = this.value.toUpperCase();
+      const rows = document.querySelectorAll("#wine-table tbody tr");
+      rows.forEach(function(row) {
+        const name = row.cells[0].textContent.toUpperCase();
+        if (name.includes(filter)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+    const wineTable = document.getElementById("wine-table");
+    wineTable.parentNode.insertBefore(searchInput, wineTable);
+  
+    // Add a button to reset the wine table
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "Reset";
+    resetButton.addEventListener("click", function() {
+      searchInput.value = "";
+      const rows = document.querySelectorAll("#wine-table tbody tr");
+      rows.forEach(function(row) {
+        row.style.display = "";
+      });
+    });
+    wineTable.parentNode.insertBefore(resetButton, wineTable);
+  </script>
 
 {% endblock %}
