@@ -1,3 +1,16 @@
+.home{
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #031D44;
+    padding: 20px 0px;
+    margin: 0px 20px;
+    display: inline-block;
+    position: relative;
+    color:#fff;
+    opacity: 0.75;
+}
 .navbar {
     background-color: #343a40;
     font-family: 'Open Sans', sans-serif;
@@ -29,7 +42,7 @@
   }
   
   .dropdown-menu {
-    background-color: #343a40;
+    background-color: #343a40 !important;
     border: none;
     border-radius: 0;
     padding: 0;
@@ -40,6 +53,7 @@
     font-size: 1.2rem;
     padding: 0.5rem 1rem;
     transition: all 0.3s ease-in-out;
+    background-color: #343a40 !important;
   }
   
   .dropdown-item:hover {

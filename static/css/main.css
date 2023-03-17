@@ -222,7 +222,8 @@ p {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   background-color: #fff;
-  height: 27em;
+  height: 30em;
+  width: 20em;
 }
 .card img {
   width: 100%;

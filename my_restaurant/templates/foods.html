@@ -2,7 +2,7 @@
 
 {% block pagecontent %}
 
-<div id="cocktails" class="tabcontent foodcontent">
+<div id="foods" class="tabcontent foodcontent">
     <div class="section">
         <div class="row">
             {% for food in foods %}
@@ -14,6 +14,7 @@
                         <h3 class="card-title">{{food.name}}</h3>
                         <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non felis eget urna sodales feugiat at vel urna. Suspendisse potenti.</p>
                     </div>
+                    <br>
                     <p class="price">{{food.price}} </p>
                 </div>
             </div>
