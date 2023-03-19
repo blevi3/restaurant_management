@@ -12,6 +12,21 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, time, timedelta, date
 from django.utils import timezone
 
+
+@login_required
+def all_reservations(request):
+    reservations = Reservation.objects.filter(end_time__gt=timezone.now())
+    return render(request, 'all_reservations.html', {'reservations': reservations})
+
+@login_required
+def my_reservations(request):
+    user_reservations = Reservation.objects.filter(user=request.user)
+    now = timezone.now()
+    print(now)
+    return render(request, 'my_reservations.html', {'reservations': user_reservations, 'now': now})
+
+
+
 @login_required
 def date_selection(request):
     

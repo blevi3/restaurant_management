@@ -1,0 +1,62 @@
+{% extends "base.html" %} {% block pagecontent %}
+<html>
+<head>
+	<title>All Reservations</title>
+	<style type="text/css">
+
+		table {
+			margin: 20px auto;
+			border-collapse: collapse;
+			width: 80%;
+			box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+			background-color: #fff;
+		}
+
+		th, td {
+			padding: 10px;
+			border: 1px solid #ddd;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+
+		th {
+			background-color: #4CAF50;
+			color: #fff;
+		}
+
+		td:nth-child(1), td:nth-child(2) {
+			font-weight: bold;
+		}
+
+		td:nth-child(2) {
+			color: #666;
+		}
+	</style>
+</head>
+<body>
+	<h1>All Reservations</h1>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Start Time</th>
+			<th>End Time</th>
+			<th>Party Size</th>
+			<th>Table ID</th>
+		</tr>
+		{% for reservation in reservations %}
+			<tr>
+				<td>{{ reservation.name }}</td>
+				<td>{{ reservation.email }}</td>
+                <td>{{ reservation.start_time|date:"F d, Y, H:i" }}</td>
+				<td>{{ reservation.end_time|date:"F d, Y, H:i" }}</td>
+				<td>{{ reservation.party_size }}</td>
+				<td>{{ reservation.table_id }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+</body>
+</html>
+{% endblock %}

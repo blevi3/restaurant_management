@@ -22,6 +22,8 @@ urlpatterns = [
     path('register', views.register_request, name="register"),
     path('drinks', views.drinks, name='drinks'),
     path('menu', views.menu, name='menu'),
+    path('all_reservations', views.all_reservations, name = "all_reservations"),
+    path('my_reservations', views.my_reservations, name = "my_reservations"),
 
    
 

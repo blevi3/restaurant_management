@@ -1,0 +1,113 @@
+{% extends 'base.html' %} 
+{% load humanize %} 
+{% block pagecontent %}
+
+<html>
+<head>
+    <title>My Reservations</title>
+    <style type="text/css">
+		table {
+			margin: 20px auto;
+			border-collapse: collapse;
+			width: 80%;
+			box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+			background-color: #fff;
+		}
+
+		th, td {
+			padding: 10px;
+			border: 1px solid #ddd;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+
+		th {
+			background-color: #4CAF50;
+			color: #fff;
+		}
+
+		td:nth-child(1), td:nth-child(2) {
+			font-weight: bold;
+		}
+
+		td:nth-child(2) {
+			color: #666;
+		}
+        .current-reservations {
+            margin-bottom: 20px;
+        }
+
+        .past-reservations {
+            margin-top: 20px;
+        }
+
+        
+	</style>
+</head>
+<body>
+    <div class="current-reservations">
+        <h2>Current Reservations</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Reservation Name</th>
+                    <th>Table ID</th>
+                    <th>Party Size</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in reservations %}
+                <tr>
+                    {% if reservation.start_time > now and reservation.end_time > now %}
+                    <td>{{ reservation.name }}</td>
+                    <td>{{ reservation.table_id }}</td>
+                    <td>{{ reservation.party_size }}</td>
+                    <td>{{ reservation.start_time|date:"M d, Y, H:i A" }}</td>
+                    <td>{{ reservation.end_time|date:"M d, Y, H:i A" }}</td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">You have no current reservations.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="past-reservations">
+        <h2>Past Reservations</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Reservation Name</th>
+                    <th>Table ID</th>
+                    <th>Party Size</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in reservations %}
+                <tr>
+                    {% if reservation.start_time < now and reservation.end_time < now %}
+                    <td>{{ reservation.name }}</td>
+                    <td>{{ reservation.table_id }}</td>
+                    <td>{{ reservation.party_size }}</td>
+                    <td>{{ reservation.start_time|date:"M d, Y, H:i A" }}</td>
+                    <td>{{ reservation.end_time|date:"M d, Y, H:i A" }}</td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">You have no past reservations.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endblock %}

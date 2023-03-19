@@ -36,6 +36,7 @@ class Table(models.Model):
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 class Reservation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(blank=True, null=True)
