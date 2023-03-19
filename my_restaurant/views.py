@@ -12,8 +12,22 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, time, timedelta, date
 from django.utils import timezone
 
+from django.contrib.auth.decorators import user_passes_test
 
-@login_required
+def staff_member_required(view_func):
+    """
+    Decorator that checks if a user is a staff member or not. If not, redirect to login page.
+    """
+    actual_decorator = user_passes_test(
+        lambda u: u.is_active and u.is_staff,
+        login_url='/accounts/login/',
+        redirect_field_name='next'
+    )
+    return actual_decorator(view_func)
+
+
+
+@staff_member_required
 def all_reservations(request):
     reservations = Reservation.objects.filter(end_time__gt=timezone.now())
     return render(request, 'all_reservations.html', {'reservations': reservations})
@@ -69,7 +83,7 @@ def available_tables(request):
 
     return render(request, 'available_tables.html', {'tables': tables,  'date': date1, })
 
-
+@login_required
 def get_available_times(date1, table):
     
     reserved_times = Reservation.objects.filter(start_time__date=date1, table=table).order_by('start_time')
@@ -141,7 +155,6 @@ def reservation_table(request, table_id, date1):
 
     return render(request, 'reservation_table.html', {'table': table,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values})
 
-
 def drinks(request):
     drinks = Menuitem.objects.all().filter(type = 0)  
     return render(request, 'drinks.html', {'drinks': drinks})
@@ -149,10 +162,6 @@ def drinks(request):
 def menu(request):
     foods = Menuitem.objects.all().filter(type = 1)
     return render(request, 'foods.html', {'foods': foods})
-
-
- 
-
 
 
 @login_required()
@@ -178,7 +187,7 @@ def add_to_cart(request, item_id):
             cart_item.save()
     
     return redirect('order')
-
+@login_required
 def cart(request):
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     cart_items = {}
@@ -191,13 +200,12 @@ def cart(request):
         cart.amount_to_be_paid = final_price
         cart.save()
     return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id})
-
-
+@login_required
 def previous_orders(request):
     previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
     print(previous_carts)
     return render(request, 'previous_orders.html', {'previous_carts': previous_carts})
-
+@login_required
 def remove_from_cart(request, cart_item_id):
     print(cart_item_id)
     
@@ -213,23 +221,21 @@ def remove_from_cart(request, cart_item_id):
         else:
             cart_item.delete()
     return redirect(reverse('cart'))
-
-
+@login_required
 def trash_item(request, cart_item_id):
     cart_item = CartItem.objects.get(id=cart_item_id)
     cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
     if cart:
         cart_item.delete()
     return redirect(reverse('cart'))
-
+@login_required
 def empty_cart(request):
 
     cart = Cart.objects.filter(user = request.user ,ordered=0)
     if cart:
         cart.delete()
     return redirect(reverse('cart'))
-
-
+@login_required
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
@@ -243,17 +249,18 @@ def add_to_cart_from_cart(request, item_id):
         print(cart_item.quantity)
     return redirect('cart')
 
+@staff_member_required
 def all_orders(request):
     
     ordered_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 0)
     return render(request, 'all_orders.html', {'carts': ordered_carts})
-
+@staff_member_required
 def cart_paid(request, id):
     cart = Cart.objects.get(pk = id)
     cart.is_delivered = 1
     cart.save()
     return redirect('all_orders')
-    
+@login_required  
 def order(request, id):
     cart = Cart.objects.get(pk = id)
     cart.ordered = 1
@@ -305,7 +312,6 @@ def items_list(request):
             )
             
     return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
-
 
 def register_request(request):
 	if request.method == "POST":
