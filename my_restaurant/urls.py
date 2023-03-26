@@ -3,6 +3,7 @@
 from my_restaurant import views
 from django.urls import path, include
 
+
 urlpatterns = [
     
     path('about', views.AboutPageView.as_view(), name='about'),
@@ -25,10 +26,9 @@ urlpatterns = [
     path('all_reservations', views.all_reservations, name = "all_reservations"),
     path('my_reservations', views.my_reservations, name = "my_reservations"),
 
-   
-
-
     path('date_selection/', views.date_selection, name='date_selection'),
     path('available_tables/', views.available_tables, name='available_tables'),
     path('reservation/<int:table_id>/<str:date1>', views.reservation_table, name='reservation_table'),
+
+    path('password_reset/', views.password_reset_request, name="password_reset"),
 ]
