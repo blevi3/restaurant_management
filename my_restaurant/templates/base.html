@@ -64,11 +64,6 @@
   <body>
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-
-
-
-
-        
         <button
           class="navbar-toggler"
           type="button"
@@ -83,8 +78,9 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item" >
-              <a style="font-size: 1.8rem;"
+            <li class="nav-item">
+              <a
+                style="font-size: 1.8rem"
                 class="nav-link"
                 href="{% url 'home' %}"
                 >Home</a
@@ -157,9 +153,6 @@
               >
             </li>
 
-
-
-
             {% if user.is_authenticated %}
             <li class="nav-item dropdown">
               <a
@@ -171,41 +164,39 @@
                 aria-haspopup="true"
                 aria-expanded="false"
               >
-                Profile
+                Account
               </a>
               <div
                 class="dropdown-menu"
                 aria-labelledby="navbarDropdownMenuLink"
               >
-
+                <a
+                  class="dropdown-item{% if request.path == '/previous_orders/' %} active{% endif %}"
+                  href="{% url 'profile' %}"
+                  >Profile</a
+                >
                 <a
                   class="dropdown-item{% if request.path == '/previous_orders/' %} active{% endif %}"
                   href="{% url 'previous_orders' %}"
                   >previous_orders</a
                 >
-                
+
                 <a
                   class="dropdown-item{% if request.path == '/order/' %} active{% endif %}"
                   href="{% url 'my_reservations' %}"
                   >Reservations</a
                 >
 
-                  <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 
-                {% endif %}
-                {% else %}
-                
-                  <a class="nav-link" href="{% url 'login' %}">Login</a>
-                  <a class="nav-link" href="{% url 'register' %}">Register</a>
+                {% endif %} {% else %}
+
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-link" href="{% url 'register' %}">Register</a>
               </div>
             </li>
 
-
-            
             {% endif %}
-
-
-
           </ul>
         </div>
       </nav>

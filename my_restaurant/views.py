@@ -1,11 +1,11 @@
 # djangotemplates/example/views.py
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import TemplateView # Import TemplateView
-from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm
+from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
-from .models import Menuitem, Cart, CartItem, Table, Reservation
+from .models import Menuitem, Cart, CartItem, Table, Reservation, Profile
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -37,6 +37,27 @@ def staff_member_required(view_func):
     return actual_decorator(view_func)
 
 
+
+
+from django.contrib.auth.decorators import login_required
+from .forms import UserUpdateForm
+from .models import Profile
+
+@login_required
+def profile(request):
+    user_profile = Profile.objects.get(user=request.user)
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        if user_form.is_valid() :
+            user_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('profile')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+    context = {
+        'user_form': user_form,
+    }
+    return render(request, 'profile.html', context)
 
 
 def password_reset_request(request):
@@ -354,15 +375,19 @@ def items_list(request):
             
     return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
 
-def register_request(request):
-	if request.method == "POST":
-		form = NewUserForm(request.POST)
-		if form.is_valid():
-			user = form.save()
-			login(request, user)
-			messages.success(request, "Registration successful." )
-			return redirect("home")
-		messages.error(request, "Unsuccessful registration. Invalid information.")
-	form = NewUserForm()
-	return render (request=request, template_name="registration/register.html", context={"register_form":form})
+
     
+def register_request(request):
+    if request.method == "POST":
+        form = NewUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}!')
+            profile = Profile.objects.create(user=user)
+            login(request, user)
+            messages.success(request, "Registration successful." )
+            return redirect("home")
+        messages.error(request, "Unsuccessful registration. Invalid information.")
+    form = NewUserForm()
+    return render(request=request, template_name="registration/register.html", context={"register_form":form})

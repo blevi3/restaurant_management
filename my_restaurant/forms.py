@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Menuitem, Reservation
+from .models import Menuitem, Reservation, Profile
 
 class NewUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)
@@ -113,3 +113,14 @@ class ReservationForm(forms.ModelForm):
             self.fields['endtime'].choices = available_times
 
 	
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['username', 'email']
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']

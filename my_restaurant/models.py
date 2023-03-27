@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+User._meta.get_field('email')._unique = True
+User._meta.get_field('username')._unique = True
 # Create your models here.
 class Menuitem(models.Model):
     name = models.CharField(max_length=100)
@@ -51,7 +54,12 @@ class Reservation(models.Model):
         return f"{self.name} at Table {self.table} ({self.start_time.strftime('%Y-%m-%d %H:%M')})"
     
 
-
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=30)
+    email = models.EmailField(max_length=254)
+    def __str__(self):
+        return self.user.username, self.user.email
 
 
 
