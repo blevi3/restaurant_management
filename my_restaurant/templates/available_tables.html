@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
 
 {% block pagecontent %}
+<link rel="stylesheet" href="/static/css/table_select.css" type="text/css" />
+
+<div class="table-select">
     <h1>Available Tables for {{ date }}</h1>
-    {% if tables %}
-        <ul>
-            {% for table in tables %}
-                <li><a href="{% url 'reservation_table' table.id date %}">{{ table }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No tables available for this date.</p>
-    {% endif %}
+    <div class="container">
+      <div class="room">
+        {% if tables %}
+          {% for table in tables %}
+            <a href="{% url 'reservation_table' table.id date %}" class="table" style="width: {% widthratio table.max_capacity 1 40 %}px;">{{ table }}</a>
+          {% endfor %}
+        {% else %}
+          <p>No tables available for this date.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+      
+      
 {% endblock %}
