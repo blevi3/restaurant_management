@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block pagecontent %}
+<link rel="stylesheet" href="/static/css/table_select.css" type="text/css" />
+
+<div class="table_select">
+  {% if date %}
+    <div class="title">
+      <h1>Available Tables for {{ date }}</h1>
+    </div>
+  {% else %}
+    <div class="title">
+      <h1>Select a date:</h1>
+    </div>
+  {% endif %}
+
+  {% if error_message %}
+    <p>{{ error_message }}</p>
+  {% endif %}
+
+  <div class="form">
+    <form method="POST" action="{% url 'available_tables' %}">
+      {% csrf_token %}
+      {{ form.date.as_hidden }}
+      <input type="date" name="date" value="{{date}}">
+      <button type="submit">Select</button>
+    </form>
+  </div>
+
+  <div class="container">
+    <div class="room">
+      {% for table in tables %}
+        <a href="{% url 'reservation_table' table.id date %}" class="table" style="width: {% widthratio table.max_capacity 1 40 %}px;">{{ table }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

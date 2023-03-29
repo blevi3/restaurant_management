@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Menuitem, Reservation, Profile
+from datetime import date
 
 class NewUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)
@@ -41,6 +42,11 @@ class NewItemForm(forms.ModelForm):
 
 class DateSelectionForm(forms.Form):
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    def clean_date(self):
+        selected_date = self.cleaned_data['date']
+        if selected_date < date.today():
+            raise forms.ValidationError("Please select a date in the future")
+        return selected_date
 
 
 from django.forms.widgets import TimeInput
@@ -102,8 +108,6 @@ class ReservationForm(forms.ModelForm):
         model = Reservation
         fields = ('party_size', 'name', 'email', 'starttime', 'endtime')
         
-
-	
 
     def __init__(self, *args, **kwargs):
         available_times = kwargs.pop('available_times', None)

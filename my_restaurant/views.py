@@ -91,18 +91,25 @@ def password_reset_request(request):
 
 @staff_member_required
 def all_reservations(request):
-    reservations = Reservation.objects.filter(end_time__gt=timezone.now())
+    reservations = Reservation.objects.filter(end_time__gt=timezone.now()).order_by('start_time')
     return render(request, 'all_reservations.html', {'reservations': reservations})
+
 
 @login_required
 def my_reservations(request):
-    user_reservations = Reservation.objects.filter(user=request.user)
     now = timezone.now()
-    print(now)
-    return render(request, 'my_reservations.html', {'reservations': user_reservations, 'now': now})
+    reservations = Reservation.objects.filter(user=request.user)
+    current_reservations = sorted(reservations.filter(start_time__gte=now), key=lambda r: r.start_time)
+    past_reservations = sorted(reservations.filter(end_time__lt=now), key=lambda r: r.start_time, reverse=True)
+    context = {
+        'reservations': reservations,
+        'now': now,
+        'current_reservations': current_reservations,
+        'past_reservations': past_reservations
+    }
+    return render(request, 'my_reservations.html', context)
 
-
-
+'''
 @login_required
 def date_selection(request):
     
@@ -126,16 +133,6 @@ def available_tables(request):
         date1 = date.today()
     
     tables = Table.objects.all()
-    '''reserved_tables = Reservation.objects.filter(start_time__date=date1).values_list('table_id', flat=True)
-    available_tables = tables.exclude(id__in=reserved_tables)
-    print(available_tables)
-    table_times = {}
-    for table in available_tables:
-        
-        reserved_times = Reservation.objects.filter(table=table, start_time__date=date1).order_by('start_time').values_list('start_time', 'end_time')
-        available_times = get_available_times(date1, table)
-        table_times[table.id] = available_times'''
-    
     reserved = {}
     for table in tables:
         reserv = Reservation.objects.all().filter(table_id = table.id)
@@ -144,6 +141,45 @@ def available_tables(request):
     print(reserved)
 
     return render(request, 'available_tables.html', {'tables': tables,  'date': date1, })
+'''
+
+from django.core.exceptions import ValidationError
+from datetime import timedelta
+
+@login_required
+def available_tables(request):
+    if request.method == 'POST':
+        form = DateSelectionForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            # populate form with selected date
+            form = DateSelectionForm(initial={'date': date})
+            # check selected date is not too far in the future
+            max_future_days = 60
+            if date > date.today() + timedelta(days=max_future_days):
+                raise ValidationError('Selected date is too far in the future')
+        else:
+            date = None
+    else:
+        form = DateSelectionForm()
+        date = None
+
+    if date:
+        tables = Table.objects.all()
+        reserved = {}
+        for table in tables:
+            reserv = Reservation.objects.all().filter(table_id=table.id)
+
+            reserved[table.id] = reserv
+
+        return render(request, 'reservation.html', {'tables': tables, 'date': date, 'form': form})
+    else:
+        return render(request, 'reservation.html', {'form': form})
+
+
+
+
+  
 
 @login_required
 def get_available_times(date1, table):

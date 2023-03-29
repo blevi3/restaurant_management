@@ -60,15 +60,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for reservation in reservations %}
+                {% for reservation in current_reservations %}
                 <tr>
-                    {% if reservation.start_time > now and reservation.end_time > now %}
                     <td>{{ reservation.name }}</td>
                     <td>{{ reservation.table_id }}</td>
                     <td>{{ reservation.party_size }}</td>
                     <td>{{ reservation.start_time|date:"M d, Y, H:i A" }}</td>
                     <td>{{ reservation.end_time|date:"M d, Y, H:i A" }}</td>
-                    {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
@@ -93,15 +91,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for reservation in reservations %}
+                {% for reservation in past_reservations %}
                 <tr>
-                    {% if reservation.start_time < now and reservation.end_time < now %}
                     <td>{{ reservation.name }}</td>
                     <td>{{ reservation.table_id }}</td>
                     <td>{{ reservation.party_size }}</td>
                     <td>{{ reservation.start_time|date:"M d, Y, H:i A" }}</td>
                     <td>{{ reservation.end_time|date:"M d, Y, H:i A" }}</td>
-                    {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
@@ -110,4 +106,6 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    
         {% endblock %}
