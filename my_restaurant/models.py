@@ -18,6 +18,7 @@ class Cart(models.Model):
     amount_to_be_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     ordered = models.BooleanField(default=0)
     is_delivered = models.BooleanField(default=0)
+    is_paid = models.BooleanField(default=False)
 
 
 class CartItem(models.Model):

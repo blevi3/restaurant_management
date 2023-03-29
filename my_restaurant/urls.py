@@ -18,8 +18,10 @@ urlpatterns = [
     path('empty_cart/', views.empty_cart, name='empty_cart'),
     path('add/<int:item_id>', views.add_to_cart_from_cart, name='add_to_cart_from_cart'),
     path('all_orders/', views.all_orders, name='all_orders'),
-    path('cart_paid/<int:id>', views.cart_paid, name='cart_paid'),
+    path('cart_delivered/<int:id>', views.cart_delivered, name='cart_delivered'),
     path('order/<int:id>', views.order, name='order'),
+    path('order_paid_admin/<int:id>', views.order_paid_admin, name='order_paid_admin'),
+    path('order_paid/<int:id>', views.order_paid, name='order_paid'),
     path('accounts/register', views.register_request, name="register"),
     path('drinks', views.drinks, name='drinks'),
     path('menu', views.menu, name='menu'),
@@ -30,8 +32,9 @@ urlpatterns = [
     #path('available_tables/', views.available_tables, name='available_tables'),
     path('tables/', views.available_tables, name='available_tables'),
     path('reservation/<int:table_id>/<str:date1>', views.reservation_table, name='reservation_table'),
-
     path('password_reset/', views.password_reset_request, name="password_reset"),
-
     path('profile/', views.profile, name='profile'),
+
+    path('payment/', views.payment, name='payment'),
+    path('payment_success/', views.payment_success, name='payment_success'),
 ]

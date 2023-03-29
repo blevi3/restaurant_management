@@ -1,13 +1,54 @@
 {% extends 'base.html' %}
 
 {% block pagecontent %}
+
+<div class="container my-5">
+  <h2 class="my-3">Paid Orders</h2>
+  {% for cart in paid_carts %}
+    <h3 class="my-3">Order for {{ cart.user.username }}</h3>
+
+  <a href="{% url 'cart_delivered' cart.id %}">
+    <button  class="btn btn-primary" onclick="return confirm('Are you sure?');">Order delivered</button>
+</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart.cartitem_set.all %}
+          <tr>
+            <td>{{ item.item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.item.price }}</td>
+            <td>{{ item.final_price }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p>Total: {{cart.amount_to_be_paid}}</p>
+    <br>
+  {% endfor %}
+</div>
+
+
+
+
+
   <div class="container my-5">
-    <h1 class="text-center">All Orders</h1>
-    {% for cart in carts %}
+    <h2 class="my-3">Unpaid Orders</h2>
+    {% for cart in unpaid_carts %}
       <h2 class="my-3">Order for {{ cart.user.username }}</h2>
-      <a href="{% url 'cart_paid' cart.id %}">
+      <a href="{% url 'order_paid_admin' cart.id %}">
         <button  class="btn btn-danger" onclick="return confirm('Are you sure?');">Cart paid</button>
     </a>
+    <a href="{% url 'cart_delivered' cart.id %}">
+      <button  class="btn btn-primary" onclick="return confirm('Are you sure?');">Order delivered</button>
+  </a>
       <table class="table table-striped">
         <thead>
           <tr>
@@ -32,4 +73,11 @@
       <br>
     {% endfor %}
   </div>
+
+
+
+
+
+
+  
 {% endblock %}

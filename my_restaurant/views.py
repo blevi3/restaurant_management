@@ -39,6 +39,44 @@ def staff_member_required(view_func):
 
 
 
+
+import stripe
+from django.conf import settings
+stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+@login_required
+def payment(request):
+    if request.method == 'POST':
+        amount = 1000 # amount in cents
+        email = request.POST['email']
+        token = request.POST['stripeToken']
+        try:
+            customer = stripe.Customer.create(
+                email=email,
+                source=token
+            )
+            charge = stripe.Charge.create(
+                amount=amount,
+                currency='usd',
+                customer=customer.id,
+                description='Example charge'
+            )
+            # do something after successful payment
+            return render(request, 'payment_success.html')
+        except stripe.error.CardError as e:
+            # handle errors
+            pass
+    context = {
+        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY
+    }
+    return render(request, 'payment.html', context)
+
+def payment_success(request):
+    return render(request, 'payment_success.html')
+
+
+
+
+
 from django.contrib.auth.decorators import login_required
 from .forms import UserUpdateForm
 from .models import Profile
@@ -178,9 +216,6 @@ def available_tables(request):
 
 
 
-
-  
-
 @login_required
 def get_available_times(date1, table):
     
@@ -297,7 +332,11 @@ def cart(request):
             final_price+=cart_item.quantity*cart_item.total_price
         cart.amount_to_be_paid = final_price
         cart.save()
-    return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id})
+    context = {
+        'final_price': final_price*100,  # assuming you have this variable in your view
+        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,  # replace with your actual publishable key
+    }
+    return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
 @login_required
 def previous_orders(request):
     previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
@@ -349,11 +388,18 @@ def add_to_cart_from_cart(request, item_id):
 
 @staff_member_required
 def all_orders(request):
-    
-    ordered_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 0)
-    return render(request, 'all_orders.html', {'carts': ordered_carts})
+    paid_carts = Cart.objects.filter(is_paid=True, is_delivered=False)
+    unpaid_carts = Cart.objects.filter(is_paid=False, is_delivered=False)
+    return render(request, 'all_orders.html', {'paid_carts': paid_carts, 'unpaid_carts': unpaid_carts})
+def order_paid_admin(request, id):
+    cart = Cart.objects.get(pk = id)
+    cart.ordered = 1
+    cart.is_paid = 1
+    cart.save()
+    return redirect('all_orders')
+
 @staff_member_required
-def cart_paid(request, id):
+def cart_delivered(request, id):
     cart = Cart.objects.get(pk = id)
     cart.is_delivered = 1
     cart.save()
@@ -365,6 +411,12 @@ def order(request, id):
     cart.save()
     return redirect('cart')
     
+def order_paid(request, id):
+    cart = Cart.objects.get(pk = id)
+    cart.ordered = 1
+    cart.is_paid = 1
+    cart.save()
+    return redirect('cart') 
     
 # Add the two views we have been talking about  all this time :)
 class HomePageView(TemplateView):
