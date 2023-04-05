@@ -294,7 +294,13 @@ def drinks(request):
 
 def menu(request):
     foods = Menuitem.objects.all().filter(type = 1)
-    return render(request, 'foods.html', {'foods': foods})
+    categories = []
+    for food in foods:
+        categories.append(food.category)
+    print(categories)
+
+
+    return render(request, 'foods.html', {'foods': foods, 'categories': categories})
 
 
 @login_required()
