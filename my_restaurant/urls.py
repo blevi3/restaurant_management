@@ -8,7 +8,7 @@ urlpatterns = [
     
     path('about', views.AboutPageView.as_view(), name='about'),
     path('order', views.items_list, name='order'),
-    path('', views.test.as_view(), name='home'),
+    path('', views.home.as_view(), name='home'),
     #path(r'^data/modify$', views.modifydata, name='data'),
     path('add_to_cart/<int:item_id>', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart, name='cart'),

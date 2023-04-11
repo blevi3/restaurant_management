@@ -35,6 +35,13 @@ nav {
     
 }
 
+.right{
+    padding-right: 2rem;
+    margin-left: auto;
+}
+#cssmenu{
+    width: 100%;
+}
 #cssmenu,
 #cssmenu ul,
 #cssmenu ul li,
@@ -49,6 +56,15 @@ nav {
     -moz-box-sizing: border-box;
     box-sizing: border-box
     
+}
+
+#cssmenu > ul:last-child {
+    float: right;
+}
+
+
+#cssmenu{
+    display: flex;
 }
 
 #cssmenu:after,
@@ -316,6 +332,10 @@ nav {
         padding: 0;
     }
 
+    .open{
+        padding-left: 0;
+    }
+
     #cssmenu>ul>li.has-sub>a:after,
     #cssmenu>ul>li.has-sub>a:before,
     #cssmenu ul ul>li.has-sub>a:after,
@@ -325,7 +345,10 @@ nav {
 
     #cssmenu #head-mobile {
         display: block;
-        padding: 23px;
+        
+        padding-left: 0;
+        padding-bottom: 23px;
+        padding-top: 23px;
         color: #ddd;
         font-size: 12px;
         font-weight: 700

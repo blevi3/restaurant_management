@@ -140,45 +140,47 @@
       <div class="button"></div>
       <ul>
       
-      <li class="active">
-        <a class="nav-link" href="{% url 'home' %}">Home </a>
-      </li>
-      <li><a href='#'>Menu</a>
-         <ul>
-          <li><a  href="{% url 'drinks' %}">Drinks</a></li>
-          <li><a  href="{% url 'menu' %}">Food</a></li>
-          {% if user.is_authenticated %}
-          <li><a  href="{% url 'order' %}">Order</a></li>
-          {% endif %} 
-            </li>
-         </ul>
-      </li>
-      <li><a href="{% url 'about' %}">About</a></li>
-      {% if request.user.is_staff %}
-      <li class="nav-item"><a  href="/admin">Admin</a></li>
-      <li><a href="/all_orders">Orders</a></li>
-      <li><a href="/all_reservations">All reservation</a></li>
-      {% endif %} 
-      {% if user.is_authenticated %}
-      <li><a href="{% url 'cart' %}">Cart</a></li>
-      <li><a href="{% url 'available_tables' %}">Reservation</a></li>
-      <li><a href='#'>Profile</a>
-        <ul>
-          <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
-          <li><a class="dropdown-item" href="{% url 'previous_orders' %}">previous_orders</a></li>
-          <li><a class="dropdown-item" href="{% url 'my_reservations' %}">Reservations</a></li>
-            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-        </ul>
-      </li>
-    {% else %}
-      <li><a href="{% url 'login' %}">Login</a></li>
-      <li><a href="{% url 'register' %}">Register</a></li>
+        <li class="active">
+          <a class="nav-link" href="{% url 'home' %}">Home </a>
+        </li>
+        <li><a href='#'>Menu</a>
+          <ul>
+            <li><a  href="{% url 'drinks' %}">Drinks</a></li>
+            <li><a  href="{% url 'menu' %}">Food</a></li>
+            {% if user.is_authenticated %}
+            <li><a  href="{% url 'order' %}">Order</a></li>
+            {% endif %} 
+              </li>
+          </ul>
+        </li>
+        <li><a href="{% url 'about' %}">About</a></li>
+        {% if request.user.is_staff %}
+        <li class="nav-item"><a  href="/admin">Admin</a></li>
+        <li><a href="/all_orders">Orders</a></li>
+        <li><a href="/all_reservations">All reservation</a></li>
+        {% endif %} 
+      </ul>
+      <ul class = "right">
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'cart' %}">Cart<span id="cart-count"></span></a></li>
+        <li><a href="{% url 'available_tables' %}">Reservation</a></li>
+        <li><a href='#'>Profile</a>
+          <ul>
+            <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'previous_orders' %}">previous_orders</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_reservations' %}">Reservations</a></li>
+              <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+          </ul>
+        </li>
+        {% else %}
+          <li><a href="{% url 'login' %}">Login</a></li>
+          <li><a href="{% url 'register' %}">Register</a></li>
 
-    {% endif %}
+        {% endif %}
       </ul>
       </nav>
     </header>
-      
+    
 
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
     <p>You are not logged in</p>

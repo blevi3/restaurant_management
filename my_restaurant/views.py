@@ -424,7 +424,6 @@ def order_paid(request, id):
     cart.save()
     return redirect('cart') 
     
-# Add the two views we have been talking about  all this time :)
 class HomePageView(TemplateView):
     template_name = "index.html"
 
@@ -432,7 +431,7 @@ class HomePageView(TemplateView):
 class AboutPageView(TemplateView):
     template_name = "about.html"
 
-class test(TemplateView):
+class home(TemplateView):
     template_name = "home.html"
 
 
