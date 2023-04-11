@@ -187,7 +187,7 @@ h1 {
   margin: 0;
   margin-bottom: 30px;
   color: #222;
-  text-shadow: 2px 2px #eee;
+  
 }
 h2 {
   font-size: 2rem;
@@ -259,6 +259,6 @@ p {
   font-size: 1.2rem;
   font-weight: bold;
   color: #222;
-  text-shadow: 2px 2px #eee;
+  
   text-align: center;
 }

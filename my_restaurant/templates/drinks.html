@@ -2,305 +2,241 @@
 
 {% block pagecontent %}
 
+  <style>
+    /* Main styles */
 
-<style type="text/css">
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-    }
+
     .container {
-        width: 100%;
-        max-width: 800px;
-        margin: auto;
-        padding: 50px 20px;
-        background-color: #f8f8f8;
-    }
-    h1 {
-        text-align: center;
-        font-size: 3rem;
-        margin: 0;
-        margin-bottom: 30px;
-        color: #222;
-        text-shadow: 2px 2px #eee;
-    }
-    h2 {
-        font-size: 2rem;
-        margin: 0;
-        margin-top: 30px;
-        color: #222;
-        text-shadow: 2px 2px #eee;
-    }
-    p {
-        font-size: 1.2rem;
-        margin: 0;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        color: #777;
-        line-height: 1.5;
-        text-align: justify;
-        text-justify: inter-word;
-    }
-    .section {
-        margin-top: 50px;
-    }
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: -10px;
-    }
-    .col {
-        flex: 1;
-        margin: 10px;
-    }
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        background-color: #fff;
-        height: 27em;
-    }
-    .card img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        transition: transform .5s ease;
-    }
-    .card:hover img {
-        transform: scale(1.1);
-    }
-    .card-body {
-        padding: 20px;
-        padding-bottom: 0;
-    }
-    .card-title {
-        font-size: 1.5rem;
-        margin: 0;
-        margin-bottom: 10px;
-        color: #222;
-        text-shadow: 2px 2px #eee;
-    }
-    .card-text {
-        font-size: 1.2rem;
-        margin: 0;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        color: #777;
-        line-height: 1.5;
-        text-align: justify;
-        text-justify: inter-word;
-    }
-    .price {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #222;
-        text-shadow: 2px 2px #eee;
-        text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
     }
 
 
-
-
-
-    /* Wine menu */
-    #wine {
-      
-      
-      padding: 30px;
+    /* Tabs styles */
+    .tab {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
-  
-    #wine h3 {
-      font-size: 32px;
-      margin-bottom: 20px;
+
+    .tab button {
+      background-color: transparent;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      margin: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #555;
     }
-  
-    #wine table {
-      border-collapse: collapse;
-      margin-top: 20px;
+
+    .tab button:hover {
+      color: #000;
+      transform: translateY(-5px);
+    }
+
+    .tab button.active {
+      color: #000;
+      border-bottom: 3px solid #000;
+    }
+
+    .tabcontent {
+      display: none;
       width: 100%;
-    }
-  
-    #wine th,
-    #wine td {
-      border: 2px solid #f7d68f;
-      padding: 10px;
-      text-align: center;
-    }
-  
-    #wine th {
-      font-size: 20px;
-    }
-  
-    #wine td {
-      font-size: 18px;
-    }
-  
-    /* Cocktail menu */
-    #cocktail {
-      background-color: #fff;
-      padding: 30px;
+      padding: 2rem 0;
     }
 
-    /* Style for the beer table */
-    #beer table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 0 auto;
-    max-width: 800px;
+    /* Beer table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
     }
 
-    /* Style for the beer table header */
-    #beer th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    text-align: left;
-    padding: 12px;
+    table th {
+      background-color: #555;
+      color: #fff;
+      padding: 1rem;
+      text-align: left;
     }
 
-    /* Style for the beer table rows */
-    #beer td {
-    border: 1px solid #ddd;
-    text-align: left;
-    padding: 12px;
+    table td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
     }
 
-    /* Style for the beer table alternate rows */
-    #beer tr:nth-child(even) {
-    background-color: #f2f2f2;
+    /* Cocktails grid styles */
+    .drink-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-gap: 2rem;
+      padding:15px;
+      margin-top: 2rem;
     }
 
-    /* Style for the beer table hover */
-    #beer tr:hover {
-    background-color: #ddd;
-    }
-
-    /* Style for the beer table header on mobile */
-    @media only screen and (max-width: 600px) {
-    #beer th {
-        display: none;
+    .drink-card {
+      border: 1px solid #eee;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      padding: 1rem;
+      border-radius: 15px;
+      box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px;    }
+    
+    .price-cart-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
-    #beer td {
-        display: block;
-        text-align: right;
+    .cart-btn {
+      margin-left: auto;
+      text-align: end;
+      margin-right: 5%;
+
+      display: inline-block;
+      background-color: #4CAF50;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease-in-out;
     }
     
-    #beer td::before {
-        content: attr(data-label);
-        font-weight: bold;
-        text-align: left;
-        display: inline-block;
-        width: 100px;
-        margin-right: 10px;
+    /* Define the styles for the button when hovered */
+    .cart-btn:hover {
+      background-color: #3e8e41;
+    }
+    .price-and-cart {
+      display: flex;
+      align-items: center;
     }
     
+
+    .drink-card:hover {
+      transform: translateY(-5px);
     }
 
+    .drink-card img {
+      
+      object-fit: cover;
+    }
 
+    .drink-card h2 {
+      font-size: 1.5rem;
+      margin: 1rem;
+    }
 
-</style>
+    .drink-card p {
+      margin: 1rem;
+    }
 
+    .drink-card .price {
+      
+      font-size: 1.2rem;
+      width: -webkit-fill-available;
+      text-align: left;
+    }
 
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
 
-<div class="tab">
-    <button class="tablinks" onclick="openTab(event, 'beer')">Beer</button>
-    <button class="tablinks" onclick="openTab(event, 'wine')">Wine</button>
-    <button class="tablinks" onclick="openTab(event, 'cocktails')">Cocktails</button>
-  
-    <div id="beer" class="tabcontent">
-      <h3>Beer</h3>
-      <table>
-        <tr>
-          <th>Drink</th>
-          <th>Price</th>
-        </tr>
-        {% for drink in drinks %}
-        {% if drink.category == "Beer" %}
-        <tr>
-          <td>{{drink.name}} &nbsp</td>
-          <td>{{ drink.price }} Ft</td>
-        </tr>
-        {% endif %}
-        {% endfor %}
-        
-      </table>
-    </div>
-  
-    <div id="wine" class="tabcontent">
-      <h3>Wine</h3>
-      <table  id="wine-table">
-        <tr>
-          <th>Drink</th>
-          <th>Price</th>
-        </tr>
+      .tab button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        margin: 0.5rem;
+      }
 
-        {% for drink in drinks %}
-        {% if drink.category == "Wine" %}
-        <tr>
-          <td>{{drink.name}} &nbsp</td>
-          <td>{{ drink.price }} Ft</td>
-        </tr>
-        {% endif %}
-        {% endfor %}
-        
-      </table>
-    </div>
-  
-    <div id="cocktails" class="tabcontent">
-        <div class="section">
-            <div class="row">
-                {% for drink in drinks %}
-                {% if drink.category == "Cocktail" %}
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/500x250.png?text=Coctail1" alt="Coctail 1">
-                        <div class="card-body">
-                            <h3 class="card-title">{{drink.name}}</h3>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non felis eget urna sodales feugiat at vel urna. Suspendisse potenti.</p>
-                            
-                        </div>
-                        <p class="price">{{drink.price}} </p>
-                    </div>
-                </div>
-                {% endif %}
-                {% endfor %}
-                
-            </div>
-        </div>
-    </div>
-  </div>
-
-  <script>
-    // Add a search bar to the wine table
-    const searchInput = document.createElement("input");
-    searchInput.type = "text";
-    searchInput.placeholder = "Search wine...";
-    searchInput.addEventListener("input", function() {
-      const filter = this.value.toUpperCase();
-      const rows = document.querySelectorAll("#wine-table tbody tr");
-      rows.forEach(function(row) {
-        const name = row.cells[0].textContent.toUpperCase();
-        if (name.includes(filter)) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
+      .drink-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        padding: 15px;
+        margin: 2rem 0;
         }
-      });
-    });
-    const wineTable = document.getElementById("wine-table");
-    wineTable.parentNode.insertBefore(searchInput, wineTable);
+        .drink-card {
+          margin: 0 auto;
+          width: 90%;
+        }
+      
+        .drink-card img {
+          width: 100%;
+          height: auto;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        .tab button {
+          font-size: 0.8rem;
+        }
+      
+        .drink-container {
+          grid-template-columns: 1fr;
+        }
+      
+        .drink-card {
+          width: 100%;
+        }
+      }
+  </style>
   
-    // Add a button to reset the wine table
-    const resetButton = document.createElement("button");
-    resetButton.textContent = "Reset";
-    resetButton.addEventListener("click", function() {
-      searchInput.value = "";
-      const rows = document.querySelectorAll("#wine-table tbody tr");
-      rows.forEach(function(row) {
-        row.style.display = "";
-      });
-    });
-    wineTable.parentNode.insertBefore(resetButton, wineTable);
-  </script>
 
+    <h1>Our Drinks</h1>
+
+    <div class="tab">
+      {% for category in categories %}
+      <button class="tablinks" onclick="openTab(event, '{{ category }}')">{{ category }}</button>
+      {% endfor %}
+      {% for category in categories %}
+      {% with category_id=category %}
+      <div id="{{ category_id }}" class="tabcontent">
+        <h2>{{ category }}</h2>
+        <div class="drink-container">
+          {% for drink in drinks %}
+          {% if drink.category == category %}
+          <div class="drink-card">
+            {% if drink.category == "Cocktail" %}
+            <img src="{{drink.image_url}}" alt="{{drink.name}}">
+            {% endif %}
+
+            <h3>{{drink.name}}</h3>
+            <p>{{drink.description}}</p>
+            <div class="price-and-cart">
+              <p class="price">{{ drink.price }} Ft</p>
+              <div class="cart-btn">
+                <a href="{% url 'add_to_cart' drink.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a>
+              </div>
+            </div>
+          </div>
+          
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+    
+  <script>
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace("", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+      }
+      // Set the default tab to open
+      document.getElementById("defaultOpen").click();
+      </script>
+      
+      </body>
 {% endblock %}

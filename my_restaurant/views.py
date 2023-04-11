@@ -290,17 +290,24 @@ def reservation_table(request, table_id, date1):
 
 def drinks(request):
     drinks = Menuitem.objects.all().filter(type = 0)  
-    return render(request, 'drinks.html', {'drinks': drinks})
+    categories = []
+    for categorie in drinks:
+        categories.append(categorie.category)
+    print(categories)
+    cat = list(set(categories))
+    print(cat)
+    return render(request, 'drinks.html', {'drinks': drinks, 'categories':cat})
 
 def menu(request):
     foods = Menuitem.objects.all().filter(type = 1)
     categories = []
     for food in foods:
         categories.append(food.category)
+    cat = list(set(categories))
     print(categories)
 
 
-    return render(request, 'foods.html', {'foods': foods, 'categories': categories})
+    return render(request, 'foods.html', {'foods': foods, 'categories': cat})
 
 
 @login_required()
@@ -484,3 +491,10 @@ def register_request(request):
         messages.error(request, "Unsuccessful registration. Invalid information.")
     form = NewUserForm()
     return render(request=request, template_name="registration/register.html", context={"register_form":form})
+
+
+
+
+
+class Testpage(TemplateView):
+    template_name = "index.html"
