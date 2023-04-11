@@ -46,6 +46,9 @@
       width: 100%;
       padding: 2rem 0;
     }
+    .tablinks{
+      border-radius: 15px;
+    }
 
     /* Beer table styles */
     table {
@@ -78,6 +81,7 @@
     .drink-card {
       border: 1px solid #eee;
       border-radius: 5px;
+      
       overflow: hidden;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
@@ -229,7 +233,7 @@
       }
       tablinks = document.getElementsByClassName("tablinks");
       for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace("", "");
+        tablinks[i].className = tablinks[i].className.replace("active", "");
       }
       document.getElementById(tabName).style.display = "block";
       evt.currentTarget.className += " active";
