@@ -1,5 +1,8 @@
 {% extends "base.html" %} {% block pagecontent %}
 <div class="container">
+  <style>
+    
+  </style>
   <h1 class="text-center my-5">Your Cart</h1>
   {% if cart_items %}
   <table class="table table-striped">
@@ -43,7 +46,8 @@
   <div class="d-flex justify-content-between align-items-center">
     <p class="lead">Total: {{ final_price }} Ft</p>
   </div>
-
+  
+  
   {% if ordered %}
   <p>Your order has been placed</p>
   {% else %}
@@ -74,6 +78,15 @@
   {% endif %} {% else %}
   <p class="lead text-center">Your cart is empty.</p>
 
+  {% endif %}
+
+  {% if recommendations %}
+  <p>These goes well with you current choice:</p>
+  {% for recommendation in recommendations %}
+
+      <a href = /add/{{recommendation.id}}>{{recommendation.name}}
+
+  {% endfor %}
   {% endif %}
 </div>
 {% endblock %}

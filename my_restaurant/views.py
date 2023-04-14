@@ -336,20 +336,33 @@ def add_to_cart(request, item_id):
 @login_required
 def cart(request):
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
+    
     cart_items = {}
+    cart_item_ids = []
     final_price = 0
     if not created:
         cart_items = CartItem.objects.filter(cart=cart)
         final_price = 0
         for cart_item in cart_items:
             final_price+=cart_item.quantity*cart_item.total_price
+            cart_item_ids.append(cart_item.item_id)
         cart.amount_to_be_paid = final_price
         cart.save()
+    print(cart_item_ids)
+    recommendations = get_recommendations(cart_item_ids)
     context = {
         'final_price': final_price*100,  # assuming you have this variable in your view
         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,  # replace with your actual publishable key
     }
-    return render(request, 'cart.html', {'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+    recom = []
+    recom_ids = []
+    for id in recommendations:
+        item = Menuitem.objects.filter(id=id)[0]
+        recom.append(item)
+        recom.append(item.id)
+
+    
+    return render(request, 'cart.html', {'recommendations':recom,'recom_ids': recom_ids,'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
 @login_required
 def previous_orders(request):
     previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
@@ -443,6 +456,7 @@ class home(TemplateView):
 
 
 def items_list(request):
+    
     item_list = Menuitem.objects.all()
     categories = item_list.values_list('category', flat=True).distinct()
     if request.method == 'POST':
@@ -476,7 +490,6 @@ def items_list(request):
     return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
 
 
-    
 def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
@@ -491,6 +504,43 @@ def register_request(request):
         messages.error(request, "Unsuccessful registration. Invalid information.")
     form = NewUserForm()
     return render(request=request, template_name="registration/register.html", context={"register_form":form})
+
+
+from collections import Counter
+from itertools import groupby
+
+# Step 1: Extract data from CartItem table
+order_history = CartItem.objects.all().values_list('cart_id', 'item_id')
+
+# Step 2: Process data to generate product pairs
+product_pairs = Counter()
+for cart_id, items in groupby(order_history, key=lambda x: x[0]):
+    ordered_items = set(items)
+    for item1 in ordered_items:
+        for item2 in ordered_items:
+            if item1 != item2:
+                product_pairs[(item1[1], item2[1])] += 1
+
+
+# Step 3: Generate recommendations based on current cart contents
+def get_recommendations(cart_items, num_recommendations=3):
+    cart_products = cart_items
+    recommendations = []
+    for product_pair, frequency in product_pairs.items():
+        if product_pair[0] in cart_products and product_pair[1] not in cart_products:
+            recommendations.append((product_pair[1], frequency))
+        elif product_pair[1] in cart_products and product_pair[0] not in cart_products:
+            recommendations.append((product_pair[0], frequency))
+    recommendations.sort(key=lambda x: x[1], reverse=True)
+    print(recommendations)
+    unique_recommendations = list(set(recommendations))
+    unique_recommendations.sort(key=lambda x: x[1], reverse=True)
+    print(unique_recommendations)
+    unique_product_ids = [product_id for product_id, _ in unique_recommendations]
+    recom = list(set(unique_product_ids))[:num_recommendations]
+
+    return recom
+    
 
 
 
