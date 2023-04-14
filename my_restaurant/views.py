@@ -355,14 +355,14 @@ def cart(request):
         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,  # replace with your actual publishable key
     }
     recom = []
-    recom_ids = []
+    
     for id in recommendations:
         item = Menuitem.objects.filter(id=id)[0]
         recom.append(item)
-        recom.append(item.id)
+        
 
     
-    return render(request, 'cart.html', {'recommendations':recom,'recom_ids': recom_ids,'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+    return render(request, 'cart.html', {'recommendations':recom,'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
 @login_required
 def previous_orders(request):
     previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
@@ -506,25 +506,26 @@ def register_request(request):
     return render(request=request, template_name="registration/register.html", context={"register_form":form})
 
 
-from collections import Counter
-from itertools import groupby
 
-# Step 1: Extract data from CartItem table
-order_history = CartItem.objects.all().values_list('cart_id', 'item_id')
-
-# Step 2: Process data to generate product pairs
-product_pairs = Counter()
-for cart_id, items in groupby(order_history, key=lambda x: x[0]):
-    ordered_items = set(items)
-    for item1 in ordered_items:
-        for item2 in ordered_items:
-            if item1 != item2:
-                product_pairs[(item1[1], item2[1])] += 1
 
 
 # Step 3: Generate recommendations based on current cart contents
 def get_recommendations(cart_items, num_recommendations=3):
-    cart_products = cart_items
+    from collections import Counter
+    from itertools import groupby
+
+    # Step 1: Extract data from CartItem table
+    order_history = CartItem.objects.all().values_list('cart_id', 'item_id')
+
+    # Step 2: Process data to generate product pairs
+    product_pairs = Counter()
+    for cart_id, items in groupby(order_history, key=lambda x: x[0]):
+        ordered_items = set(items)
+        for item1 in ordered_items:
+            for item2 in ordered_items:
+                if item1 != item2:
+                    product_pairs[(item1[1], item2[1])] += 1
+        cart_products = cart_items
     recommendations = []
     for product_pair, frequency in product_pairs.items():
         if product_pair[0] in cart_products and product_pair[1] not in cart_products:
@@ -538,7 +539,7 @@ def get_recommendations(cart_items, num_recommendations=3):
     print(unique_recommendations)
     unique_product_ids = [product_id for product_id, _ in unique_recommendations]
     recom = list(set(unique_product_ids))[:num_recommendations]
-
+    print(recom)
     return recom
     
 

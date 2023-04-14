@@ -1,4 +1,6 @@
 {% extends "base.html" %} {% block pagecontent %}
+<link rel="stylesheet" href="/static/css/cart.css" type="text/css" />
+
 <div class="container">
   <style>
     
@@ -80,13 +82,22 @@
 
   {% endif %}
 
+  {% if not ordered %}
   {% if recommendations %}
-  <p>These goes well with you current choice:</p>
-  {% for recommendation in recommendations %}
-
-      <a href = /add/{{recommendation.id}}>{{recommendation.name}}
-
-  {% endfor %}
+  <div class="recommendations-container">
+    <p class="recommendations-title">These go well with your current choice:</p>
+    <div class="recommendations-wrapper">
+      {% for recommendation in recommendations %}
+      <div class="recommendation-card">
+        <a href="/add/{{ recommendation.id }}">{{ recommendation.name }}</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
   {% endif %}
+  {% endif %}
+  
+
+  
 </div>
 {% endblock %}
