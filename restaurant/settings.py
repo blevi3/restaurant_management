@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+
 STRIPE_TEST_PUBLISHABLE_KEY = 'pk_test_51MYo3QGJo8Lf1SxiSIFyrT6a8Zj0tQ3jxqI3AtFn36iWezcdblvgsKlpj8ZFkf1Wtt4HVaHTleH6pmh2jizeVzC900mueFpgHM'
 STRIPE_TEST_SECRET_KEY = 'sk_test_51MYo3QGJo8Lf1Sxi290GN4siI5kxgo1TXe8fTApoksRuzuAh3RlS4UVmNTYdd98iIHSPJHjVkqlkHxixUJary3ZB00RV62uCEF'
 
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'my_restaurant',
     'django.contrib.humanize',
     'crispy_forms',
+    
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 

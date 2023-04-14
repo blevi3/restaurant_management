@@ -25,6 +25,8 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 
+
+
 def staff_member_required(view_func):
     """
     Decorator that checks if a user is a staff member or not. If not, redirect to login page.
@@ -35,7 +37,6 @@ def staff_member_required(view_func):
         redirect_field_name='next'
     )
     return actual_decorator(view_func)
-
 
 
 
@@ -443,6 +444,13 @@ def order_paid(request, id):
     cart.is_paid = 1
     cart.save()
     return redirect('cart') 
+
+
+
+
+
+
+
     
 class HomePageView(TemplateView):
     template_name = "index.html"
@@ -533,13 +541,10 @@ def get_recommendations(cart_items, num_recommendations=3):
         elif product_pair[1] in cart_products and product_pair[0] not in cart_products:
             recommendations.append((product_pair[0], frequency))
     recommendations.sort(key=lambda x: x[1], reverse=True)
-    print(recommendations)
     unique_recommendations = list(set(recommendations))
     unique_recommendations.sort(key=lambda x: x[1], reverse=True)
-    print(unique_recommendations)
     unique_product_ids = [product_id for product_id, _ in unique_recommendations]
     recom = list(set(unique_product_ids))[:num_recommendations]
-    print(recom)
     return recom
     
 

@@ -19,6 +19,7 @@ class Cart(models.Model):
     ordered = models.BooleanField(default=0)
     is_delivered = models.BooleanField(default=0)
     is_paid = models.BooleanField(default=False)
+    is_ready = models.BooleanField(default=False)
 
 
 class CartItem(models.Model):

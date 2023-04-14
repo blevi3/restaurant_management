@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>MyPub - {% block title %}{% endblock %}</title>
+    {% load my_restaurant_tags %}
 
     <script src="https://js.stripe.com/v3/"></script>
 
@@ -162,7 +163,7 @@
       </ul>
       <ul class = "right">
         {% if user.is_authenticated %}
-        <li><a href="{% url 'cart' %}">Cart<span id="cart-count"></span></a></li>
+        <li><a href="{% url 'cart' %}"><span class="cart-icon">Cart<span class="cart-count">{% cart_item_count %}</span></span></a></li>
         <li><a href="{% url 'available_tables' %}">Reservation</a></li>
         <li><a href='#'>Profile</a>
           <ul>
