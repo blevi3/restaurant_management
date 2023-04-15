@@ -283,3 +283,13 @@ p {
   font-weight: bold;
   line-height: 1;
 }
+
+
+.cart_preview{
+  background: #555;
+  width: 300px;
+  text-align: center;
+}
+.cart_preview p{
+  text-align: center;
+}

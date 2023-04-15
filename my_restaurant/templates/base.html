@@ -18,7 +18,36 @@
       .navbar-collapse.collapse {
         display: none;
       }
+
     </style>
+
+
+
+    <script>
+      function toggleCart() {
+        var div = document.querySelector('.cart_preview');
+        if (div.style.display === 'none') {
+          div.style.display = 'block';
+        } else {
+          div.style.display = 'none';
+        }
+      }
+    </script>
+
+    <script>
+      function positionDiv() {
+        var preview = document.querySelector('.preview');
+        var cartPreview = document.querySelector('.cart_preview');
+        var previewRect = preview.getBoundingClientRect();
+        var cartPreviewHeight = cartPreview.offsetHeight;
+        cartPreview.style.position = 'absolute';
+        cartPreview.style.left = previewRect.left-125+ 'px';
+        
+      }
+    
+      window.addEventListener('load', positionDiv);
+      window.addEventListener('resize', positionDiv);
+    </script>
 
     <!-- This is how to include a static file -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
@@ -163,7 +192,8 @@
       </ul>
       <ul class = "right">
         {% if user.is_authenticated %}
-        <li><a href="{% url 'cart' %}"><span class="cart-icon">Cart<span class="cart-count">{% cart_item_count %}</span></span></a></li>
+        
+        <li class = "preview" onclick="toggleCart()" ><a ><span class="cart-icon">Cart<span class="cart-count">{% cart_item_count %}</span></span></a></li>
         <li><a href="{% url 'available_tables' %}">Reservation</a></li>
         <li><a href='#'>Profile</a>
           <ul>
@@ -180,8 +210,10 @@
         {% endif %}
       </ul>
       </nav>
+      
     </header>
-    
+    {% cart_preview  %}
+
 
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
     <p>You are not logged in</p>

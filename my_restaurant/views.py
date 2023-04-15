@@ -447,7 +447,28 @@ def order_paid(request, id):
 
 
 
-
+def add_recom_to_cart(request, item_id):
+    item = get_object_or_404(Menuitem, pk=item_id)
+    print(item)
+    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
+    if not created:
+        cart.save()
+    if not cart.ordered:
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
+        if not created:
+            cart_item.quantity += 1
+            cart_item.final_price = item.price * cart_item.quantity
+            cart_item.save()
+            print(cart_item.quantity)
+            print("növelve")
+        else:
+            print("setto 1")
+            cart_item.quantity = 1
+            cart_item.total_price = item.price * cart_item.quantity
+            cart_item.final_price = item.price
+            cart_item.save()
+    
+    return redirect('cart')
 
 
 
