@@ -415,8 +415,8 @@ def add_to_cart_from_cart(request, item_id):
 
 @staff_member_required
 def all_orders(request):
-    paid_carts = Cart.objects.filter(is_paid=True, is_delivered=False)
-    unpaid_carts = Cart.objects.filter(is_paid=False, is_delivered=False)
+    paid_carts = Cart.objects.filter(is_paid=True, is_delivered=False, ordered = True)
+    unpaid_carts = Cart.objects.filter(is_paid=False, is_delivered=False, ordered = True)
     return render(request, 'all_orders.html', {'paid_carts': paid_carts, 'unpaid_carts': unpaid_carts})
 def order_paid_admin(request, id):
     cart = Cart.objects.get(pk = id)
@@ -427,7 +427,9 @@ def order_paid_admin(request, id):
 
 @staff_member_required
 def cart_delivered(request, id):
+    print(id)
     cart = Cart.objects.get(pk = id)
+    print(cart)
     cart.is_delivered = 1
     cart.save()
     return redirect('all_orders')
