@@ -44,8 +44,8 @@ header {
 
 .menu,
 .specials {
-  width: 50%;
-  background-color: #199758;
+  
+  
   padding: 20px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
@@ -80,10 +80,15 @@ header {
   color: #00b0ff;
 }
 
-.menu:hover,
+.category:hover,
 .specials:hover {
-  transform: translateY(-5px);
-  box-shadow: 2px 12px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  box-shadow: 20px 40px 40px rgba(0, 0, 0, 0.1);
+}
+
+.category li:hover {
+  background-color: aquamarine;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Media query for responsive design */
