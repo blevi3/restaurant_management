@@ -17,6 +17,16 @@
 			 mainmenu.find('ul').show();
 		   }
 		 }
+		 var secondmenu = $(this).next().next('ul');
+		 if (secondmenu.hasClass('open')) { 
+		   secondmenu.slideToggle().removeClass('open');
+		 }
+		 else {
+		   secondmenu.slideToggle().addClass('open');
+		   if (settings.format === "dropdown") {
+			 secondmenu.find('ul').show();
+		   }
+		 }
 	   });
 	   cssmenu.find('li ul').parent().addClass('has-sub');
 	multiTg = function() {
@@ -38,6 +48,9 @@
 	  var mediasize = 1000;
 		 if ($( window ).width() > mediasize) {
 		   cssmenu.find('ul').show();
+		   cssmenu.find('ul').show();
+
+
 		 }
 		 if ($(window).width() <= mediasize) {
 		   cssmenu.find('ul').hide().removeClass('open');
@@ -56,4 +69,3 @@
 	});
 	});
 	})(jQuery);
-	

@@ -168,8 +168,8 @@
       <nav id='cssmenu'>
       <div id="head-mobile"></div>
       <div class="button"></div>
-      <ul>
       
+      <ul>
         <li class="active">
           <a class="nav-link" href="{% url 'home' %}">Home </a>
         </li>
@@ -219,6 +219,6 @@
     <p>You are not logged in</p>
     {%endif%}
 
-    {% block pagecontent %} {% endblock %}
+    <div class="container">{% block pagecontent %} {% endblock %}</div>
   </body>
 </html>
