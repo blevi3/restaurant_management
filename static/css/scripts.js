@@ -1,3 +1,40 @@
+
+const nav = document.querySelector('nav');
+const navLinks = document.querySelectorAll('nav a');
+const sections = document.querySelectorAll('section');
+
+window.addEventListener('scroll', () => {
+let current = '';
+sections.forEach(section => {
+const sectionTop = section.offsetTop;
+const sectionHeight = section.clientHeight;
+if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
+current = section.getAttribute('id');
+}
+});
+navLinks.forEach(link => {
+  link.classList.remove('active');
+  if (link.getAttribute('href').substring(1) === current) {
+      link.classList.add('active');
+  }
+});
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function openTab(evt, tabName) {
   // Get all elements with class="tabcontent" and hide them
   let tabcontent = document.getElementsByClassName("tabcontent");
@@ -19,13 +56,6 @@ function openTab(evt, tabName) {
 // Set the default tab to be the first one
 document.getElementById("beer").classList.add("show");
 document.getElementsByClassName("tablinks")[0].classList.add("active");
-
-
-
-
-
-
-
 
 
 
@@ -147,4 +177,4 @@ function toggler(){
 //--------------------------------------------------------------------------------------
  //Reservation timerange Set
   
-  
+

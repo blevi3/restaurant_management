@@ -1,54 +1,69 @@
-<!DOCTYPE html>
-{% extends 'base.html' %}
+{% extends "base.html" %} {% block pagecontent %}
 
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Pub</title>
-    <!-- Add CSS styles -->
+<body>
+  <link rel="stylesheet" href="static/css/home_test.css">
+    <script src="script.js" defer></script>
 
-  </head>
-  <body>
-    {% block pagecontent %}
+    
+    <main>
+        <section id="hero">
+            <div class="container">
+                <h2>Welcome to The Pub</h2>
+                <p>We offer a wide variety of dishes and drinks to satisfy your appetite and quench your thirst. Come and enjoy our cozy atmosphere and excellent service!</p>
+                <a href = "/menu"> <button> View Our Foods</button> </a>
+                <a href = "/drinks"> <button> View Our Drinks</button> </a>
+            </div>
+        </section>
+        
+        <section id="features">
+            <div class="container">
+                <h2>Our Features</h2>
+                <div class="feature-box">
+                    <img src="img/feature-1.jpg" alt="Feature 1">
+                    <h3>Live Music</h3>
+                    <p>Enjoy live music performances from local artists every weekend.</p>
+                </div>
+                <div class="feature-box">
+                    <img src="img/feature-2.jpg" alt="Feature 2">
+                    <h3>Happy Hour</h3>
+                    <p>Come and join us during our happy hour for great deals on food and drinks.</p>
+                </div>
+                <div class="feature-box">
+                    <img src="img/feature-3.jpg" alt="Feature 3">
+                    <h3>Catering Services</h3>
+                    <p>We offer catering services for your special events and occasions.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="testimonials">
+            <div class="container">
+                <h2>What Our Customers Say</h2>
+                <div class="testimonial-box">
+                    <p>"I had the best steak of my life at The Restaurant/Bar/Pub. The service was also excellent!"</p>
+                    <p class="customer-name">- John Doe</p>
+                </div>
+                <div class="testimonial-box">
+                    <p>"The drinks are amazing and the atmosphere is cozy and welcoming. Highly recommended!"</p>
+                    <p class="customer-name">- Jane Smith</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="cta">
+            <div class="container">
+                <h2>Book Your Table Now</h2>
+                <p>Call us at 123-456-7890 to reserve your table or use our online reservation form.</p>
+                <a href = "/tables"> <button> Make a Reservation</button> </a>
 
-    <!-- Add main section -->
-    <main class="main">
-      <section class="welcome">
-        <!-- Add menu section -->
-        <div class="menu">
-          <h2>Our Menu</h2>
-          <ul>
-            <li><a href="#">Burgers</a></li>
-            <li><a href="#">Pizzas</a></li>
-            <li><a href="#">Steaks</a></li>
-            <li><a href="#">Salads</a></li>
-          </ul>
-        </div>
-
-        <!-- Add specials section -->
-        <div class="specials">
-          <h2>Daily Specials</h2>
-          <ul>
-            <li><a href="#">Monday: Ribs and Fries</a></li>
-            <li><a href="#">Tuesday: Tacos and Margaritas</a></li>
-            <li><a href="#">Wednesday: Wings and Beer</a></li>
-            <li><a href="#">Thursday: Burger and Beer</a></li>
-          </ul>
-        </div>
-      </section>
+            </div>
+        </section>
     </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 The Restaurant/Bar/Pub. All Rights Reserved.</p>
+        </div>
+    </footer>
 
-
-
-    <!-- Add JavaScript for header animation -->
-    <script>
-      const header = document.querySelector("header");
-      window.addEventListener("scroll", () => {
-        header.style.opacity = 1;
-      });
-    </script>
-    {% endblock %}
-  </body>
-</html>
-
+{% endblock %}
