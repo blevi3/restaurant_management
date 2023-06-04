@@ -1,246 +1,146 @@
-{% extends 'base.html' %} {% load humanize %} 
+{% extends 'base.html' %}
+{% load humanize %}
 
 {% block pagecontent %}
-
-  <style>
-    /* Main styles */
-
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-
-
-    /* Tabs styles */
-    .tab {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .tab button {
-      background-color: transparent;
-      border: none;
-      padding: 1rem 2rem;
-      font-size: 1.5rem;
-      margin: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: #555;
-    }
-
-    .tab button:hover {
-      color: #000;
-      transform: translateY(-5px);
-    }
-
-    .tab button.active {
-      color: #000;
-      border-bottom: 3px solid #000;
-    }
-
-    .tabcontent {
-      display: none;
-      width: 100%;
-      padding: 2rem 0;
-    }
-    .tablinks{
-      border-radius: 15px;
-    }
-
-    /* Beer table styles */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 2rem;
-    }
-
-    table th {
-      background-color: #555;
-      color: #fff;
-      padding: 1rem;
-      text-align: left;
-    }
-
-    table td {
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    /* Cocktails grid styles */
-    .drink-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      grid-gap: 2rem;
-      padding:15px;
-      margin-top: 2rem;
-    }
-
-    .drink-card {
-      border: 1px solid #eee;
-      border-radius: 5px;
-      
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      padding: 1rem;
-      border-radius: 15px;
-      box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px;    }
-    
-    .price-cart-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .cart-btn {
-      margin-left: auto;
-      text-align: end;
-      margin-right: 5%;
-
-      display: inline-block;
-      background-color: #4CAF50;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 4px;
-      transition: background-color 0.2s ease-in-out;
-    }
-    
-    /* Define the styles for the button when hovered */
-    .cart-btn:hover {
-      background-color: #3e8e41;
-    }
-    .price-and-cart {
-      display: flex;
-      align-items: center;
-    }
-    
-
-    .drink-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .drink-card img {
-      
-      object-fit: cover;
-    }
-
-    .drink-card h2 {
-      font-size: 1.5rem;
-      margin: 1rem;
-    }
-
-    .drink-card p {
-      margin: 1rem;
-    }
-
-    .drink-card .price {
-      
-      font-size: 1.2rem;
-      width: -webkit-fill-available;
-      text-align: left;
-    }
-
-    /* Responsive styles */
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
-      }
-
-      .tab button {
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        margin: 0.5rem;
-      }
-
-      .drink-container {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-        padding: 15px;
-        margin: 2rem 0;
-        }
-        .drink-card {
-          margin: 0 auto;
-          width: 90%;
-        }
-      
-        .drink-card img {
-          width: 100%;
-          height: auto;
-        }
-      }
-      
-      @media (max-width: 576px) {
-        .tab button {
-          font-size: 0.8rem;
-        }
-      
-        .drink-container {
-          grid-template-columns: 1fr;
-        }
-      
-        .drink-card {
-          width: 100%;
-        }
-      }
-  </style>
+<style>
+  .menu-container {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    position: relative;
+    background-color: #333;
+    overflow: hidden;
+  }
   
+  .menu-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Use auto-fit and minmax to create responsive columns */
+    grid-gap: 5rem;
+    max-width: 1200px;
+    z-index: 1;
+    position: relative;
+  }
+  
+  .category-column {
+    display: grid;
+    grid-auto-rows: min-content;
+    grid-gap: 10px;
+    margin-bottom: 2rem; /* Add margin at the bottom of each category column */
+  }
+  
+  .category-name {
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 1.5rem;
+    color: bisque;
+  }
+  
+  .menu-item {
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  
+  .drink-info,
+  .food-info {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .drink-price,
+  .food-price {
+    text-align: right;
+  }
+  
+  /* Background styles */
+  .menu-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .background-instance {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+</style>
 
-    <h1>Our Drinks</h1>
-
-    <div class="tab">
-      {% for category in categories %}
-      <button class="tablinks" onclick="openTab(event, '{{ category }}')">{{ category }}</button>
-      {% endfor %}
-      {% for category in categories %}
-      {% with category_id=category %}
-      <div id="{{ category_id }}" class="tabcontent">
-        <h2>{{ category }}</h2>
-        <div class="drink-container">
-          {% for drink in drinks %}
-          {% if drink.category == category %}
-          <div class="drink-card">
-            {% if drink.category == "Cocktail" %}
-            <img src="{{drink.image_url}}" alt="{{drink.name}}">
-            {% endif %}
-
-            <h3>{{drink.name}}</h3>
-            <p>{{drink.description}}</p>
-            <div class="price-and-cart">
-              <p class="price">{{ drink.price }} Ft</p>
-              <div class="cart-btn">
-                <a href="{% url 'add_to_cart' drink.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a>
-              </div>
-            </div>
+<div class="menu-container">
+  <div class="menu-columns">
+    {% for category in categories %}
+    <div class="category-column">
+      <div class="category-name">{{ category }}</div>
+      {% for drink in drinks %}
+        {% if drink.category == category %}
+        <div class="menu-item">
+          <div class="drink-info">
+            <span class="drink-name">{{ drink.name }}</span>
+            <span class="drink-price">{{ drink.price }}</span>
           </div>
-          
-          {% endif %}
-          {% endfor %}
         </div>
-      </div>
-      {% endwith %}
+                {% endif %}
       {% endfor %}
     </div>
-    
-  <script>
-    function openTab(evt, tabName) {
-      var i, tabcontent, tablinks;
-      tabcontent = document.getElementsByClassName("tabcontent");
-      for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("tablinks");
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace("active", "");
-      }
-      document.getElementById(tabName).style.display = "block";
-      evt.currentTarget.className += " active";
-      }
-      // Set the default tab to open
-      document.getElementById("defaultOpen").click();
-      </script>
-      
-      </body>
+    {% endfor %}
+
+
+
+    {% for category in categories2 %}
+    <div class="category-column">
+      <div class="category-name">{{ category }}</div>
+      {% for food in foods %}
+        {% if food.category == category %}
+        <div class="menu-item">
+          <div class="drink-info">
+            <span class="drink-name">{{ food.name }}</span>
+            <span class="drink-price">{{ food.price }}</span>
+          </div>
+        </div>
+                {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  // Function to generate a random number between min and max (inclusive)
+  function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Function to create and position the instances of the picture
+  function createBackgroundInstances() {
+    const container = document.querySelector(".menu-container");
+    const backgroundImage = document.querySelector(".menu-container::after");
+    const numInstances = 20; // Adjust the number of instances as desired
+
+    for (let i = 0; i < numInstances; i++) {
+      const instance = document.createElement("div");
+      instance.classList.add("background-instance");
+      instance.style.backgroundImage = `url('/static/bc.png')`;
+      instance.style.width = `${getRandomNumber(30, 70)}px`; // Adjust the size range of instances as desired
+      instance.style.height = `${getRandomNumber(30, 70)}px`;
+      instance.style.position = "absolute";
+      instance.style.opacity = "20%";
+      instance.style.top = `${getRandomNumber(0, container.offsetHeight)}px`;
+      instance.style.left = `${getRandomNumber(0, container.offsetWidth)}px`;
+      container.appendChild(instance);
+    }
+
+    backgroundImage.style.display = "none"; // Hide the original background image
+  }
+
+  // Call the function to create the background instances when the page loads
+  window.addEventListener("load", createBackgroundInstances);
+</script>
+
 {% endblock %}

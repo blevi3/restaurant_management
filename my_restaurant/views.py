@@ -296,8 +296,15 @@ def drinks(request):
         categories.append(categorie.category)
     print(categories)
     cat = list(set(categories))
-    print(cat)
-    return render(request, 'drinks.html', {'drinks': drinks, 'categories':cat})
+    
+
+    foods = Menuitem.objects.all().filter(type = 1)
+    categories2 = []
+    for food in foods:
+        categories2.append(food.category)
+    cat2 = list(set(categories2))
+    
+    return render(request, 'drinks.html', {'drinks': drinks, 'categories':cat, 'foods': foods, 'categories2': cat2})
 
 def menu(request):
     foods = Menuitem.objects.all().filter(type = 1)
@@ -569,9 +576,47 @@ def get_recommendations(cart_items, num_recommendations=3):
     unique_product_ids = [product_id for product_id, _ in unique_recommendations]
     recom = list(set(unique_product_ids))[:num_recommendations]
     return recom
+
+
+'''    
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+#cart_items are a list of cartitem querysets
+def get_recommendations2(cart_items, num_recommendations=5):
+    cart_products = {item.item_id for item in cart_items}
+    item_ids = list(set([item.item_id for item in CartItem.objects.all()]))
+    user_items = np.zeros((1, len(item_ids)))
+    for item in cart_items:
+        user_items[0, item_ids.index(item.item_id)] = item.quantity
     
+    # Compute pairwise cosine similarities between items
+    item_vectors = np.zeros((len(item_ids), len(item_ids)))
+    for i, item_id1 in enumerate(item_ids):
+        for j, item_id2 in enumerate(item_ids):
+            if i != j:
+                item1_cart_ids = [row.cart_id for row in CartItem.objects.filter(item_id=item_id1)]
+                item2_cart_ids = [row.cart_id for row in CartItem.objects.filter(item_id=item_id2)]
+                common_carts = list(set(item1_cart_ids) & set(item2_cart_ids))
+                item_vectors[i, j] = len(common_carts)
+    item_similarities = cosine_similarity(item_vectors)
+    
+    # Compute weighted sums of item vectors to get user vector
+    user_vector = np.dot(user_items, item_similarities) / np.sum(item_similarities, axis=1)
+    
+    # Compute scores for all items and sort in decreasing order
+    item_scores = np.dot(user_vector, item_vectors) / np.sum(item_vectors, axis=1)
+    sorted_items = sorted(list(enumerate(item_scores)), key=lambda x: x[1], reverse=True)
+    
+    # Return top recommended items that are not already in the cart
+    recommendations = []
+    for i, score in sorted_items:
+        if item_ids[i] not in cart_products:
+            recommendations.append(item_ids[i])
+        if len(recommendations) == num_recommendations:
+            break
+    return recommendations
 
-
+'''
 
 
 
