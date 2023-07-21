@@ -38,44 +38,6 @@ def staff_member_required(view_func):
     )
     return actual_decorator(view_func)
 
-
-
-
-from django.conf import settings
-@login_required
-def payment(request):
-    if request.method == 'POST':
-        amount = 1000 # amount in cents
-        email = request.POST['email']
-        token = request.POST['stripeToken']
-        try:
-            customer = stripe.Customer.create(
-                email=email,
-                source=token
-            )
-            charge = stripe.Charge.create(
-                amount=amount,
-                currency='usd',
-                customer=customer.id,
-                description='Example charge'
-            )
-            # do something after successful payment
-            return render(request, 'payment_success.html')
-        except stripe.error.CardError as e:
-            # handle errors
-            pass
-    context = {
-        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY
-    }
-    return render(request, 'payment.html', context)
-
-def payment_success(request):
-    return render(request, 'payment_success.html')
-
-
-
-
-
 from django.contrib.auth.decorators import login_required
 from .forms import UserUpdateForm
 from .models import Profile
