@@ -1,0 +1,74 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore static and media files (if they are served separately)
+static/
+media/
+
+# Ignore database files
+*.sqlite3
+*.db
+
+# Ignore development settings and sensitive information
+*.env
+*.env.*
+*.env.local
+*.pyc
+*.pyo
+*.env.bak
+*.env~*
+
+# Ignore generated and compiled files
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# Ignore local development server settings
+*.log
+*.pid
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.swp
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files and directories
+*.tmp
+*.temp
+*.bak
+*.cache/
+
+# Ignore pipenv virtual environment (if using pipenv)
+/.venv/
+
+# Ignore pip virtual environment (if using pip)
+/venv/
+
+# Ignore node_modules directory (if using Node.js in your project)
+node_modules/
+
+# Ignore compiled front-end assets (if applicable)
+*.css
+*.js
+*.map
+
+# Ignore secret keys, credentials, and sensitive files
+secret_key.txt
+credentials.json
+
+# Ignore local configurations (e.g., for different developers)
+*.ini
+*.conf
+*.cfg
+
+# Add your custom ignore patterns below (if needed)
+

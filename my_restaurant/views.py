@@ -41,9 +41,7 @@ def staff_member_required(view_func):
 
 
 
-import stripe
 from django.conf import settings
-stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 @login_required
 def payment(request):
     if request.method == 'POST':
