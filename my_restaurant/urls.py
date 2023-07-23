@@ -28,6 +28,7 @@ urlpatterns = [
     path('accounts/register', views.register_request, name="register"),
     path('drinks', views.drinks, name='drinks'),
     path('menu', views.menu, name='menu'),
+    path('gallery', views.gallery, name='gallery'),
     path('all_reservations', views.all_reservations, name = "all_reservations"),
     path('my_reservations', views.my_reservations, name = "my_reservations"),
 
@@ -38,6 +39,6 @@ urlpatterns = [
     path('password_reset/', views.password_reset_request, name="password_reset"),
     path('profile/', views.profile, name='profile'),
 
-    path('payment/', views.payment, name='payment'),
-    path('payment_success/', views.payment_success, name='payment_success'),
+    
+    
 ]

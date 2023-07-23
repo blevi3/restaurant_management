@@ -1,0 +1,176 @@
+{% extends 'base.html' %} {% load humanize %} 
+{% load static %}
+{% block pagecontent %}
+
+  <style>
+    /* Main styles */
+
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+
+    /* Tabs styles */
+    .tab {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tab button {
+      background-color: transparent;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      margin: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #555;
+    }
+
+    .tab button:hover {
+      color: #000;
+      transform: translateY(-5px);
+    }
+
+    .tab button.active {
+      color: #000;
+      border-bottom: 3px solid #000;
+    }
+
+    .tabcontent {
+      display: none;
+      width: 100%;
+      padding: 2rem 0;
+    }
+
+    /* Beer table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+
+    table th {
+      background-color: #555;
+      color: #fff;
+      padding: 1rem;
+      text-align: left;
+    }
+
+    table td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Cocktails grid styles */
+    .food-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .food-card {
+      border: 1px solid #eee;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .food-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .food-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .food-card h2 {
+      font-size: 1.5rem;
+      margin: 1rem;
+    }
+
+    .food-card p {
+      margin: 1rem;
+    }
+
+    .food-card .price {
+      background-color: #555;
+      color: #fff;
+      padding: 1rem;
+      font-size: 1.2rem;
+      text-align: right;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .tab button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        margin: 0.5rem;
+      }
+
+      .food-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        padding: 0;
+        margin: 2rem 0;
+        }
+        .food-card {
+          margin: 0 auto;
+          width: 90%;
+        }
+      
+        .food-card img {
+          width: 100%;
+          height: auto;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        .tab button {
+          font-size: 0.8rem;
+        }
+      
+        .food-container {
+          grid-template-columns: 1fr;
+        }
+      
+        .food-card {
+          width: 100%;
+        }
+      }
+  </style>
+<script src="{% static 'jquery/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'jquery/galleria-1.6.1/dist/galleria.min.js' %}"></script>
+<script src="{% static 'jquery/galleria-1.6.1/dist/themes/classic/galleria.classic.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#gallery').galleria({
+            width:500,
+            height:500
+        });
+    });
+</script>
+  <section>
+    <div id="content">
+        <h2>Képgaléria</h2>
+        <article id="gallery">
+            <img src="{% static 'norbisztro_belulrol.jpg' %}" alt="A képen a Norbisztro étterem beltéri asztalai láthatók." title="Norbisztro étterem belülről">
+            <img src="{% static 'eperkremleves.jpeg' %}" alt="A képen eperkrémlevesünk látható." title="Eperkrémleves">
+        </article>
+    </div>
+</section>
+      </body>
+{% endblock %}

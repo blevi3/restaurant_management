@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from datetime import datetime, time, timedelta, date
 from django.utils import timezone
+from django.conf import settings
 
 from django.contrib.auth.decorators import user_passes_test
 
@@ -37,6 +38,8 @@ def staff_member_required(view_func):
         redirect_field_name='next'
     )
     return actual_decorator(view_func)
+
+
 
 from django.contrib.auth.decorators import login_required
 from .forms import UserUpdateForm
@@ -276,6 +279,18 @@ def menu(request):
 
 
     return render(request, 'foods.html', {'foods': foods, 'categories': cat})
+
+def gallery(request):
+    foods = Menuitem.objects.all().filter(type = 1)
+    categories = []
+    for food in foods:
+        categories.append(food.category)
+    cat = list(set(categories))
+    print(categories)
+
+
+    return render(request, 'gallery.html', {'foods': foods, 'categories': cat})
+
 
 
 @login_required()
