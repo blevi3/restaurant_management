@@ -55,9 +55,7 @@ Thumbs.db
 node_modules/
 
 # Ignore compiled front-end assets (if applicable)
-*.css
-*.js
-*.map
+
 
 # Ignore secret keys, credentials, and sensitive files
 secret_key.txt
