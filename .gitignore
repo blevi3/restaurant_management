@@ -3,8 +3,6 @@ __pycache__/
 *.pyc
 
 # Ignore static and media files (if they are served separately)
-static/
-media/
 
 # Ignore database files
 *.sqlite3
