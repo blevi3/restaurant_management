@@ -5,8 +5,6 @@ __pycache__/
 # Ignore static and media files (if they are served separately)
 
 # Ignore database files
-*.sqlite3
-*.db
 
 # Ignore development settings and sensitive information
 *.env
