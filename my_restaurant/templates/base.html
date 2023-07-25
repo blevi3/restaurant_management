@@ -184,12 +184,13 @@
           </ul>
         </li>
         <li><a href="{% url 'about' %}">About</a></li>
+        <li><a href="{% url 'gallery' %}">Gallery</a></li>
         {% if request.user.is_staff %}
         <li class="nav-item"><a  href="/admin">Admin</a></li>
         <li><a href="/all_orders">Orders</a></li>
         <li><a href="/all_reservations">All reservation</a></li>
         {% endif %} 
-      </ul>
+      </ul> 
       <ul class = "right">
         {% if user.is_authenticated %}
         
