@@ -215,11 +215,11 @@
     </header>
     {% cart_preview  %}
 
-
+    <!-- IS_LOGGED_IN flag
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
     <p>You are not logged in</p>
     {%endif%}
-
+    -->
     <div class="container">{% block pagecontent %} {% endblock %}</div>
   </body>
 </html>
