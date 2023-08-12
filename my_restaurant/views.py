@@ -529,17 +529,32 @@ def items_list(request):
 def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
-            profile = Profile.objects.create(user=user)
-            login(request, user)
-            messages.success(request, "Registration successful." )
-            return redirect("home")
-        messages.error(request, "Unsuccessful registration. Invalid information.")
-    form = NewUserForm()
-    return render(request=request, template_name="registration/register.html", context={"register_form":form})
+        if not User.objects.filter(username=request.POST.get("username")).exists():
+            if not User.objects.filter(email=request.POST.get("email")).exists():
+                if form.is_valid():
+                    username = form.cleaned_data.get('username')
+                    email = form.cleaned_data.get('email')
+        
+                    user = form.save()
+                    messages.success(request, f'Account created for {username}!')
+                    profile = Profile.objects.create(user=user)
+                    login(request, user)
+                    messages.success(request, "Registration successful.")
+                    return redirect("home")
+                else:
+                    # Handle form validation errors
+                    return render(request, 'registration/register.html', {'register_form': form})
+            else:
+                messages.error(request, "Email address already registered")
+                return render(request, 'registration/register.html', {'register_form': form, 'uname': request.POST.get("username")})
+        else:
+            messages.error(request, "The username is occupied")
+            return render(request, 'registration/register.html', {'register_form': form, 'address': request.POST.get("email")})
+    else:
+        form = NewUserForm()
+    return render(request, template_name="registration/register.html", context={"register_form": form})
+
+
 
 
 
