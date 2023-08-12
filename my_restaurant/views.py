@@ -213,6 +213,28 @@ def reservation_table(request, table_id, date1):
     #date1 = request.POST.get('date')
     #available_times = get_available_times(date1, table)
     
+    if date1 == datetime.now().strftime("%Y-%m-%d"):  # Check if date1 is today
+        now = datetime.now()
+        start_of_day = datetime(now.year, now.month, now.day, 8, 0)  # 08:00 AM
+
+        past_times_values2 = []
+        time_increment = timedelta(minutes=15)
+        current_time = start_of_day
+        while current_time < now:
+            formatted_time = current_time.strftime("%Y-%m-%d %H:%M")
+            past_times_values2.append({
+                'start_time': formatted_time,
+                'end_time': (current_time + time_increment).strftime("%Y-%m-%d %H:%M")
+            })
+            current_time += time_increment
+
+        reserved_times_values2 = past_times_values2 + reserved_times_values  # Combine past and reserved times
+    else:
+        reserved_times_values2 = reserved_times_values
+
+
+    print(reserved_times_values)
+
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         if form.is_valid():
@@ -244,13 +266,12 @@ def reservation_table(request, table_id, date1):
             # Display the error message on the screen
                 error_message = str(e)
                 cleaned_message = error_message[2:-2]
-                return render(request, 'reservation_table.html', {'table': table, 'error_message': cleaned_message,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values})
+                return render(request, 'reservation_table.html', {'table': table, 'error_message': cleaned_message,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values, "past_times": reserved_times_values2})
     else:
         form = ReservationForm()
-    print(reserved_times_values)
         
 
-    return render(request, 'reservation_table.html', {'table': table,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values})
+    return render(request, 'reservation_table.html', {'table': table,  'form': form, 'date1': date1, 'reserved_time': reserved_times_values, "past_times": reserved_times_values2})
 
 def drinks(request):
     drinks = Menuitem.objects.all().filter(type = 0)  

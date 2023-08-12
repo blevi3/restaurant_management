@@ -37,7 +37,11 @@
     {% for time in reserved_time %}
       {"start_time" :"{{ time.start_time }}", "end_time": "{{ time.end_time}}"},
     {% endfor %}
+    {% for time in past_times %}
+    {"start_time" :"{{ time.start_time }}", "end_time": "{{ time.end_time}}"},
+    {% endfor %}
   ];
+
   var starttime = document.getElementById("id_starttime");
   // Loop through each option in the select element
   for (var i = 0; i < starttime.options.length; i++) {
@@ -59,8 +63,6 @@
     }
   }
   
-
-
   var endtime = document.getElementById("id_endtime");
   for (var i = 0; i < endtime.options.length; i++) {
     var optionValue = endtime.options[i].value;
@@ -81,9 +83,9 @@
       endtime.remove(i);
     }
   }
-
-
 </script>
+
+
 
 <script>
   var startTimeSelect = document.getElementById("id_starttime");
