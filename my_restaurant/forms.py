@@ -124,7 +124,6 @@ class ProfileForm(forms.ModelForm):
 
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
-
     class Meta:
         model = User
         fields = ['username', 'email']

@@ -31,6 +31,13 @@
 <div class="container py-5 login">
   <h1>Register</h1>
   <br>
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
   <form method="POST" id ="asztal_form" novalidate="novalidate">
     {% csrf_token %}
 
@@ -45,6 +52,7 @@
           placeholder = "Username"
           required=""
           id="id_username"
+          value="{{ uname }}"
         />
 
       </div>
@@ -59,6 +67,7 @@
           placeholder = "Email"
           required=""
           id="id_email"
+          value="{{ address }}"
         />
       </div>
     </div>
