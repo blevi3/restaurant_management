@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block pagecontent %}
 <html>
 <head>
-	<title>All Reservations</title>
+	<title>Current Reservations</title>
 	<style type="text/css">
 
 		table {
@@ -36,7 +36,8 @@
 	</style>
 </head>
 <body>
-	<h1>All Reservations</h1>
+	<div>
+	<h1>Active Reservations</h1>
 	<table>
 		<tr>
 			<th>Name</th>
@@ -57,6 +58,31 @@
 			</tr>
 		{% endfor %}
 	</table>
+</div>
+<br>
+<div>	
+	<h1>Past Reservations</h1>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Start Time</th>
+			<th>End Time</th>
+			<th>Party Size</th>
+			<th>Table ID</th>
+		</tr>
+		{% for reservation in past_reservations %}
+			<tr>
+				<td>{{ reservation.name }}</td>
+				<td>{{ reservation.email }}</td>
+                <td>{{ reservation.start_time|date:"F d, Y, H:i" }}</td>
+				<td>{{ reservation.end_time|date:"F d, Y, H:i" }}</td>
+				<td>{{ reservation.party_size }}</td>
+				<td>{{ reservation.table_id }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+</div>
 </body>
 </html>
 {% endblock %}

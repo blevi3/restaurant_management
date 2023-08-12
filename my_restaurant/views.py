@@ -94,7 +94,9 @@ def password_reset_request(request):
 @staff_member_required
 def all_reservations(request):
     reservations = Reservation.objects.filter(end_time__gt=timezone.now()).order_by('start_time')
-    return render(request, 'all_reservations.html', {'reservations': reservations})
+    past_reservations = Reservation.objects.exclude(id__in=reservations.values_list('id', flat=True))
+
+    return render(request, 'all_reservations.html', {'reservations': reservations, "past_reservations": past_reservations})
 
 
 @login_required
@@ -559,7 +561,9 @@ def get_recommendations(cart_items, num_recommendations=3):
             for item2 in ordered_items:
                 if item1 != item2:
                     product_pairs[(item1[1], item2[1])] += 1
-        cart_products = cart_items
+
+    # Step 3: Generate recommendations from product pairs
+    cart_products = cart_items
     recommendations = []
     for product_pair, frequency in product_pairs.items():
         if product_pair[0] in cart_products and product_pair[1] not in cart_products:
