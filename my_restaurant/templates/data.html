@@ -30,7 +30,7 @@
           {% if item.category == category %}
             <tr>
               <td id="tdName">{{ item.name }}</td>
-              <td id="tdPrice">{{ item.price }} Ft</td>
+              <td id="tdPrice">{{ item.price }} Ft</td> 
               <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
               {% if request.user.is_staff %}
               <td>
@@ -186,7 +186,7 @@
               <div class="form-group">
                 <label for="price">Price</label>
                 <input
-                  type="text"
+                  type="number"
                   class="form-control"
                   id="price"
                   name="price"
@@ -219,7 +219,7 @@
     <script>
       $(document).on("click", ".modify-button", function () {
 
-        var tdPriceValue = $(this).closest("td").siblings("#tdPrice").text();
+        var tdPriceValue = $(this).closest("td").siblings("#tdPrice").text().slice(0, -3);;
         console.log("tdNameValue");
         var tdNameValue = $(this).closest("td").siblings("#tdName").text();
         var inputValue = $(this).closest("tr").find("input#editdata").val();

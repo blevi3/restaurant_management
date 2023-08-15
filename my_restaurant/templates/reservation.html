@@ -21,7 +21,6 @@
   <div class="form">
     <form method="POST" action="{% url 'available_tables' %}">
       {% csrf_token %}
-      {{ form.date.as_hidden }}
       <input type="date" name="date" value="{{date}}">
       <button type="submit">Select</button>
     </form>

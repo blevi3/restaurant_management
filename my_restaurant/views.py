@@ -26,8 +26,6 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 
-
-
 def staff_member_required(view_func):
     """
     Decorator that checks if a user is a staff member or not. If not, redirect to login page.
@@ -39,15 +37,12 @@ def staff_member_required(view_func):
     )
     return actual_decorator(view_func)
 
-
-
 from django.contrib.auth.decorators import login_required
 from .forms import UserUpdateForm
 from .models import Profile
 
 @login_required
 def profile(request):
-    user_profile = Profile.objects.get(user=request.user)
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
         if user_form.is_valid() :
@@ -61,35 +56,45 @@ def profile(request):
     }
     return render(request, 'profile.html', context)
 
-
 def password_reset_request(request):
-	if request.method == "POST":
-		password_reset_form = PasswordResetForm(request.POST)
-		if password_reset_form.is_valid():
-			data = password_reset_form.cleaned_data['email']
-			associated_users = User.objects.filter(Q(email=data))
-			if associated_users.exists():
-				for user in associated_users:
-					subject = "Password Reset Requested"
-					email_template_name = "registration/password_reset_email.html"
-					c = {
-					"email":user.email,
-					'domain':'127.0.0.1:8000',
-					'site_name': 'Website',
-					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
-					"user": user,
-					'token': default_token_generator.make_token(user),
-					'protocol': 'http',
-					}
-					email = render_to_string(email_template_name, c)
-					try:
-						send_mail(subject, email, 'g.laszlo2003@gmail.com' , [user.email], fail_silently=False)
-					except BadHeaderError:
-						return HttpResponse('Invalid header found.')
-					return redirect ("/password_reset/done/")
-	password_reset_form = PasswordResetForm()
-	return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form":password_reset_form})
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data["email"]
+            associated_users = User.objects.filter(email=data)              
 
+            print(associated_users)
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "registration/password_reset_email.html"
+                    c = {
+                        "email": user.email,
+                        "domain": "127.0.0.1:8000",
+                        "site_name": "Website",
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        "token": default_token_generator.make_token(user),
+                        "protocol": "http",
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_mail(
+                            subject,
+                            email,
+                            "g.laszlo2003@gmail.com",
+                            [user.email],
+                            fail_silently=False,
+                        )
+                    except BadHeaderError:
+                        return HttpResponse("Invalid header found.")
+                    return redirect("/password_reset/done/")
+    password_reset_form = PasswordResetForm()
+    return render(
+        request=request,
+        template_name="registration/password_reset.html",
+        context={"password_reset_form": password_reset_form},
+    )
 
 @staff_member_required
 def all_reservations(request):
@@ -97,7 +102,6 @@ def all_reservations(request):
     past_reservations = Reservation.objects.exclude(id__in=reservations.values_list('id', flat=True))
 
     return render(request, 'all_reservations.html', {'reservations': reservations, "past_reservations": past_reservations})
-
 
 @login_required
 def my_reservations(request):
@@ -113,40 +117,6 @@ def my_reservations(request):
     }
     return render(request, 'my_reservations.html', context)
 
-'''
-@login_required
-def date_selection(request):
-    
-    if request.method == 'POST':
-        form = DateSelectionForm(request.POST)
-        if form.is_valid():
-            date1 = form.cleaned_data['date']
-            return redirect('available_tables', date=date1)
-    else:
-        form = DateSelectionForm()
-    return render(request, 'date_selection.html', {'form': form})
-
-
-@login_required
-def available_tables(request):
-    date_str = request.POST.get('date')
-    
-    if date_str:
-        date1 = datetime.strptime(date_str, '%Y-%m-%d').date()
-    else:
-        date1 = date.today()
-    
-    tables = Table.objects.all()
-    reserved = {}
-    for table in tables:
-        reserv = Reservation.objects.all().filter(table_id = table.id)
-        
-        reserved[table.id] = reserv
-    print(reserved)
-
-    return render(request, 'available_tables.html', {'tables': tables,  'date': date1, })
-'''
-
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 
@@ -156,9 +126,7 @@ def available_tables(request):
         form = DateSelectionForm(request.POST)
         if form.is_valid():
             date = form.cleaned_data['date']
-            # populate form with selected date
             form = DateSelectionForm(initial={'date': date})
-            # check selected date is not too far in the future
             max_future_days = 60
             if date > date.today() + timedelta(days=max_future_days):
                 raise ValidationError('Selected date is too far in the future')
@@ -170,17 +138,11 @@ def available_tables(request):
 
     if date:
         tables = Table.objects.all()
-        reserved = {}
-        for table in tables:
-            reserv = Reservation.objects.all().filter(table_id=table.id)
 
-            reserved[table.id] = reserv
 
         return render(request, 'reservation.html', {'tables': tables, 'date': date, 'form': form})
     else:
         return render(request, 'reservation.html', {'form': form})
-
-
 
 @login_required
 def get_available_times(date1, table):
@@ -304,17 +266,7 @@ def menu(request):
     return render(request, 'foods.html', {'foods': foods, 'categories': cat})
 
 def gallery(request):
-    foods = Menuitem.objects.all().filter(type = 1)
-    categories = []
-    for food in foods:
-        categories.append(food.category)
-    cat = list(set(categories))
-    print(categories)
-
-
-    return render(request, 'gallery.html', {'foods': foods, 'categories': cat})
-
-
+    return render(request, 'gallery.html' )
 
 @login_required()
 def add_to_cart(request, item_id):
@@ -357,7 +309,7 @@ def cart(request):
     print(cart_item_ids)
     recommendations = get_recommendations(cart_item_ids)
     context = {
-        'final_price': final_price*100,  # assuming you have this variable in your view
+        'final_price': final_price*100,  
         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,  # replace with your actual publishable key
     }
     recom = []
@@ -453,7 +405,6 @@ def order_paid(request, id):
     return redirect('cart') 
 
 
-
 def add_recom_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
     print(item)
@@ -478,8 +429,6 @@ def add_recom_to_cart(request, item_id):
     return redirect('cart')
 
 
-
-    
 class HomePageView(TemplateView):
     template_name = "index.html"
 
@@ -555,12 +504,6 @@ def register_request(request):
     return render(request, template_name="registration/register.html", context={"register_form": form})
 
 
-
-
-
-
-
-# Step 3: Generate recommendations based on current cart contents
 def get_recommendations(cart_items, num_recommendations=3):
     from collections import Counter
     from itertools import groupby
@@ -591,48 +534,6 @@ def get_recommendations(cart_items, num_recommendations=3):
     unique_product_ids = [product_id for product_id, _ in unique_recommendations]
     recom = list(set(unique_product_ids))[:num_recommendations]
     return recom
-
-
-'''    
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-#cart_items are a list of cartitem querysets
-def get_recommendations2(cart_items, num_recommendations=5):
-    cart_products = {item.item_id for item in cart_items}
-    item_ids = list(set([item.item_id for item in CartItem.objects.all()]))
-    user_items = np.zeros((1, len(item_ids)))
-    for item in cart_items:
-        user_items[0, item_ids.index(item.item_id)] = item.quantity
-    
-    # Compute pairwise cosine similarities between items
-    item_vectors = np.zeros((len(item_ids), len(item_ids)))
-    for i, item_id1 in enumerate(item_ids):
-        for j, item_id2 in enumerate(item_ids):
-            if i != j:
-                item1_cart_ids = [row.cart_id for row in CartItem.objects.filter(item_id=item_id1)]
-                item2_cart_ids = [row.cart_id for row in CartItem.objects.filter(item_id=item_id2)]
-                common_carts = list(set(item1_cart_ids) & set(item2_cart_ids))
-                item_vectors[i, j] = len(common_carts)
-    item_similarities = cosine_similarity(item_vectors)
-    
-    # Compute weighted sums of item vectors to get user vector
-    user_vector = np.dot(user_items, item_similarities) / np.sum(item_similarities, axis=1)
-    
-    # Compute scores for all items and sort in decreasing order
-    item_scores = np.dot(user_vector, item_vectors) / np.sum(item_vectors, axis=1)
-    sorted_items = sorted(list(enumerate(item_scores)), key=lambda x: x[1], reverse=True)
-    
-    # Return top recommended items that are not already in the cart
-    recommendations = []
-    for i, score in sorted_items:
-        if item_ids[i] not in cart_products:
-            recommendations.append(item_ids[i])
-        if len(recommendations) == num_recommendations:
-            break
-    return recommendations
-
-'''
-
 
 
 class Testpage(TemplateView):
