@@ -26,6 +26,10 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 
+from django.http.response import JsonResponse
+from django.views.decorators.csrf import csrf_exempt 
+import stripe
+
 def staff_member_required(view_func):
     """
     Decorator that checks if a user is a staff member or not. If not, redirect to login page.
@@ -367,7 +371,6 @@ def add_to_cart_from_cart(request, item_id):
         cart_item.quantity += 1
         cart_item.final_price = item.price * cart_item.quantity
         cart_item.save()
-        print(cart_item.quantity)
     return redirect('cart')
 
 @staff_member_required
@@ -384,9 +387,7 @@ def order_paid_admin(request, id):
 
 @staff_member_required
 def cart_delivered(request, id):
-    print(id)
     cart = Cart.objects.get(pk = id)
-    print(cart)
     cart.is_delivered = 1
     cart.save()
     return redirect('all_orders')
@@ -407,7 +408,6 @@ def order_paid(request, id):
 
 def add_recom_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
-    print(item)
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     if not created:
         cart.save()
@@ -418,9 +418,7 @@ def add_recom_to_cart(request, item_id):
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
             print(cart_item.quantity)
-            print("növelve")
         else:
-            print("setto 1")
             cart_item.quantity = 1
             cart_item.total_price = item.price * cart_item.quantity
             cart_item.final_price = item.price
@@ -446,19 +444,15 @@ def items_list(request):
     categories = item_list.values_list('category', flat=True).distinct()
     if request.method == 'POST':
         
-        print(categories)
 
         if 'edit' in request.POST:
-            print("edit")
             item = get_object_or_404(Menuitem, pk=request.POST['editItemID'])
             item.name = request.POST.get('edit')
             item.price = request.POST.get('price')
     
             item.save()
         elif 'remove' in request.POST:
-            print("remove")
             item = get_object_or_404(Menuitem, pk=request.POST['remove'])
-            print("remove")
             item.delete()
         elif 'add' in request.POST:
             if request.POST.get('type') == "Food":
@@ -538,3 +532,109 @@ def get_recommendations(cart_items, num_recommendations=3):
 
 class Testpage(TemplateView):
     template_name = "index.html"
+
+
+def get_user_cart_items(user):
+    # Retrieve the cart for the user
+    cart = Cart.objects.filter(user_id=user.id, ordered=0, is_delivered=0, is_paid=0, is_ready=0).first()
+
+    if cart:
+        cart_items = CartItem.objects.filter(cart_id=cart.id)
+        line_items2 = []
+
+        for cart_item in cart_items:
+            menu_item = Menuitem.objects.get(id=cart_item.item_id)
+            line_item2=[int(cart_item.total_price), menu_item.name, cart_item.quantity]
+            line_items2.append(line_item2)
+
+        return line_items2, cart
+    else:
+        return []
+
+@csrf_exempt
+def stripe_config(request):
+    if request.method == 'GET':
+        stripe_config = {'publicKey': settings.STRIPE_TEST_PUBLISHABLE_KEY}
+        return JsonResponse(stripe_config, safe=False)
+    
+@csrf_exempt
+def create_checkout_session(request):
+    if request.method == 'GET':
+        domain_url = 'http://localhost:8000/'
+        stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+        try:
+            user_items, cart= get_user_cart_items(request.user)
+            line_items = []
+            for item in user_items:
+                line_item = {
+                    'price_data': {
+                        'currency': 'huf',
+                        'unit_amount': item[0]*100,  # Assuming the item[0] is the price in cents
+                        'product_data': {
+                            'name': item[1],     # Assuming the item[1] is the product name
+                        },
+                    },
+                    'quantity': item[2],  # Assuming the item[2] is the quantity
+                }
+                line_items.append(line_item)
+            # Create new Checkout Session for the order
+
+            checkout_session = stripe.checkout.Session.create(
+                client_reference_id=request.user.id if request.user.is_authenticated else None,
+                success_url=domain_url + 'cart',
+                cancel_url=domain_url + 'cancelled/',
+                payment_method_types=['card'],
+                mode='payment',
+                
+                line_items=line_items,
+            )
+
+            return JsonResponse({'sessionId': checkout_session['id']})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+
+class SuccessView(TemplateView):
+    template_name = 'payment_success.html'
+
+
+class CancelledView(TemplateView):
+    template_name = 'payment_cancelled.html'
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+    endpoint_secret = settings.STRIPE_ENDPOINT_SECRET
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return HttpResponse(status=400)
+
+    # Handle the checkout.session.completed event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        # Retrieve user's cart based on the client_reference_id
+        user_id = session['client_reference_id']
+        user = User.objects.get(id=user_id)
+        cart = Cart.objects.filter(user=user, ordered=0, is_delivered=0, is_paid=0, is_ready=0).first()
+
+        if cart:
+            cart.ordered = 1
+            cart.is_paid = 1
+            cart.save()
+
+        print("Payment was successful. Cart updated.")
+
+        
+
+    return HttpResponse(status=200)

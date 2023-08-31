@@ -1,5 +1,7 @@
 {% extends "base.html" %} {% block pagecontent %}
 <link rel="stylesheet" href="/static/css/cart.css" type="text/css" />
+{% load static %}
+
 
 <div class="container">
   <style>
@@ -57,22 +59,12 @@
     <button class="btn btn-primary">Place order</button>
   </a>
   
-  <form method="POST" action="{% url 'order_paid' cartid %}">
-    {% csrf_token %}
-    <br>
-    <script
-    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-    data-key="{{ publishable_key }}"
-    data-description="Payment for your order"
-    data-amount="{% widthratio final_price 1 100 %}"
-    data-locale="auto"
+<script src="https://js.stripe.com/v3/"></script> 
+<script src="{% static 'js/main.js' %}"></script>
+<section class="section">
+    <button class="btn btn-primary" id="submitBtn">Purchase!</button>
+</section>
 
-    data-label="Pay Now"
-    data-currency="huf"
-
-    >  
-  </script>
-  </form>
   <br>
   <a href="{% url 'empty_cart' %}">
     <button class="btn btn-danger">Empty cart</button>
