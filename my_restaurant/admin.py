@@ -1,6 +1,6 @@
 from django.contrib import admin
 from my_restaurant.models import Cart, CartItem, Menuitem, Table, Reservation
-# Register your models here.
+from django.contrib.auth.models import User
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     pass
@@ -20,3 +20,4 @@ class TableAdmin(admin.ModelAdmin):
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
     pass
+

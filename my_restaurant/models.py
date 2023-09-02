@@ -61,7 +61,7 @@ class Profile(models.Model):
     username = models.CharField(max_length=30)
     email = models.EmailField(max_length=254)
     def __str__(self):
-        return self.user.username, self.user.email
+        return self.user.username
 
 
 

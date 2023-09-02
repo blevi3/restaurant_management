@@ -53,7 +53,8 @@
   
   
   {% if ordered %}
-  <p>Your order has been placed</p>
+  <p>Your order has been placed {% if paid %}and paid in advance{% endif %} </p>
+
   {% else %}
   <a href="{% url 'order' cartid %}">
     <button class="btn btn-primary">Place order</button>

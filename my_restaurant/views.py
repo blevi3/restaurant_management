@@ -67,7 +67,6 @@ def password_reset_request(request):
             data = password_reset_form.cleaned_data["email"]
             associated_users = User.objects.filter(email=data)              
 
-            print(associated_users)
             if associated_users.exists():
                 for user in associated_users:
                     subject = "Password Reset Requested"
@@ -200,9 +199,6 @@ def reservation_table(request, table_id, date1):
     else:
         reserved_times_values2 = reserved_times_values
 
-
-    print(reserved_times_values)
-
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         if form.is_valid():
@@ -212,8 +208,6 @@ def reservation_table(request, table_id, date1):
             start_time_str = request.POST.get('starttime')
             end_time_str = request.POST.get('endtime')
             party_size = request.POST.get('party_size')
-            print(party_size)
-            print(table.max_capacity)
             try:
             
             # Validate the party size
@@ -221,7 +215,6 @@ def reservation_table(request, table_id, date1):
                     raise ValidationError(f"Party size cannot exceed {table.max_capacity}.")
                 starter = date1+" "+start_time_str
                 ender = date1+" "+end_time_str
-                print(starter)
                 start_time = datetime.strptime(starter, '%Y-%m-%d %H:%M:%S')
                 end_time = datetime.strptime(ender, '%Y-%m-%d %H:%M:%S')
                 reservation.start_time = start_time
@@ -246,7 +239,6 @@ def drinks(request):
     categories = []
     for categorie in drinks:
         categories.append(categorie.category)
-    print(categories)
     cat = list(set(categories))
     
 
@@ -264,8 +256,6 @@ def menu(request):
     for food in foods:
         categories.append(food.category)
     cat = list(set(categories))
-    print(categories)
-
 
     return render(request, 'foods.html', {'foods': foods, 'categories': cat})
 
@@ -275,7 +265,6 @@ def gallery(request):
 @login_required()
 def add_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
-    print(item)
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     if not created:
         cart.save()
@@ -285,10 +274,8 @@ def add_to_cart(request, item_id):
             cart_item.quantity += 1
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
-            print(cart_item.quantity)
-            print("növelve")
+
         else:
-            print("setto 1")
             cart_item.quantity = 1
             cart_item.total_price = item.price * cart_item.quantity
             cart_item.final_price = item.price
@@ -310,7 +297,6 @@ def cart(request):
             cart_item_ids.append(cart_item.item_id)
         cart.amount_to_be_paid = final_price
         cart.save()
-    print(cart_item_ids)
     recommendations = get_recommendations(cart_item_ids)
     context = {
         'final_price': final_price*100,  
@@ -321,18 +307,14 @@ def cart(request):
     for id in recommendations:
         item = Menuitem.objects.filter(id=id)[0]
         recom.append(item)
-        
-
-    
-    return render(request, 'cart.html', {'recommendations':recom,'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+            
+    return render(request, 'cart.html', {'recommendations':recom,'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'paid': cart.is_paid, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
 @login_required
 def previous_orders(request):
     previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
-    print(previous_carts)
     return render(request, 'previous_orders.html', {'previous_carts': previous_carts})
 @login_required
 def remove_from_cart(request, cart_item_id):
-    print(cart_item_id)
     
     cart_item = CartItem.objects.get(id=cart_item_id)
     item = Menuitem.objects.get(id = cart_item.item_id)
@@ -405,7 +387,7 @@ def order_paid(request, id):
     cart.save()
     return redirect('cart') 
 
-
+@login_required 
 def add_recom_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
@@ -417,7 +399,6 @@ def add_recom_to_cart(request, item_id):
             cart_item.quantity += 1
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
-            print(cart_item.quantity)
         else:
             cart_item.quantity = 1
             cart_item.total_price = item.price * cart_item.quantity
@@ -485,8 +466,9 @@ def register_request(request):
                     messages.success(request, "Registration successful.")
                     return redirect("home")
                 else:
-                    # Handle form validation errors
-                    return render(request, 'registration/register.html', {'register_form': form})
+                    
+                    messages.error(request, "Password and confirm password do not match.")
+                    return render(request, 'registration/register.html', {'register_form': form, 'uname': request.POST.get("username"), 'address': request.POST.get("email")})
             else:
                 messages.error(request, "Email address already registered")
                 return render(request, 'registration/register.html', {'register_form': form, 'uname': request.POST.get("username")})
@@ -502,10 +484,8 @@ def get_recommendations(cart_items, num_recommendations=3):
     from collections import Counter
     from itertools import groupby
 
-    # Step 1: Extract data from CartItem table
     order_history = CartItem.objects.all().values_list('cart_id', 'item_id')
 
-    # Step 2: Process data to generate product pairs
     product_pairs = Counter()
     for cart_id, items in groupby(order_history, key=lambda x: x[0]):
         ordered_items = set(items)
@@ -514,7 +494,6 @@ def get_recommendations(cart_items, num_recommendations=3):
                 if item1 != item2:
                     product_pairs[(item1[1], item2[1])] += 1
 
-    # Step 3: Generate recommendations from product pairs
     cart_products = cart_items
     recommendations = []
     for product_pair, frequency in product_pairs.items():
@@ -551,13 +530,13 @@ def get_user_cart_items(user):
     else:
         return []
 
-@csrf_exempt
+
 def stripe_config(request):
     if request.method == 'GET':
         stripe_config = {'publicKey': settings.STRIPE_TEST_PUBLISHABLE_KEY}
         return JsonResponse(stripe_config, safe=False)
     
-@csrf_exempt
+
 def create_checkout_session(request):
     if request.method == 'GET':
         domain_url = 'http://localhost:8000/'
@@ -569,15 +548,14 @@ def create_checkout_session(request):
                 line_item = {
                     'price_data': {
                         'currency': 'huf',
-                        'unit_amount': item[0]*100,  # Assuming the item[0] is the price in cents
+                        'unit_amount': item[0]*100,  
                         'product_data': {
-                            'name': item[1],     # Assuming the item[1] is the product name
+                            'name': item[1],    
                         },
                     },
-                    'quantity': item[2],  # Assuming the item[2] is the quantity
+                    'quantity': item[2],  
                 }
                 line_items.append(line_item)
-            # Create new Checkout Session for the order
 
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=request.user.id if request.user.is_authenticated else None,
@@ -614,16 +592,12 @@ def stripe_webhook(request):
             payload, sig_header, endpoint_secret
         )
     except ValueError as e:
-        # Invalid payload
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
         return HttpResponse(status=400)
 
-    # Handle the checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        # Retrieve user's cart based on the client_reference_id
         user_id = session['client_reference_id']
         user = User.objects.get(id=user_id)
         cart = Cart.objects.filter(user=user, ordered=0, is_delivered=0, is_paid=0, is_ready=0).first()
