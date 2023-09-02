@@ -7,6 +7,16 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
+def active_order_count(context):
+    request = context['request']
+    
+    paid_carts = Cart.objects.filter(is_paid=True, is_delivered=False, ordered = True)
+    unpaid_carts = Cart.objects.filter(is_paid=False, is_delivered=False, ordered = True)
+    active_orders = paid_carts.count() + unpaid_carts.count()
+    print(active_orders)
+    return active_orders
+
+@register.simple_tag(takes_context=True)
 def cart_item_count(context):
     request = context['request']
     count=0
@@ -36,7 +46,7 @@ def cart_preview(context):
             for item in items:
                 menuitem = Menuitem.objects.get(id = item.item_id)
                 item_names.append(menuitem.name)
-            preview_html = '<div class="cart_preview" style="display: none;">'
+            preview_html = '<div class="cart_preview" style="display: none; z-index: 2;">'
 
             for i in range(len(items)):
                 preview_html += f'<p>{item_names[i]} - {items[i].quantity} x {items[i].total_price}</p>'

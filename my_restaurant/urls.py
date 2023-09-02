@@ -11,6 +11,7 @@ urlpatterns = [
     path('about', views.AboutPageView.as_view(), name='about'),
     path('order', views.items_list, name='order'),
     path('', views.home.as_view(), name='home'),
+
     #path(r'^data/modify$', views.modifydata, name='data'),
     path('add_to_cart/<int:item_id>', views.add_to_cart, name='add_to_cart'),
     path('add_product_to_cart/<int:item_id>', views.add_recom_to_cart, name='add_product_to_cart'),
@@ -38,6 +39,11 @@ urlpatterns = [
     path('reservation/<int:table_id>/<str:date1>', views.reservation_table, name='reservation_table'),
     path('password_reset/', views.password_reset_request, name="password_reset"),
     path('profile/', views.profile, name='profile'),
+    path('config/', views.stripe_config),
+    path('create-checkout-session/', views.create_checkout_session),
+    path('success/', views.SuccessView.as_view()), 
+    path('cancelled/', views.CancelledView.as_view()),
+    path('webhook/', views.stripe_webhook),
 
     
     

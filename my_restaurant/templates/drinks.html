@@ -10,6 +10,7 @@
     position: relative;
     background-color: #333;
     overflow: hidden;
+    margin-top: 5%;
   }
   
   .menu-columns {
@@ -24,7 +25,6 @@
   .category-column {
     display: grid;
     grid-auto-rows: min-content;
-    grid-gap: 10px;
     margin-bottom: 2rem; /* Add margin at the bottom of each category column */
   }
   
@@ -39,6 +39,7 @@
   .menu-item {
     color: #fff;
     margin-bottom: 10px;
+    margin-right: 20%;
   }
   
   .drink-info,
@@ -71,6 +72,23 @@
     background-position: center;
     background-size: contain;
   }
+
+  @media screen and (max-height: 1200px) {
+    .menu-container {
+        display: inherit;
+    }
+    .menu-columns{
+      grid-gap: 0;
+    }
+
+}
+@media screen and (max-height: 450px) {
+  .menu-container {
+      width: 40%;
+  }
+
+  
+}
 </style>
 
 <div class="menu-container">
