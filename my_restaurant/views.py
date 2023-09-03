@@ -1,11 +1,10 @@
-# djangotemplates/example/views.py
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import TemplateView # Import TemplateView
-from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm
+from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm , CouponForm
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
-from .models import Menuitem, Cart, CartItem, Table, Reservation, Profile
+from .models import Menuitem, Cart, CartItem, Table, Reservation, Profile , Coupons
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -29,6 +28,7 @@ from django.utils.encoding import force_bytes
 from django.http.response import JsonResponse
 from django.views.decorators.csrf import csrf_exempt 
 import stripe
+from decimal import Decimal
 
 def staff_member_required(view_func):
     """
@@ -282,13 +282,73 @@ def add_to_cart(request, item_id):
             cart_item.save()
     
     return redirect('order')
+
+
 @login_required
 def cart(request):
+    #TODO: "Remove Coupon" 
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
-    
+    discount_code = request.POST.get('discount_code')
+    discount = 0
     cart_items = {}
     cart_item_ids = []
     final_price = 0
+    original_amount = 0
+
+
+    if cart.discount == 0:
+        if request.method == 'POST':
+            coupon_form = CouponForm(request.POST)
+            if coupon_form.is_valid():
+                code = coupon_form.cleaned_data['code']
+                try:
+                    coupon = Coupons.objects.get(code=code)
+                
+                    cart = Cart.objects.get(user=request.user, ordered=False)
+                    
+                    items = CartItem.objects.filter(cart_id = cart.id)
+                    print(items)    
+                    allowed_product= Menuitem.objects.filter(name = coupon.products).first()
+                    if allowed_product:
+                        print(allowed_product)
+                        eligible_items = items.filter(item=allowed_product)
+                        
+                        if eligible_items.exists():
+                            print(f'You can use this coupon for {eligible_items.count()} item(s).')
+                            cart_coupon = coupon.percentage
+                            print(cart_coupon)
+
+                            # Apply the coupon discount to each eligible item
+                            for item in eligible_items:
+                                discounted_product = item.final_price
+                                print("hotdogs: ",item)
+                                item.total_price -= (cart_coupon * item.total_price / 100)
+                                item.save()
+                                cart.discount = coupon.id
+                                cart.save()
+                            messages.success(request, f'Coupon "{coupon.code}" applied!')
+                            redirect('cart')
+                    else:
+                        messages.error(request, f'Coupon "{coupon.code}" is not applicable to your cart.')
+    
+                except Coupons.DoesNotExist:
+                    messages.error(request, 'Invalid coupon code.')
+            else:
+                messages.error(request, 'Invalid coupon code.')
+    else:
+        print('You already applied one coupon!')
+        messages.error(request, 'You already applied one coupon!')
+    cart.save()
+
+
+    try:
+        cart_coupon = Coupons.objects.filter(id=cart.discount).first()
+        coupon_menuitem = Menuitem.objects.filter(name = cart_coupon.products).first()
+        original_amount = CartItem.objects.filter(cart_id = cart.id).filter(item_id = coupon_menuitem.id).first()
+        print("final: ",original_amount)
+        discount = original_amount.final_price - original_amount.total_price*original_amount.quantity
+    except:
+        cart_coupon = 0
     if not created:
         cart_items = CartItem.objects.filter(cart=cart)
         final_price = 0
@@ -297,18 +357,56 @@ def cart(request):
             cart_item_ids.append(cart_item.item_id)
         cart.amount_to_be_paid = final_price
         cart.save()
-    recommendations = get_recommendations(cart_item_ids)
-    context = {
-        'final_price': final_price*100,  
-        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,  # replace with your actual publishable key
-    }
-    recom = []
     
+    
+
+    recommendations = get_recommendations(cart_item_ids)
+
+    recom = []
+
     for id in recommendations:
         item = Menuitem.objects.filter(id=id)[0]
         recom.append(item)
             
-    return render(request, 'cart.html', {'recommendations':recom,'cart_items': cart_items, 'final_price': final_price, 'ordered': cart.ordered, 'paid': cart.is_paid, 'cartid': cart.id,'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+    return render(request, 'cart.html', {'recommendations':recom,
+                                         'cart_items': cart_items, 
+                                         'final_price': cart.amount_to_be_paid, 
+                                         'ordered': cart.ordered, 
+                                         'paid': cart.is_paid, 
+                                         'cartid': cart.id,
+                                         'discount': discount,
+                                         'coupon': cart_coupon,
+                                         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+
+
+@login_required
+def remove_coupon(request):
+    if request.method == 'POST':
+        cart = Cart.objects.get(user=request.user, ordered=False)
+        if cart.discount != 0:
+            # Get the coupon code and associated discount
+            removed_coupon = Coupons.objects.get(id=cart.discount)
+            cart.discount = 0
+
+            # Revert the prices of items that were discounted by the coupon
+            cart_items = CartItem.objects.filter(cart=cart)
+            for cart_item in cart_items:
+                if cart_item.item.id == removed_coupon.id:
+                    # Retrieve the original price from the Menuitem model
+                    original_price = Menuitem.objects.get(id=cart_item.item.id).price
+
+                    # Update the CartItem's total_price with the original price
+                    cart_item.total_price = original_price
+                    cart_item.save()
+
+            cart.save()
+            messages.success(request, 'Coupon removed successfully.')
+        else:
+            messages.warning(request, 'No coupon to remove.')
+
+    return redirect('cart')  # Redirect back to the cart page
+
+
 @login_required
 def previous_orders(request):
     previous_carts= Cart.objects.filter(ordered=1).filter(is_delivered = 1).filter(user = request.user)
@@ -318,12 +416,12 @@ def remove_from_cart(request, cart_item_id):
     
     cart_item = CartItem.objects.get(id=cart_item_id)
     item = Menuitem.objects.get(id = cart_item.item_id)
-    cart_item.total_price = item.price
+    #cart_item.total_price = item.price
     cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
     if cart:
         if cart_item.quantity > 1:
             cart_item.quantity -= 1
-            cart_item.final_price = cart_item.total_price * cart_item.quantity
+            cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
         else:
             cart_item.delete()

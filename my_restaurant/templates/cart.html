@@ -13,7 +13,8 @@
     <thead>
       <tr>
         <th>Item name</th>
-        <th>Price</th>
+        <th>Price / Item</th>
+        <th>Total Price</th>
         <th>Quantity</th>
         {% if not ordered %}
         <th></th>
@@ -24,7 +25,18 @@
       {% for item in cart_items %}
       <tr>
         <td>{{ item.item.name }}</td>
-        <td>{{item.final_price}} Ft</td>
+        <td>{% if item.item.id == coupon.id %}
+           <del style= "text-decoration: line-through">{% widthratio item.final_price item.quantity 1 %} Ft</del>&nbsp  {% widthratio item.total_price 1 1 %} Ft
+            {% else %}
+            {% widthratio item.total_price 1 1 %} Ft
+            {% endif %}
+        </td>
+        <td>{% if item.item.id == coupon.id %}
+            <del style= "text-decoration: line-through">{% widthratio item.final_price 1 1 %} Ft</del>&nbsp {% widthratio item.total_price 1 item.quantity %} Ft
+            {% else %}
+              {% widthratio item.final_price 1 1 %} Ft
+            {% endif %}
+          </td>
         <td>
           {% if not ordered %}
           <a href="{% url 'add_to_cart_from_cart' item.item_id %}"
@@ -56,6 +68,22 @@
   <p>Your order has been placed {% if paid %}and paid in advance{% endif %} </p>
 
   {% else %}
+
+
+  {% if coupon %}
+  <p>Discount: {{ discount }} Ft</p>
+  <form method="POST" action="{% url 'remove_coupon' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Remove Coupon</button> {{ coupon.code }}
+  </form>
+
+  {% else %}
+  <form method="POST" action="{% url 'cart' %}">
+    {% csrf_token %}
+      <input type="text" name="code" placeholder="Enter coupon code">
+      <button type="submit">Apply Coupon</button>
+    {% endif %}
+</form>
   <a href="{% url 'order' cartid %}">
     <button class="btn btn-primary">Place order</button>
   </a>

@@ -12,6 +12,18 @@ class Menuitem(models.Model):
     price = models.IntegerField()
     def __str__(self):
         return f"{self.name, self.type, self.category, self.price}"
+    
+    
+class Coupons(models.Model):
+    name = models.CharField(max_length=100)
+    percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    code = models.CharField(max_length=20)
+    products =models.CharField(max_length=40, default="null")
+    is_unique = models.BooleanField(default=False)
+    def __str__(self):
+        return self.name
+
+
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -20,8 +32,10 @@ class Cart(models.Model):
     is_delivered = models.BooleanField(default=0)
     is_paid = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
+    discount = models.IntegerField(default=0)
 
 
+    
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     item = models.ForeignKey(Menuitem, on_delete=models.CASCADE)
@@ -63,5 +77,16 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+
+
+class Coupon(models.Model):
+    name = models.CharField(max_length=100)
+    percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    code = models.CharField(max_length=20)
+    products =models.CharField(max_length=40, default="null")
+    is_unique = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 

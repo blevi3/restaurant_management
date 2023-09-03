@@ -45,6 +45,7 @@ urlpatterns = [
     path('cancelled/', views.CancelledView.as_view()),
     path('webhook/', views.stripe_webhook),
 
-    
+    path('remove_coupon/', views.remove_coupon, name='remove_coupon'),
+
     
 ]

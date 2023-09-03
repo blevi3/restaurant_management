@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from .models import Menuitem, Reservation, Profile
 from datetime import date
 
+class CouponForm(forms.Form):
+    code = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'Enter coupon code'}))
+
 class NewUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)
 
