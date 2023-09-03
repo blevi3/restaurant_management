@@ -13,10 +13,16 @@ class CreateCouponForm(forms.ModelForm):
         to_field_name='name',
         label='Product',
     )
-
+    coupon_type = forms.ChoiceField(
+        choices=Coupons.COUPON_TYPE_CHOICES,  # Use the choices from your model
+    )
     class Meta:
         model = Coupons
-        fields = ['percentage', 'code', 'product', 'is_unique']
+        fields = ['coupon_type','percentage', 'code', 'product', 'is_unique']
+    def __init__(self, *args, **kwargs):
+        super(CreateCouponForm, self).__init__(*args, **kwargs)
+        self.fields['product'].required = False
+        self.fields['product'].widget.attrs.update({'class': 'conditional-hidden'})
 
 class NewUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)

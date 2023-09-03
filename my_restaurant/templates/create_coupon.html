@@ -1,6 +1,63 @@
 {% extends "base.html" %}
 
 {% block pagecontent %}
+
+<script>
+  $(document).ready(function() {
+      // Get references to the relevant elements
+      var couponTypeField = $('#id_coupon_type');
+      var percentageFieldLabel = $("label[for='id_percentage']");
+  
+      // Function to update the label text based on coupon type
+      function updatePercentageFieldLabel() {
+          var couponType = couponTypeField.val();
+          if (couponType === 'fixed') {
+              percentageFieldLabel.text('Amount');
+          } else if (couponType === 'percentage') {
+              percentageFieldLabel.text('Percentage');
+          }
+      }
+  
+      // Initial call to set label based on default coupon type
+      updatePercentageFieldLabel();
+  
+      // Add an event listener to watch for changes in the coupon type field
+      couponTypeField.on('change', function() {
+          updatePercentageFieldLabel();
+      });
+  });
+
+
+  $(document).ready(function() {
+    // Get references to the relevant elements
+    var couponTypeField = $('#id_coupon_type');
+    var productField = $('#id_product');
+
+    // Function to toggle the CSS class for the product field
+    function toggleProductFieldClass() {
+        var couponType = couponTypeField.val();
+        if (couponType === 'fixed') {
+            productField.addClass('conditional-hidden');
+        } else {
+            productField.removeClass('conditional-hidden');
+        }
+    }
+
+    // Initial call to set CSS class based on default coupon type
+    toggleProductFieldClass();
+
+    // Add an event listener to watch for changes in the coupon type field
+    couponTypeField.on('change', function() {
+        toggleProductFieldClass();
+    });
+});
+  </script>
+  <style>
+    .conditional-hidden {
+        display: none;
+    }
+</style>
+
   <h2>Create New Coupon</h2>
   <form method="post">
     {% csrf_token %}

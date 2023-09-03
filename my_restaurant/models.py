@@ -15,13 +15,20 @@ class Menuitem(models.Model):
     
     
 class Coupons(models.Model):
-    #name = models.CharField(max_length=100)
-    percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    COUPON_TYPE_CHOICES = [
+        ('fixed', 'Fixed Amount'),
+        ('percentage', 'Percentage'),
+    ]
+
+    coupon_type = models.CharField(max_length=10, choices=COUPON_TYPE_CHOICES, default='percentage')
+    percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    fixed_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     code = models.CharField(max_length=20)
-    product =models.CharField(max_length=40, default="null")
+    product = models.CharField(max_length=40, default="null", null=True)
     is_unique = models.BooleanField(default=False)
+
     def __str__(self):
-        return self.name
+        return self.product
 
 
 
@@ -33,6 +40,10 @@ class Cart(models.Model):
     is_paid = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
     discount = models.IntegerField(default=0)
+    applied_coupon_type = models.CharField(max_length=10, blank=True, null=True)
+    reduced_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
 
 
     

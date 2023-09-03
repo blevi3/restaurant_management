@@ -25,13 +25,14 @@
       {% for item in cart_items %}
       <tr>
         <td>{{ item.item.name }}</td>
-        <td>{% if item.item.name == coupon.product %}
+        <td>{% if item.item.name == reduced_priced_product %}
+            
            <del style= "text-decoration: line-through">{% widthratio item.final_price item.quantity 1 %} Ft</del>&nbsp  {% widthratio item.total_price 1 1 %} Ft
             {% else %}
             {% widthratio item.total_price 1 1 %} Ft
             {% endif %}
         </td>
-        <td>{% if item.item.name == coupon.product %}
+        <td>{% if item.item.name == reduced_priced_product %}
             <del style= "text-decoration: line-through">{% widthratio item.final_price 1 1 %} Ft</del>&nbsp {% widthratio item.total_price 1 item.quantity %} Ft
             {% else %}
               {% widthratio item.final_price 1 1 %} Ft
@@ -80,10 +81,11 @@
   {% else %}
   <form method="POST" action="{% url 'cart' %}">
     {% csrf_token %}
-      <input type="text" name="code" placeholder="Enter coupon code">
+      <input type="text" name="code" placeholder="Enter coupon code" required>
       <button type="submit">Apply Coupon</button>
     {% endif %}
 </form>
+  <hr>
   <a href="{% url 'order' cartid %}">
     <button class="btn btn-primary">Place order</button>
   </a>

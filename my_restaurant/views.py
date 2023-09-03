@@ -290,10 +290,13 @@ def cart(request):
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     discount_code = request.POST.get('discount_code')
     discount = 0
+    have_coupon = 0
     cart_items = {}
     cart_item_ids = []
     final_price = 0
     original_amount = 0
+    reduced_priced_product = None
+
 
 
     if cart.discount == 0:
@@ -303,41 +306,59 @@ def cart(request):
                 code = coupon_form.cleaned_data['code']
                 try:
                     coupon = Coupons.objects.get(code=code)
-                
-                    cart = Cart.objects.get(user=request.user, ordered=False)
-                    
-                    items = CartItem.objects.filter(cart_id = cart.id)
-                    print(items)    
-                    allowed_product= Menuitem.objects.filter(name = coupon.product).first()
-                    if allowed_product:
-                        print(allowed_product)
-                        eligible_items = items.filter(item=allowed_product)
-                        
-                        if eligible_items.exists():
-                            print(f'You can use this coupon for {eligible_items.count()} item(s).')
-                            cart_coupon = coupon.percentage
-                            print(cart_coupon)
+                    print("coupon: ",coupon.coupon_type)
+                    # Check if the coupon is already applied
+                    if cart.applied_coupon_type:
+                        messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon.')
+                        return redirect('cart')
 
-                            # Apply the coupon discount to each eligible item
-                            for item in eligible_items:
-                                discounted_product = item.final_price
-                                print("hotdogs: ",item)
-                                item.total_price -= (cart_coupon * item.total_price / 100)
-                                item.save()
+                    cart = Cart.objects.get(user=request.user, ordered=False)
+                    items = CartItem.objects.filter(cart_id=cart.id)
+                    if coupon.coupon_type == 'percentage':
+                        print("coupon type: ",coupon.coupon_type)
+                        allowed_product= Menuitem.objects.filter(name = coupon.product).first()
+                        if allowed_product:
+                            print(allowed_product)
+                            eligible_items = items.filter(item=allowed_product)
+                            
+                            if eligible_items.exists():
+                                print(f'You can use this coupon for {eligible_items.count()} item(s).')
+                                cart_coupon = coupon.percentage
+                                print(cart_coupon)
+
+                                for item in eligible_items:
+                                    print("item: ",item.item.name)
+                                    item.total_price -= (coupon.percentage * item.total_price / 100)
+                                    item.save()
                                 cart.discount = coupon.id
+                                cart.applied_coupon_type = 'percentage'
                                 cart.save()
-                            messages.success(request, f'Coupon "{coupon.code}" applied!')
-                            redirect('cart')
+                                messages.success(request, f'{coupon.percentage}% coupon "{coupon.code}" applied!')
+                        
+                    elif coupon.coupon_type == 'fixed':
+                        print("coupon type: ",coupon.coupon_type)
+                        # Apply fixed amount coupon
+                        
+                        cart.amount_to_be_paid -= coupon.fixed_amount
+                        print("cart amount: ",cart.amount_to_be_paid)
+                        cart.discount = coupon.id
+                        cart.applied_coupon_type = 'fixed'
+                        cart.reduced_price = cart.amount_to_be_paid
+                        discount = coupon.fixed_amount
+
+                        cart.save()
+                        messages.success(request, f'Fixed amount coupon "{coupon.code}" applied!')
+                        
                     else:
-                        messages.error(request, f'Coupon "{coupon.code}" is not applicable to your cart.')
-    
+                        messages.error(request, f'Invalid coupon type.')
+
                 except Coupons.DoesNotExist:
                     messages.error(request, 'Invalid coupon code.')
             else:
                 messages.error(request, 'Invalid coupon code.')
     else:
-        print('You already applied one coupon!')
-        messages.error(request, 'You already applied one coupon!')
+        messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon!')
+
     cart.save()
 
 
@@ -356,17 +377,27 @@ def cart(request):
             final_price+=cart_item.quantity*cart_item.total_price
             cart_item_ids.append(cart_item.item_id)
         cart.amount_to_be_paid = final_price
+        if cart.reduced_price !=0:
+            if cart.amount_to_be_paid > cart.reduced_price:
+                cart.amount_to_be_paid = cart.reduced_price
         cart.save()
-    
-    
 
+    print(cart_items.first())
     recommendations = get_recommendations(cart_item_ids)
-
     recom = []
 
     for id in recommendations:
         item = Menuitem.objects.filter(id=id)[0]
         recom.append(item)
+
+
+    if cart.discount !=0:
+        if cart.applied_coupon_type == 'fixed':
+            discount = Coupons.objects.filter(id=cart.discount).first().fixed_amount
+        have_coupon = 1
+        reduced_priced_product = Coupons.objects.filter(id=cart.discount).first().product
+    else:
+        have_coupon = 0
             
     return render(request, 'cart.html', {'recommendations':recom,
                                          'cart_items': cart_items, 
@@ -375,7 +406,8 @@ def cart(request):
                                          'paid': cart.is_paid, 
                                          'cartid': cart.id,
                                          'discount': discount,
-                                         'coupon': cart_coupon,
+                                         'coupon': have_coupon,
+                                         'reduced_priced_product': reduced_priced_product,
                                          'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
 
 
@@ -384,28 +416,44 @@ def create_coupon(request):
     coupons = Coupons.objects.all()  # Retrieve all coupons
 
     if request.method == 'POST':
-        # Handle form submission for creating a new coupon
-        form = CreateCouponForm(request.POST)  # Use your coupon form here
+        form = CreateCouponForm(request.POST)
+
         if form.is_valid():
-            percentage = form.cleaned_data['percentage']
+            coupon_type = form.cleaned_data['coupon_type']
             code = form.cleaned_data['code']
             product = form.cleaned_data['product']
             is_unique = form.cleaned_data['is_unique']
-            
-            # Create a new coupon object and save it
-            coupon = Coupons(
-                percentage=percentage,
-                code=code,
-                product=product,
-                is_unique=is_unique
-            )
+
+            # Initialize coupon object based on the selected coupon type
+            if coupon_type == 'fixed':
+                fixed_amount = form.cleaned_data['percentage']
+                coupon = Coupons(
+                    coupon_type=coupon_type,
+                    fixed_amount=fixed_amount,
+                    code=code,
+                    product=product if coupon_type == 'percentage' else None,
+                    is_unique=is_unique
+                )
+            elif coupon_type == 'percentage':
+                percentage = form.cleaned_data['percentage']
+                coupon = Coupons(
+                    coupon_type=coupon_type,
+                    percentage=percentage,
+                    code=code,
+                    product=product,
+                    is_unique=is_unique
+                )
+            else:
+                # Handle any other coupon types if needed
+                pass
+
             coupon.save()
-            
             return redirect('create_coupon')  # Redirect to the coupon list page after creation
+
     else:
         # Display the form for creating a new coupon
-        form = CreateCouponForm()  # Use your coupon form here
-    
+        form = CreateCouponForm()
+
     return render(request, 'create_coupon.html', {'form': form, 'coupons': coupons})
 
 @staff_member_required
@@ -430,18 +478,29 @@ def remove_coupon_from_cart(request):
             # Revert the prices of items that were discounted by the coupon
             cart_items = CartItem.objects.filter(cart=cart)
             print("cart items",cart_items)
-            for cart_item in cart_items:
-                if cart_item.item.id == Menuitem.objects.get(name = removed_coupon.product).id:
-                    # Retrieve the original price from the Menuitem model
-                    original_price = Menuitem.objects.get(id=cart_item.item.id).price
-                    print("oroginal proce",original_price)
+            if removed_coupon.coupon_type == 'fixed':
+                print("fixed")
+                # Revert fixed amount coupon
+                cart.amount_to_be_paid += removed_coupon.fixed_amount
+                cart.reduced_price = 0
+                cart.applied_coupon_type = None
+                cart.save()
 
-                    # Update the CartItem's total_price with the original price
-                    cart_item.total_price = original_price
-                    cart_item.save()
+            elif removed_coupon.coupon_type == 'percentage':
+                for cart_item in cart_items:
+                    if cart_item.item.id == Menuitem.objects.get(name = removed_coupon.product).id:
+                        # Retrieve the original price from the Menuitem model
+                        original_price = Menuitem.objects.get(id=cart_item.item.id).price
+                        print("oroginal proce",original_price)
 
-            cart.save()
-            messages.success(request, 'Coupon removed successfully.')
+                        # Update the CartItem's total_price with the original price
+                        cart_item.total_price = original_price
+                        cart.applied_coupon_type = None
+
+                        cart_item.save()
+
+                cart.save()
+                messages.success(request, 'Coupon removed successfully.')
         else:
             messages.warning(request, 'No coupon to remove.')
 
@@ -696,6 +755,14 @@ def create_checkout_session(request):
                 }
                 line_items.append(line_item)
 
+            coupon = stripe.Coupon.create(
+                percent_off=None,
+                amount_off=500*100,  # The discount value in cents (-500ft)
+                currency="huf",
+                duration="once",  # Adjust duration as needed
+            )
+
+
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=request.user.id if request.user.is_authenticated else None,
                 success_url=domain_url + 'cart',
@@ -704,6 +771,9 @@ def create_checkout_session(request):
                 mode='payment',
                 
                 line_items=line_items,
+                discounts=[{
+                    'coupon': coupon.id,
+                }],
             )
 
             return JsonResponse({'sessionId': checkout_session['id']})
