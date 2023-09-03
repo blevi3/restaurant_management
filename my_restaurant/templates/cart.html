@@ -25,13 +25,13 @@
       {% for item in cart_items %}
       <tr>
         <td>{{ item.item.name }}</td>
-        <td>{% if item.item.id == coupon.id %}
+        <td>{% if item.item.name == coupon.product %}
            <del style= "text-decoration: line-through">{% widthratio item.final_price item.quantity 1 %} Ft</del>&nbsp  {% widthratio item.total_price 1 1 %} Ft
             {% else %}
             {% widthratio item.total_price 1 1 %} Ft
             {% endif %}
         </td>
-        <td>{% if item.item.id == coupon.id %}
+        <td>{% if item.item.name == coupon.product %}
             <del style= "text-decoration: line-through">{% widthratio item.final_price 1 1 %} Ft</del>&nbsp {% widthratio item.total_price 1 item.quantity %} Ft
             {% else %}
               {% widthratio item.final_price 1 1 %} Ft

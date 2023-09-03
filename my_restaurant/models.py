@@ -15,10 +15,10 @@ class Menuitem(models.Model):
     
     
 class Coupons(models.Model):
-    name = models.CharField(max_length=100)
+    #name = models.CharField(max_length=100)
     percentage = models.DecimalField(max_digits=5, decimal_places=2)
     code = models.CharField(max_length=20)
-    products =models.CharField(max_length=40, default="null")
+    product =models.CharField(max_length=40, default="null")
     is_unique = models.BooleanField(default=False)
     def __str__(self):
         return self.name

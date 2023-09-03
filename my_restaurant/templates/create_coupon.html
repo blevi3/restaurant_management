@@ -12,7 +12,7 @@
   <ul>
     {% for coupon in coupons %}
       <li>
-        {{ coupon.name }} - {{ coupon.percentage }}% off - Code: {{ coupon.code }}
+        {{ coupon.products }} - {{ coupon.percentage }}% off - Code: {{ coupon.code }}
         <form method="post" action="{% url 'remove_coupon' coupon.id %}">
           {% csrf_token %}
           <button type="submit">Remove</button>

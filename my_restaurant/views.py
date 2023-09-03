@@ -308,7 +308,7 @@ def cart(request):
                     
                     items = CartItem.objects.filter(cart_id = cart.id)
                     print(items)    
-                    allowed_product= Menuitem.objects.filter(name = coupon.products).first()
+                    allowed_product= Menuitem.objects.filter(name = coupon.product).first()
                     if allowed_product:
                         print(allowed_product)
                         eligible_items = items.filter(item=allowed_product)
@@ -343,7 +343,7 @@ def cart(request):
 
     try:
         cart_coupon = Coupons.objects.filter(id=cart.discount).first()
-        coupon_menuitem = Menuitem.objects.filter(name = cart_coupon.products).first()
+        coupon_menuitem = Menuitem.objects.filter(name = cart_coupon.product).first()
         original_amount = CartItem.objects.filter(cart_id = cart.id).filter(item_id = coupon_menuitem.id).first()
         print("final: ",original_amount)
         discount = original_amount.final_price - original_amount.total_price*original_amount.quantity
@@ -387,18 +387,16 @@ def create_coupon(request):
         # Handle form submission for creating a new coupon
         form = CreateCouponForm(request.POST)  # Use your coupon form here
         if form.is_valid():
-            name = form.cleaned_data['name']
             percentage = form.cleaned_data['percentage']
             code = form.cleaned_data['code']
-            products = form.cleaned_data['products']
+            product = form.cleaned_data['product']
             is_unique = form.cleaned_data['is_unique']
             
             # Create a new coupon object and save it
             coupon = Coupons(
-                name=name,
                 percentage=percentage,
                 code=code,
-                products=products,
+                product=product,
                 is_unique=is_unique
             )
             coupon.save()
@@ -431,10 +429,12 @@ def remove_coupon_from_cart(request):
 
             # Revert the prices of items that were discounted by the coupon
             cart_items = CartItem.objects.filter(cart=cart)
+            print("cart items",cart_items)
             for cart_item in cart_items:
-                if cart_item.item.id == removed_coupon.id:
+                if cart_item.item.id == Menuitem.objects.get(name = removed_coupon.product).id:
                     # Retrieve the original price from the Menuitem model
                     original_price = Menuitem.objects.get(id=cart_item.item.id).price
+                    print("oroginal proce",original_price)
 
                     # Update the CartItem's total_price with the original price
                     cart_item.total_price = original_price
