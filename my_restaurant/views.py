@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import TemplateView # Import TemplateView
-from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm , CouponForm
+from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm , CouponForm, CreateCouponForm
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
@@ -379,8 +379,49 @@ def cart(request):
                                          'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
 
 
+@staff_member_required
+def create_coupon(request):
+    coupons = Coupons.objects.all()  # Retrieve all coupons
+
+    if request.method == 'POST':
+        # Handle form submission for creating a new coupon
+        form = CreateCouponForm(request.POST)  # Use your coupon form here
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            percentage = form.cleaned_data['percentage']
+            code = form.cleaned_data['code']
+            products = form.cleaned_data['products']
+            is_unique = form.cleaned_data['is_unique']
+            
+            # Create a new coupon object and save it
+            coupon = Coupons(
+                name=name,
+                percentage=percentage,
+                code=code,
+                products=products,
+                is_unique=is_unique
+            )
+            coupon.save()
+            
+            return redirect('create_coupon')  # Redirect to the coupon list page after creation
+    else:
+        # Display the form for creating a new coupon
+        form = CreateCouponForm()  # Use your coupon form here
+    
+    return render(request, 'create_coupon.html', {'form': form, 'coupons': coupons})
+
+@staff_member_required
+def remove_coupon(request, coupon_id):
+    if request.method == 'POST':
+        try:
+            coupon = Coupons.objects.get(pk=coupon_id)
+            coupon.delete()
+        except Coupons.DoesNotExist:
+            pass 
+    return redirect('create_coupon') 
+
 @login_required
-def remove_coupon(request):
+def remove_coupon_from_cart(request):
     if request.method == 'POST':
         cart = Cart.objects.get(user=request.user, ordered=False)
         if cart.discount != 0:

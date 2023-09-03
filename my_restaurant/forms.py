@@ -1,11 +1,22 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Menuitem, Reservation, Profile
+from .models import Menuitem, Reservation, Profile, Coupons
 from datetime import date
 
 class CouponForm(forms.Form):
     code = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'Enter coupon code'}))
+
+class CreateCouponForm(forms.ModelForm):
+    products = forms.ModelChoiceField(
+        queryset=Menuitem.objects.all().values_list('name', flat=True).order_by('category'),
+        to_field_name='name',
+        label='Products',
+    )
+
+    class Meta:
+        model = Coupons
+        fields = ['name', 'percentage', 'code', 'products', 'is_unique']
 
 class NewUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)

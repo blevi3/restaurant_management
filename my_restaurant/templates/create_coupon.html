@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block pagecontent %}
+  <h2>Create New Coupon</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Coupon</button>
+  </form>
+ <hr>  
+ <h2>List of Coupons</h2>
+  <ul>
+    {% for coupon in coupons %}
+      <li>
+        {{ coupon.name }} - {{ coupon.percentage }}% off - Code: {{ coupon.code }}
+        <form method="post" action="{% url 'remove_coupon' coupon.id %}">
+          {% csrf_token %}
+          <button type="submit">Remove</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No coupons available.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
