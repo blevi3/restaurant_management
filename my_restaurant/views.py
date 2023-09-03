@@ -755,12 +755,16 @@ def create_checkout_session(request):
                 }
                 line_items.append(line_item)
 
+            discount = 0
+            if cart.applied_coupon_type == 'fixed':
+                discount = Coupons.objects.filter(id=cart.discount).first().fixed_amount
+                print("discount: ",discount)
             coupon = stripe.Coupon.create(
-                percent_off=None,
-                amount_off=500*100,  # The discount value in cents (-500ft)
-                currency="huf",
-                duration="once",  # Adjust duration as needed
-            )
+                    percent_off=None,
+                    amount_off=int(discount)*100,  # The discount value in cents (-500ft)
+                    currency="huf",
+                    duration="once",  # Adjust duration as needed
+                )
 
 
             checkout_session = stripe.checkout.Session.create(
