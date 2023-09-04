@@ -286,7 +286,7 @@ def add_to_cart(request, item_id):
 
 @login_required
 def cart(request):
-    #TODO: "Remove Coupon" 
+     
     cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
     discount_code = request.POST.get('discount_code')
     discount = 0
@@ -366,7 +366,6 @@ def cart(request):
         cart_coupon = Coupons.objects.filter(id=cart.discount).first()
         coupon_menuitem = Menuitem.objects.filter(name = cart_coupon.product).first()
         original_amount = CartItem.objects.filter(cart_id = cart.id).filter(item_id = coupon_menuitem.id).first()
-        print("final: ",original_amount)
         discount = original_amount.final_price - original_amount.total_price*original_amount.quantity
     except:
         cart_coupon = 0
@@ -382,7 +381,6 @@ def cart(request):
                 cart.amount_to_be_paid = cart.reduced_price
         cart.save()
 
-    print(cart_items.first())
     recommendations = get_recommendations(cart_item_ids)
     recom = []
 
@@ -759,26 +757,38 @@ def create_checkout_session(request):
             if cart.applied_coupon_type == 'fixed':
                 discount = Coupons.objects.filter(id=cart.discount).first().fixed_amount
                 print("discount: ",discount)
-            coupon = stripe.Coupon.create(
-                    percent_off=None,
-                    amount_off=int(discount)*100,  # The discount value in cents (-500ft)
-                    currency="huf",
-                    duration="once",  # Adjust duration as needed
+            
+                coupon = stripe.Coupon.create(
+                        percent_off=None,
+                        amount_off=int(discount)*100,  # The discount value in cents (-500ft)
+                        currency="huf",
+                        duration="once",  # Adjust duration as needed
+                    )
+
+
+                checkout_session = stripe.checkout.Session.create(
+                    client_reference_id=request.user.id if request.user.is_authenticated else None,
+                    success_url=domain_url + 'cart',
+                    cancel_url=domain_url + 'cancelled/',
+                    payment_method_types=['card'],
+                    mode='payment',
+                    
+                    line_items=line_items,
+                    discounts=[{
+                        'coupon': coupon.id,
+                    }],
                 )
 
+            else:
+                checkout_session = stripe.checkout.Session.create(
+                    client_reference_id=request.user.id if request.user.is_authenticated else None,
+                    success_url=domain_url + 'cart',
+                    cancel_url=domain_url + 'cancelled/',
+                    payment_method_types=['card'],
+                    mode='payment',
+                    line_items=line_items,
+                )
 
-            checkout_session = stripe.checkout.Session.create(
-                client_reference_id=request.user.id if request.user.is_authenticated else None,
-                success_url=domain_url + 'cart',
-                cancel_url=domain_url + 'cancelled/',
-                payment_method_types=['card'],
-                mode='payment',
-                
-                line_items=line_items,
-                discounts=[{
-                    'coupon': coupon.id,
-                }],
-            )
 
             return JsonResponse({'sessionId': checkout_session['id']})
         except Exception as e:
@@ -816,10 +826,18 @@ def stripe_webhook(request):
         cart = Cart.objects.filter(user=user, ordered=0, is_delivered=0, is_paid=0, is_ready=0).first()
 
         if cart:
+            if cart.discount !=0:
+                used_coupon = Coupons.objects.filter(id=cart.discount).first()
+                if used_coupon.is_unique == 1:
+                    used_coupon.delete()
             cart.ordered = 1
             cart.is_paid = 1
+            cart.discount = 0
+            cart.applied_coupon_type = None
+            cart.reduced_price = 0
             cart.save()
-
+            print("cart: ",cart)
+            
         print("Payment was successful. Cart updated.")
 
         
