@@ -39,6 +39,8 @@ urlpatterns = [
     path('reservation/<int:table_id>/<str:date1>', views.reservation_table, name='reservation_table'),
     path('password_reset/', views.password_reset_request, name="password_reset"),
     path('profile/', views.profile, name='profile'),
+    path('delete-account/', views.delete_account, name='delete_account'),
+
     path('config/', views.stripe_config),
     path('create-checkout-session/', views.create_checkout_session),
     path('success/', views.SuccessView.as_view()), 

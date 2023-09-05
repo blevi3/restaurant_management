@@ -17,6 +17,12 @@
               {{ user_form.as_p }}
               <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
             </form>
+
+
+            <form method="post" action="{% url 'delete_account' %}" >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Delete Account</button>
+            </form>
           </div>
         </div>
       </div>

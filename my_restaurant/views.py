@@ -54,6 +54,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import UserUpdateForm
 from .models import Profile
 
+
+
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -68,6 +70,15 @@ def profile(request):
         'user_form': user_form,
     }
     return render(request, 'profile.html', context)
+
+def delete_account(request):
+    if request.method == 'POST':
+        # Delete the user's account
+        user = request.user
+        user.delete()
+        messages.success(request, 'Your account has been deleted successfully.')
+        return redirect('home')  # Replace 'home' with the URL name for your home page
+    return redirect('profile')
 
 def password_reset_request(request):
     if request.method == "POST":
