@@ -15,7 +15,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 
 
-from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import send_mail, BadHeaderError, EmailMessage
 from django.http import HttpResponse
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
@@ -29,6 +29,15 @@ from django.http.response import JsonResponse
 from django.views.decorators.csrf import csrf_exempt 
 import stripe
 from decimal import Decimal
+from reportlab.lib.pagesizes import letter
+import io
+from io import BytesIO
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, inch
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
 
 def staff_member_required(view_func):
     """
@@ -821,6 +830,7 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         user_id = session['client_reference_id']
+        print("user id: ",user_id)
         user = User.objects.get(id=user_id)
         cart = Cart.objects.filter(user=user, ordered=0, is_delivered=0, is_paid=0, is_ready=0).first()
 
@@ -838,7 +848,127 @@ def stripe_webhook(request):
             print("cart: ",cart)
             
         print("Payment was successful. Cart updated.")
+        user_items = CartItem.objects.filter(cart_id=cart.id)
+        pdf_response = generate_pdf_receipt(cart.id, user_items, user, session['payment_intent'])
 
-        
+        # Send the PDF receipt via email using send_mail
+        send_email_with_pdf(cart.id, pdf_response, user.email)
+        print("PDF receipt sent via email.")
+  
+
 
     return HttpResponse(status=200)
+
+def generate_pdf_receipt(order_id, items, user, transaction_number):
+    # Create a PDF in memory
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+
+    # Define styles for the document
+    styles = getSampleStyleSheet()
+    normal_style = styles['Normal']
+
+    # Title
+    title = Paragraph("Order Receipt", styles['Heading1'])
+    elements.append(title)
+
+    # Pub Information
+    pub_info = [
+        ("Legenda Pub",),
+        ("Address: 123 Main Street, Cityville",),
+        ("Phone: +1 (123) 456-7890",),
+    ]
+    for info in pub_info:
+        elements.append(Paragraph(info[0], normal_style))
+        elements.append(Spacer(1, 12))  # Add a small gap after each piece of information
+
+    # Transaction Details
+    transaction = [
+        ("Transaction Number:", transaction_number),
+        ("Date:", timezone.now().strftime('%Y-%m-%d %H:%M:%S')),
+        ("Cashier:", "John Doe"),
+        ("Payment Method:", "Credit Card"),
+    ]
+    transaction_table = Table(transaction)
+    transaction_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('SIZE', (0, 0), (-1, -1), 12),
+    ]))
+    elements.append(transaction_table)
+
+    # Customer Information
+    customer_info = [
+        ("Customer Name:", user.username),
+        ("Email:", user.email),
+    ]
+    customer_info_table = Table(customer_info)
+    customer_info_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('SIZE', (0, 0), (-1, -1), 12),
+    ]))
+    elements.append(customer_info_table)
+
+    # Add a gap before the ordered items table
+    elements.append(Spacer(1, 24))
+
+    # Order Details
+    data = [["Item", "Quantity", "Price", "Total"]]
+    subtotal = 0
+    for item in items:
+        total_item_price = item.item.price * item.quantity
+        data.append([item.item.name, item.quantity, f"{item.item.price} HUF", f"{total_item_price} HUF"])
+        subtotal += total_item_price
+
+    subtotal = 0.73 * subtotal 
+    # Calculate VAT (27%)
+    vat = 0.27 * subtotal
+
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BACKGROUND', (0, 0), (-1, 0), '#333333'),
+        ('TEXTCOLOR', (0, 0), (-1, 0), 'white'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), '#EEEEEE'),
+        ('GRID', (0, 0), (-1, -1), 1, '#CCCCCC')
+    ]))
+    elements.append(table)
+
+    # Totals
+    elements.append(Spacer(1, 12))
+    elements.append(Paragraph(f"Subtotal: {subtotal} HUF", normal_style))
+    elements.append(Paragraph(f"VAT (27%): {vat:.2f} HUF", normal_style))
+    total = subtotal + vat
+    elements.append(Paragraph(f"Total: {total} HUF", normal_style))
+
+    # Thank You Message
+    thank_you_message = "Thank you for your purchase!"
+    elements.append(Spacer(1, 24))
+    elements.append(Paragraph(thank_you_message, normal_style))
+
+    doc.build(elements)
+
+    # Rewind the buffer to the beginning
+    buffer.seek(0)
+
+    return buffer
+
+
+def send_email_with_pdf(order_id, pdf_buffer, recipient_email):
+    subject = 'Your Receipt'
+    message = 'Thank you for your order. Here is your receipt.'
+    from_email = 'your_email@example.com'  # Replace with your email address
+    to_email = [recipient_email]
+
+    email = EmailMessage(subject, message, from_email, to_email)
+    email.attach(f'receipt_{order_id}.pdf', pdf_buffer.read(), 'application/pdf')  # Use pdf_buffer.read()
+
+    # Send the email using send_mail
+    email.send(fail_silently=False)
