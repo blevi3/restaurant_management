@@ -18,6 +18,33 @@
         <li>We love making playing football on rainy days.</li>
     </ol>
     </p>
+
+    <style>
+      #mapid {
+          width: 600px;
+          height: 400px;
+      }
+  </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <div id="mapid"></div>
+    <script>
+      // Coordinates of Budapest, Kazinczy u. 11, 1075
+      var locationCoordinates = [47.4984, 19.0616];
+
+      var mymap = L.map('mapid').setView(locationCoordinates, 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(mymap);
+
+      // Add a marker at Budapest, Kazinczy u. 11, 1075
+      var marker = L.marker(locationCoordinates).addTo(mymap);
+
+      // You can also add a popup to the marker
+      marker.bindPopup("Budapest, Kazinczy u. 11, 1075").openPopup();
+  </script>
+
     
 
   {% endblock %}

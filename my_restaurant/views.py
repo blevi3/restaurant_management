@@ -297,8 +297,6 @@ def cart(request):
     original_amount = 0
     reduced_priced_product = None
 
-
-
     if cart.discount == 0:
         if request.method == 'POST':
             coupon_form = CouponForm(request.POST)
@@ -566,6 +564,7 @@ def order_paid_admin(request, id):
 @staff_member_required
 def cart_delivered(request, id):
     cart = Cart.objects.get(pk = id)
+
     cart.is_delivered = 1
     cart.save()
     return redirect('all_orders')
