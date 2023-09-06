@@ -25,9 +25,10 @@ class Coupons(models.Model):
     code = models.CharField(max_length=20)
     product = models.CharField(max_length=40, default="null", null=True)
     is_unique = models.BooleanField(default=False)
+    user_id =  models.IntegerField(default=0)
 
     def __str__(self):
-        return self.product
+        return self.code
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

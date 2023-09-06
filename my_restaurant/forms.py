@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Menuitem, Reservation, Profile, Coupons
 from datetime import date
+from decimal import Decimal
+
 
 class CouponForm(forms.Form):
     code = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'Enter coupon code'}))
@@ -147,3 +149,18 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email']
+
+class CouponRedemptionForm(forms.Form):
+    selected_coupon = forms.ChoiceField(
+        widget=forms.RadioSelect,
+    )
+
+    def __init__(self, *args, **kwargs):
+        available_coupons = kwargs.pop('available_coupons', {})
+        super(CouponRedemptionForm, self).__init__(*args, **kwargs)
+
+        # Generate choices dynamically based on available_coupons dictionary keys
+        self.fields['selected_coupon'].choices = [
+            (key, f"{coupon['name']} - {coupon['percentage']}% Off" if coupon['type'] == 'percentage' else f"{coupon['name']} - {coupon['fixed_amount']} Forint Off")
+            for key, coupon in available_coupons.items()
+        ]
