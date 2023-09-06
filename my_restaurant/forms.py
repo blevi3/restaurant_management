@@ -140,7 +140,7 @@ class ReservationForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['username', 'email']
+        fields = ['username', 'email', 'points']
 
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()

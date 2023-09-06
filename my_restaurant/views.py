@@ -4,7 +4,7 @@ from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm,
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
-from .models import Menuitem, Cart, CartItem, Table, Reservation, Profile , Coupons
+from .models import Menuitem, Cart, CartItem, Reservation, Profile , Coupons, Table
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -68,6 +68,7 @@ def profile(request):
         user_form = UserUpdateForm(instance=request.user)
     context = {
         'user_form': user_form,
+        'points': Profile.objects.get(user=request.user).points
     }
     return render(request, 'profile.html', context)
 
@@ -142,6 +143,7 @@ def my_reservations(request):
 
 from django.core.exceptions import ValidationError
 from datetime import timedelta
+from .models import Table  
 
 @login_required
 def available_tables(request):
@@ -664,7 +666,6 @@ def items_list(request):
             
     return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
 
-
 def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
@@ -676,12 +677,25 @@ def register_request(request):
         
                     user = form.save()
                     messages.success(request, f'Account created for {username}!')
-                    profile = Profile.objects.create(user=user)
+                    
+                    # Check if a Profile already exists for the user
+                    profile, created = Profile.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            'username': username,
+                            'email': email,
+                        }
+                    )
+                    if not created:
+                        # Update the existing profile
+                        profile.username = username
+                        profile.email = email
+                        profile.save()
+                    
                     login(request, user)
                     messages.success(request, "Registration successful.")
                     return redirect("home")
                 else:
-                    
                     messages.error(request, "Password and confirm password do not match.")
                     return render(request, 'registration/register.html', {'register_form': form, 'uname': request.POST.get("username"), 'address': request.POST.get("email")})
             else:
@@ -693,6 +707,7 @@ def register_request(request):
     else:
         form = NewUserForm()
     return render(request, template_name="registration/register.html", context={"register_form": form})
+
 
 
 def get_recommendations(cart_items, num_recommendations=3):
@@ -745,13 +760,13 @@ def get_user_cart_items(user):
     else:
         return []
 
-
+@csrf_exempt
 def stripe_config(request):
     if request.method == 'GET':
         stripe_config = {'publicKey': settings.STRIPE_TEST_PUBLISHABLE_KEY}
         return JsonResponse(stripe_config, safe=False)
     
-
+@csrf_exempt
 def create_checkout_session(request):
     if request.method == 'GET':
         domain_url = 'http://localhost:8000/'
@@ -858,8 +873,16 @@ def stripe_webhook(request):
             cart.save()
             print("cart: ",cart)
             
+            
         print("Payment was successful. Cart updated.")
         user_items = CartItem.objects.filter(cart_id=cart.id)
+        subtotal = 0
+        for item in user_items:
+            total_item_price = item.item.price * item.quantity
+            subtotal += total_item_price
+        user = Profile.objects.get(id=user_id)
+        user.points += subtotal/100
+        user.save()
         pdf_response = generate_pdf_receipt(cart.id, user_items, user, session['payment_intent'])
 
         # Send the PDF receipt via email using send_mail
