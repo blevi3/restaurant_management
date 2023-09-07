@@ -1,0 +1,52 @@
+<!-- coupon_redeem.html -->
+{% extends 'base.html' %}
+
+{% block pagecontent %}
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-header">Redeem Coupon</div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              {{ form.non_field_errors }}
+              <div class="form-group">
+                <label for="{{ form.selected_coupon.id_for_label }}">Select Coupon:</label>
+                {{ form.selected_coupon }}
+            </div>
+            
+
+              <div class="coupon-list">
+                {% for key, coupon in available_coupons.items %}
+                  <button type="button" class="btn btn-info" onclick="showCouponDetails('{{ key }}')">{{ coupon.name }} - {% if coupon.type == 'percentage' %}{{ coupon.percentage }}% Off{% elif coupon.type == 'fixed' %}{{ coupon.fixed_amount }} Forint Off{% endif %}</button>
+                  <div class="coupon-details" id="coupon-details-{{ key }}" style="display: none;">
+                    <p>{{ coupon.name }}</p>
+                    {% if coupon.type == 'percentage' %}
+                      <p>Discount: {{ coupon.percentage }}% Off</p>
+                      <p>Valid for: {{ coupon.product }}</p>
+                    {% elif coupon.type == 'fixed' %}
+                      <p>Discount: {{ coupon.fixed_amount }} Forint Off</p>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+
+              <button type="submit" class="btn btn-primary mt-3">Redeem Coupon</button>
+            </form>
+            <script>
+              function showCouponDetails(selectedKey) {
+                const couponDetailsDiv = document.getElementById(`coupon-details-${selectedKey}`);
+                if (couponDetailsDiv.style.display === "block") {
+                  couponDetailsDiv.style.display = "none";
+                } else {
+                  couponDetailsDiv.style.display = "block";
+                }
+              }
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

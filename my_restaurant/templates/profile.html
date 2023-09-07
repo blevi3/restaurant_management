@@ -1,3 +1,4 @@
+<!-- profile.html -->
 {% extends 'base.html' %}
 
 {% block pagecontent %}
@@ -19,12 +20,28 @@
               <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
             </form>
 
-
-            <form method="post" action="{% url 'delete_account' %}" >
+            <form method="post" action="{% url 'delete_account' %}">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger">Delete Account</button>
             </form>
+
+            <!-- Add a button to go to the coupon redemption page -->
+            <a href="{% url 'coupon_redeem' %}" class="btn btn-info mt-3">Redeem Coupon</a>
           </div>
+          
+          Your Coupons's:
+            {% for coupon in user_coupons %}
+            <br>
+                {{coupon.code}}
+                {% if coupon.coupon_type == "percentage" %}
+                  {{coupon.product}}
+                  {{coupon.percentage}}
+                {% else %}
+                  {{coupon.fixed_amount}}
+                {% endif %}
+                
+            {% endfor %}
+
         </div>
       </div>
     </div>
