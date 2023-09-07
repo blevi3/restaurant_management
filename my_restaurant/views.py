@@ -322,6 +322,10 @@ def cart(request):
     if cart.discount == 0:
         if request.method == 'POST':
             coupon_form = CouponForm(request.POST)
+            table = request.POST.get('table')
+            if table:
+                cart.table = table
+                cart.save()
             if coupon_form.is_valid():
                 code = coupon_form.cleaned_data['code']
                 try:
@@ -416,7 +420,8 @@ def cart(request):
         reduced_priced_product = Coupons.objects.filter(id=cart.discount).first().product
     else:
         have_coupon = 0
-            
+
+    tables = Table.objects.all() 
     return render(request, 'cart.html', {'recommendations':recom,
                                          'cart_items': cart_items, 
                                          'final_price': cart.amount_to_be_paid, 
@@ -426,7 +431,10 @@ def cart(request):
                                          'discount': discount,
                                          'coupon': have_coupon,
                                          'reduced_priced_product': reduced_priced_product,
-                                         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+                                         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,
+                                         'table': cart.table,
+                                         'tables': Table.objects.all(),
+                                         })
 
 
 @staff_member_required

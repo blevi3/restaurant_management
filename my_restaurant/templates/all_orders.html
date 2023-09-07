@@ -16,7 +16,8 @@
           <th>Item</th>
           <th>Quantity</th>
           <th>Price</th>
-          <th>Total</th>
+          <th>Total1</th>
+          <th>Table</th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +27,7 @@
             <td>{{ item.quantity }}</td>
             <td>{{ item.item.price }}</td>
             <td>{{ item.final_price }}</td>
+            <td>{{ cart.table }}</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -56,15 +58,18 @@
             <th>Quantity</th>
             <th>Price</th>
             <th>Total</th>
+            <th>Table</th>
           </tr>
         </thead>
         <tbody>
           {% for item in cart.cartitem_set.all %}
+          
             <tr>
               <td>{{ item.item.name }}</td>
               <td>{{ item.quantity }}</td>
               <td>{{ item.item.price }}</td>
               <td>{{ item.final_price }}</td>
+              <td>{{ cart.table }}</td>
             </tr>
           {% endfor %}
         </tbody>
