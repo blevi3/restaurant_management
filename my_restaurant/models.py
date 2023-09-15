@@ -13,7 +13,6 @@ class Menuitem(models.Model):
     def __str__(self):
         return f"{self.name, self.type, self.category, self.price}"
     
-    
 class Coupons(models.Model):
     COUPON_TYPE_CHOICES = [
         ('fixed', 'Fixed Amount'),
@@ -26,11 +25,10 @@ class Coupons(models.Model):
     code = models.CharField(max_length=20)
     product = models.CharField(max_length=40, default="null", null=True)
     is_unique = models.BooleanField(default=False)
+    user_id =  models.IntegerField(default=0)
 
     def __str__(self):
-        return self.product
-
-
+        return self.code
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -40,12 +38,9 @@ class Cart(models.Model):
     is_paid = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
     discount = models.IntegerField(default=0)
+    table = models.CharField(max_length=50, default="null")
     applied_coupon_type = models.CharField(max_length=10, blank=True, null=True)
     reduced_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
-
-
-
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
@@ -53,8 +48,6 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
-
 
 class Table(models.Model):
     name = models.CharField(max_length=50)
@@ -74,17 +67,15 @@ class Reservation(models.Model):
     email = models.EmailField()
     party_size = models.IntegerField(validators=[MinValueValidator(1)])
     
-
-
     def __str__(self):
         
         return f"{self.name} at Table {self.table} ({self.start_time.strftime('%Y-%m-%d %H:%M')})"
     
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=30)
     email = models.EmailField(max_length=254)
+    points = models.IntegerField(default=0)
     def __str__(self):
         return self.user.username
 

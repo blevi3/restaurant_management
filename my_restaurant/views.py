@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import TemplateView # Import TemplateView
-from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm , CouponForm, CreateCouponForm
+from .forms import NewUserForm, NewItemForm, ReservationForm, DateSelectionForm, ProfileForm , CouponForm, CreateCouponForm, CouponRedemptionForm
 from django.contrib.auth import login
 from django.contrib import messages
 import sqlite3
-from .models import Menuitem, Cart, CartItem, Table, Reservation, Profile , Coupons
+from .models import Menuitem, Cart, CartItem, Reservation, Profile , Coupons, Table
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -66,8 +66,11 @@ def profile(request):
             return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
+    user_coupons = Coupons.objects.filter(user_id=request.user.id)
     context = {
         'user_form': user_form,
+        'points': Profile.objects.get(user=request.user).points,
+        'user_coupons': user_coupons,
     }
     return render(request, 'profile.html', context)
 
@@ -142,6 +145,7 @@ def my_reservations(request):
 
 from django.core.exceptions import ValidationError
 from datetime import timedelta
+from .models import Table  
 
 @login_required
 def available_tables(request):
@@ -320,53 +324,59 @@ def cart(request):
     if cart.discount == 0:
         if request.method == 'POST':
             coupon_form = CouponForm(request.POST)
+            table = request.POST.get('table')
+            if table:
+                cart.table = table
+                cart.save()
             if coupon_form.is_valid():
                 code = coupon_form.cleaned_data['code']
                 try:
                     coupon = Coupons.objects.get(code=code)
-                    print("coupon: ",coupon.coupon_type)
-                    # Check if the coupon is already applied
-                    if cart.applied_coupon_type:
-                        messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon.')
-                        return redirect('cart')
 
-                    cart = Cart.objects.get(user=request.user, ordered=False)
-                    items = CartItem.objects.filter(cart_id=cart.id)
-                    if coupon.coupon_type == 'percentage':
-                        print("coupon type: ",coupon.coupon_type)
-                        allowed_product= Menuitem.objects.filter(name = coupon.product).first()
-                        if allowed_product:
-                            print(allowed_product)
-                            eligible_items = items.filter(item=allowed_product)
+                    if coupon.user_id == 0 or coupon.user_id == request.user.id:
+                        print("coupon: ",coupon.coupon_type)
+                        # Check if the coupon is already applied
+                        if cart.applied_coupon_type:
+                            messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon.')
+                            return redirect('cart')
+
+                        cart = Cart.objects.get(user=request.user, ordered=False)
+                        items = CartItem.objects.filter(cart_id=cart.id)
+                        if coupon.coupon_type == 'percentage':
+                            print("coupon type: ",coupon.coupon_type)
+                            allowed_product= Menuitem.objects.filter(name = coupon.product).first()
+                            if allowed_product:
+                                print(allowed_product)
+                                eligible_items = items.filter(item=allowed_product)
+                                
+                                if eligible_items.exists():
+                                    print(f'You can use this coupon for {eligible_items.count()} item(s).')
+                                    cart_coupon = coupon.percentage
+                                    print(cart_coupon)
+
+                                    for item in eligible_items:
+                                        print("item: ",item.item.name)
+                                        item.total_price -= (coupon.percentage * item.total_price / 100)
+                                        item.save()
+                                    cart.discount = coupon.id
+                                    cart.applied_coupon_type = 'percentage'
+                                    cart.save()
+                                    messages.success(request, f'{coupon.percentage}% coupon "{coupon.code}" applied!')
                             
-                            if eligible_items.exists():
-                                print(f'You can use this coupon for {eligible_items.count()} item(s).')
-                                cart_coupon = coupon.percentage
-                                print(cart_coupon)
+                        elif coupon.coupon_type == 'fixed':
+                            print("coupon type: ",coupon.coupon_type)
+                            # Apply fixed amount coupon
+                            
+                            cart.amount_to_be_paid -= coupon.fixed_amount
+                            print("cart amount: ",cart.amount_to_be_paid)
+                            cart.discount = coupon.id
+                            cart.applied_coupon_type = 'fixed'
+                            cart.reduced_price = cart.amount_to_be_paid
+                            discount = coupon.fixed_amount
 
-                                for item in eligible_items:
-                                    print("item: ",item.item.name)
-                                    item.total_price -= (coupon.percentage * item.total_price / 100)
-                                    item.save()
-                                cart.discount = coupon.id
-                                cart.applied_coupon_type = 'percentage'
-                                cart.save()
-                                messages.success(request, f'{coupon.percentage}% coupon "{coupon.code}" applied!')
-                        
-                    elif coupon.coupon_type == 'fixed':
-                        print("coupon type: ",coupon.coupon_type)
-                        # Apply fixed amount coupon
-                        
-                        cart.amount_to_be_paid -= coupon.fixed_amount
-                        print("cart amount: ",cart.amount_to_be_paid)
-                        cart.discount = coupon.id
-                        cart.applied_coupon_type = 'fixed'
-                        cart.reduced_price = cart.amount_to_be_paid
-                        discount = coupon.fixed_amount
-
-                        cart.save()
-                        messages.success(request, f'Fixed amount coupon "{coupon.code}" applied!')
-                        
+                            cart.save()
+                            messages.success(request, f'Fixed amount coupon "{coupon.code}" applied!')
+                            
                     else:
                         messages.error(request, f'Invalid coupon type.')
 
@@ -414,7 +424,8 @@ def cart(request):
         reduced_priced_product = Coupons.objects.filter(id=cart.discount).first().product
     else:
         have_coupon = 0
-            
+
+    tables = Table.objects.all() 
     return render(request, 'cart.html', {'recommendations':recom,
                                          'cart_items': cart_items, 
                                          'final_price': cart.amount_to_be_paid, 
@@ -424,7 +435,10 @@ def cart(request):
                                          'discount': discount,
                                          'coupon': have_coupon,
                                          'reduced_priced_product': reduced_priced_product,
-                                         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+                                         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,
+                                         'table': cart.table,
+                                         'tables': Table.objects.all(),
+                                         })
 
 
 @staff_member_required
@@ -664,7 +678,6 @@ def items_list(request):
             
     return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
 
-
 def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
@@ -676,12 +689,25 @@ def register_request(request):
         
                     user = form.save()
                     messages.success(request, f'Account created for {username}!')
-                    profile = Profile.objects.create(user=user)
+                    
+                    # Check if a Profile already exists for the user
+                    profile, created = Profile.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            'username': username,
+                            'email': email,
+                        }
+                    )
+                    if not created:
+                        # Update the existing profile
+                        profile.username = username
+                        profile.email = email
+                        profile.save()
+                    
                     login(request, user)
                     messages.success(request, "Registration successful.")
                     return redirect("home")
                 else:
-                    
                     messages.error(request, "Password and confirm password do not match.")
                     return render(request, 'registration/register.html', {'register_form': form, 'uname': request.POST.get("username"), 'address': request.POST.get("email")})
             else:
@@ -693,6 +719,7 @@ def register_request(request):
     else:
         form = NewUserForm()
     return render(request, template_name="registration/register.html", context={"register_form": form})
+
 
 
 def get_recommendations(cart_items, num_recommendations=3):
@@ -745,13 +772,13 @@ def get_user_cart_items(user):
     else:
         return []
 
-
+@csrf_exempt
 def stripe_config(request):
     if request.method == 'GET':
         stripe_config = {'publicKey': settings.STRIPE_TEST_PUBLISHABLE_KEY}
         return JsonResponse(stripe_config, safe=False)
     
-
+@csrf_exempt
 def create_checkout_session(request):
     if request.method == 'GET':
         domain_url = 'http://localhost:8000/'
@@ -858,8 +885,16 @@ def stripe_webhook(request):
             cart.save()
             print("cart: ",cart)
             
+            
         print("Payment was successful. Cart updated.")
         user_items = CartItem.objects.filter(cart_id=cart.id)
+        subtotal = 0
+        for item in user_items:
+            total_item_price = item.item.price * item.quantity
+            subtotal += total_item_price
+        user = Profile.objects.get(id=user_id)
+        user.points += subtotal/100
+        user.save()
         pdf_response = generate_pdf_receipt(cart.id, user_items, user, session['payment_intent'])
 
         # Send the PDF receipt via email using send_mail
@@ -983,3 +1018,91 @@ def send_email_with_pdf(order_id, pdf_buffer, recipient_email):
 
     # Send the email using send_mail
     email.send(fail_silently=False)
+
+
+def redeem_coupon(request):
+    profile = request.user.profile
+
+    available_coupons = {
+        "percentage_coupon_1": {
+            "name": "Sör1",
+            "type": "percentage",
+            "percentage": Decimal('10.00'),
+            "product": "Mort Subite",
+            "fixed_amount": None,
+        },
+        "fixed_coupon_1": {
+            "name": "Összeg",
+            "type": "fixed",
+            "percentage": None,
+            "product": None,
+            "fixed_amount": Decimal('500.00'),
+        },
+        "percentage_coupon_2": {
+            "name": "Sör2",
+            "type": "percentage",
+            "percentage": Decimal('15.00'),
+            "product": "Staropramen",
+            "fixed_amount": None,
+        },
+        "fixed_coupon_2": {
+            "name": "Összeg",
+            "type": "fixed",
+            "percentage": None,
+            "product": None,
+            "fixed_amount": Decimal('750.00'),
+        },
+    }
+
+
+    if request.method == 'POST':
+        form = CouponRedemptionForm(request.POST, available_coupons=available_coupons)
+        if form.is_valid():
+            selected_coupon_key = form.cleaned_data['selected_coupon']
+            selected_coupon_data = available_coupons[selected_coupon_key]
+            print("selected coupon data: ", selected_coupon_data)
+
+            coupon_price = Decimal('5.00')
+
+            if profile.points >= coupon_price:
+                print("have enough points")
+                # Generate a random coupon code
+                import random
+                import string
+                code_length = 10
+                code = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(code_length))
+
+                # Create the coupon object based on the selected coupon type
+                if selected_coupon_data['type'] == 'percentage':
+                    Coupons.objects.create(
+                        coupon_type = "percentage",
+                        is_unique = 1,
+                        percentage=selected_coupon_data['percentage'],
+                        code=code,
+                        product=selected_coupon_data['product'],
+                        user_id = request.user.id,
+                    )
+                elif selected_coupon_data['type'] == 'fixed':
+                    Coupons.objects.create(
+                        is_unique = 1,
+                        coupon_type = "fixed",
+                        percentage=None,
+                        code=code,
+                        product=None,
+                        fixed_amount=selected_coupon_data['fixed_amount'],
+                        user_id = request.user.id,
+
+                    )
+
+                # Deduct points from the user's profile
+                profile.points -= coupon_price
+                profile.save()
+
+                messages.success(request, "Coupon redeemed successfully.")
+                return redirect('profile')  # Redirect to the user's profile page
+            else:
+                messages.error(request, "You don't have enough points to redeem this coupon.")
+    else:
+        form = CouponRedemptionForm(available_coupons=available_coupons)
+
+    return render(request, 'coupon_redeem.html', {'form': form, 'available_coupons': available_coupons})
