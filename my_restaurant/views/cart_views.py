@@ -9,128 +9,91 @@ from django.conf import settings
 
 @login_required
 def cart(request):
-    
-    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
-    discount_code = request.POST.get('discount_code')
+    cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
     discount = 0
     have_coupon = 0
-    cart_items = {}
-    cart_item_ids = []
     final_price = 0
-    original_amount = 0
+    cart_items = CartItem.objects.filter(cart=cart)
+    cart_item_ids = [item.item_id for item in cart_items]
     reduced_priced_product = None
 
-    if cart.discount == 0:
-        if request.method == 'POST':
-            coupon_form = CouponForm(request.POST)
-            if coupon_form.is_valid():
-                code = coupon_form.cleaned_data['code']
-                try:
-                    coupon = Coupons.objects.get(code=code)
+    if cart.discount == 0 and request.method == 'POST':
+        coupon_form = CouponForm(request.POST)
+        if coupon_form.is_valid():
+            code = coupon_form.cleaned_data['code']
+            try:
+                coupon = Coupons.objects.get(code=code)
 
-                    if coupon.user_id == 0 or coupon.user_id == request.user.id:
-                        print("coupon: ",coupon.coupon_type)
-                        # Check if the coupon is already applied
-                        if cart.applied_coupon_type:
-                            messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon.')
-                            return redirect('cart')
+                if coupon.user_id in [0, request.user.id]:
+                    if cart.applied_coupon_type:
+                        messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon.')
+                    else:
+                        items = CartItem.objects.filter(cart=cart)
+                        allowed_product = Menuitem.objects.filter(name=coupon.product).first()
 
-                        cart = Cart.objects.get(user=request.user, ordered=False)
-                        items = CartItem.objects.filter(cart_id=cart.id)
-                        if coupon.coupon_type == 'percentage':
-                            print("coupon type: ",coupon.coupon_type)
-                            allowed_product= Menuitem.objects.filter(name = coupon.product).first()
-                            if allowed_product:
-                                print(allowed_product)
-                                eligible_items = items.filter(item=allowed_product)
-                                
-                                if eligible_items.exists():
-                                    print(f'You can use this coupon for {eligible_items.count()} item(s).')
-                                    cart_coupon = coupon.percentage
-                                    print(cart_coupon)
+                        if coupon.coupon_type == 'percentage' and allowed_product:
+                            eligible_items = items.filter(item=allowed_product)
+                            if eligible_items.exists():
+                                percentage_discount = coupon.percentage
+                                for item in eligible_items:
+                                    item.total_price -= (percentage_discount * item.total_price / 100)
+                                    item.save()
+                                cart.discount = coupon.id
+                                cart.applied_coupon_type = 'percentage'
+                                cart.save()
+                                messages.success(request, f'{percentage_discount}% coupon "{coupon.code}" applied!')
 
-                                    for item in eligible_items:
-                                        print("item: ",item.item.name)
-                                        item.total_price -= (coupon.percentage * item.total_price / 100)
-                                        item.save()
-                                    cart.discount = coupon.id
-                                    cart.applied_coupon_type = 'percentage'
-                                    cart.save()
-                                    messages.success(request, f'{coupon.percentage}% coupon "{coupon.code}" applied!')
-                            
                         elif coupon.coupon_type == 'fixed':
-                            print("coupon type: ",coupon.coupon_type)
-                            # Apply fixed amount coupon
-                            
                             cart.amount_to_be_paid -= coupon.fixed_amount
-                            print("cart amount: ",cart.amount_to_be_paid)
                             cart.discount = coupon.id
                             cart.applied_coupon_type = 'fixed'
                             cart.reduced_price = cart.amount_to_be_paid
                             discount = coupon.fixed_amount
-
                             cart.save()
                             messages.success(request, f'Fixed amount coupon "{coupon.code}" applied!')
-                            
-                    else:
-                        messages.error(request, f'Invalid coupon type.')
 
-                except Coupons.DoesNotExist:
-                    messages.error(request, 'Invalid coupon code.')
-            else:
+                else:
+                    messages.error(request, 'Invalid coupon type.')
+
+            except Coupons.DoesNotExist:
                 messages.error(request, 'Invalid coupon code.')
-    else:
-        messages.error(request, f'You already applied a {cart.applied_coupon_type} coupon!')
+            else:
+                cart.save()
 
+    if cart.discount:
+        cart_coupon = Coupons.objects.filter(id=cart.discount).first()
+        coupon_menuitem = Menuitem.objects.filter(name=cart_coupon.product).first()
+        original_amount = CartItem.objects.filter(cart=cart, item=coupon_menuitem).first()
+        if original_amount:
+            discount = original_amount.final_price - original_amount.total_price * original_amount.quantity
+        else:
+            cart_coupon = 0
+
+    final_price = sum(cart_item.quantity * cart_item.total_price for cart_item in cart_items)
+    cart.amount_to_be_paid = final_price if cart.reduced_price == 0 or final_price <= cart.reduced_price else cart.reduced_price
     cart.save()
 
-
-    try:
-        cart_coupon = Coupons.objects.filter(id=cart.discount).first()
-        coupon_menuitem = Menuitem.objects.filter(name = cart_coupon.product).first()
-        original_amount = CartItem.objects.filter(cart_id = cart.id).filter(item_id = coupon_menuitem.id).first()
-        discount = original_amount.final_price - original_amount.total_price*original_amount.quantity
-    except:
-        cart_coupon = 0
-    if not created:
-        cart_items = CartItem.objects.filter(cart=cart)
-        final_price = 0
-        for cart_item in cart_items:
-            final_price+=cart_item.quantity*cart_item.total_price
-            cart_item_ids.append(cart_item.item_id)
-        cart.amount_to_be_paid = final_price
-        if cart.reduced_price !=0:
-            if cart.amount_to_be_paid > cart.reduced_price:
-                cart.amount_to_be_paid = cart.reduced_price
-        cart.save()
-
     recommendations = get_recommendations(cart_item_ids)
-    recom = []
+    recom = [Menuitem.objects.get(id=id) for id in recommendations]
 
-    for id in recommendations:
-        item = Menuitem.objects.filter(id=id)[0]
-        recom.append(item)
-
-
-    if cart.discount !=0:
+    if cart.discount:
         if cart.applied_coupon_type == 'fixed':
-            discount = Coupons.objects.filter(id=cart.discount).first().fixed_amount
+            discount = Coupons.objects.get(id=cart.discount).fixed_amount
         have_coupon = 1
-        reduced_priced_product = Coupons.objects.filter(id=cart.discount).first().product
-    else:
-        have_coupon = 0
-            
-    return render(request, 'cart.html', {'recommendations':recom,
-                                         'cart_items': cart_items, 
-                                         'final_price': cart.amount_to_be_paid, 
-                                         'ordered': cart.ordered, 
-                                         'paid': cart.is_paid, 
-                                         'cartid': cart.id,
-                                         'discount': discount,
-                                         'coupon': have_coupon,
-                                         'reduced_priced_product': reduced_priced_product,
-                                         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY})
+        reduced_priced_product = Coupons.objects.get(id=cart.discount).product
 
+    return render(request, 'cart.html', {
+        'recommendations': recom,
+        'cart_items': cart_items,
+        'final_price': cart.amount_to_be_paid,
+        'ordered': cart.ordered,
+        'paid': cart.is_paid,
+        'cartid': cart.id,
+        'discount': discount,
+        'coupon': have_coupon,
+        'reduced_priced_product': reduced_priced_product,
+        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY
+    })
 
 
 @login_required()
