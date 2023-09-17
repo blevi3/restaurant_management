@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from ..models import Menuitem, Cart, CartItem, Coupons 
+from ..models import Menuitem, Cart, CartItem, Coupons, Table
 from ..forms import CouponForm  
 from .menu_views import get_recommendations  
 from django.conf import settings  
@@ -19,6 +19,10 @@ def cart(request):
 
     if cart.discount == 0 and request.method == 'POST':
         coupon_form = CouponForm(request.POST)
+        table = request.POST.get('table')
+        if table:
+            cart.table = table
+            cart.save()
         if coupon_form.is_valid():
             code = coupon_form.cleaned_data['code']
             try:
@@ -82,6 +86,7 @@ def cart(request):
         have_coupon = 1
         reduced_priced_product = Coupons.objects.get(id=cart.discount).product
 
+    tables = Table.objects.all() 
     return render(request, 'cart.html', {
         'recommendations': recom,
         'cart_items': cart_items,
@@ -92,7 +97,9 @@ def cart(request):
         'discount': discount,
         'coupon': have_coupon,
         'reduced_priced_product': reduced_priced_product,
-        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY
+        'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,
+        'table': cart.table,
+        'tables': Table.objects.all(),
     })
 
 
