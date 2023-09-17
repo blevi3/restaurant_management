@@ -37,6 +37,7 @@ class Cart(models.Model):
     is_paid = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
     discount = models.IntegerField(default=0)
+    table = models.CharField(max_length=50, default="null")
     applied_coupon_type = models.CharField(max_length=10, blank=True, null=True)
     reduced_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
