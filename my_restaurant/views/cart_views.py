@@ -99,96 +99,104 @@ def cart(request):
         'reduced_priced_product': reduced_priced_product,
         'publishable_key': settings.STRIPE_TEST_PUBLISHABLE_KEY,
         'table': cart.table,
-        'tables': Table.objects.all(),
+        'tables': tables,
     })
 
 
-@login_required()
+@login_required
 def add_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
-    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
-    if not created:
-        cart.save()
-    if not cart.ordered:
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
-        if not created:
+    cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
+    
+    if not created and not cart.ordered:
+        try:
+            cart_item = CartItem.objects.get(cart=cart, item=item)
             cart_item.quantity += 1
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
-
-        else:
-            cart_item.quantity = 1
-            cart_item.total_price = item.price * cart_item.quantity
-            cart_item.final_price = item.price
-            cart_item.save()
+        except CartItem.DoesNotExist:
+            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price)
     
     return redirect('order')
 
+
 @login_required
 def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(CartItem, id=cart_item_id)
     
-    cart_item = CartItem.objects.get(id=cart_item_id)
-    item = Menuitem.objects.get(id = cart_item.item_id)
-    #cart_item.total_price = item.price
-    cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
-    if cart:
-        if cart_item.quantity > 1:
-            cart_item.quantity -= 1
-            cart_item.final_price = item.price * cart_item.quantity
-            cart_item.save()
-        else:
-            cart_item.delete()
-    return redirect(reverse('cart'))
+    if not cart_item.cart.ordered and cart_item.quantity > 1:
+        cart_item.quantity -= 1
+        cart_item.final_price = cart_item.item.price * cart_item.quantity
+        cart_item.save()
+    else:
+        cart_item.delete()
+    
+    return redirect('cart')
+
+
+
 @login_required
 def trash_item(request, cart_item_id):
-    cart_item = CartItem.objects.get(id=cart_item_id)
-    cart = Cart.objects.filter(id = cart_item.cart_id ,ordered=0)
-    if cart:
+    cart_item = get_object_or_404(CartItem, id=cart_item_id)
+    
+    if not cart_item.cart.ordered:
         cart_item.delete()
-    return redirect(reverse('cart'))
+    
+    return redirect('cart')
+
+
+
 @login_required
 def empty_cart(request):
+    carts = Cart.objects.filter(user=request.user, ordered=0)
+    for cart in carts:
+        if not cart.ordered:
+            cart.delete()
+    
+    return redirect('cart')
 
-    cart = Cart.objects.filter(user = request.user ,ordered=0)
-    if cart:
-        cart.delete()
-    return redirect(reverse('cart'))
+
+
 @login_required
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
-    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
-    if not created:
-        cart.save()
-    if not cart.ordered:
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
-        cart_item.quantity += 1
-        cart_item.final_price = item.price * cart_item.quantity
-        cart_item.save()
-    return redirect('cart')
-
-def cart_delivered(request, id):
-    cart = Cart.objects.get(pk = id)
-
-    cart.is_delivered = 1
-    cart.save()
-    return redirect('all_orders')
-
-@login_required 
-def add_recom_to_cart(request, item_id):
-    item = get_object_or_404(Menuitem, pk=item_id)
-    cart, created = Cart.objects.filter(is_delivered = 0).get_or_create(user=request.user)
-    if not created:
-        cart.save()
-    if not cart.ordered:
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
-        if not created:
+    cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
+    
+    if not created and not cart.ordered:
+        try:
+            cart_item = CartItem.objects.get(cart=cart, item=item)
             cart_item.quantity += 1
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
-        else:
-            cart_item.quantity = 1
-            cart_item.total_price = item.price * cart_item.quantity
-            cart_item.final_price = item.price
-            cart_item.save()
+        except CartItem.DoesNotExist:
+            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price)
     
     return redirect('cart')
+
+
+
+
+def cart_delivered(request, id):
+    cart = Cart.objects.get(pk = id)
+    if cart.orderd == 1:
+        cart.is_delivered = 1
+        cart.save()
+    return redirect('all_orders')
+
+
+@login_required
+def add_recom_to_cart(request, item_id):
+    item = get_object_or_404(Menuitem, pk=item_id)
+    cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
+    
+    if not created and not cart.ordered:
+        try:
+            cart_item = CartItem.objects.get(cart=cart, item=item)
+            cart_item.quantity += 1
+            cart_item.final_price = item.price * cart_item.quantity
+            cart_item.save()
+        except CartItem.DoesNotExist:
+            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price)
+    
+    return redirect('cart')
+
