@@ -115,7 +115,7 @@ def add_to_cart(request, item_id):
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
         except CartItem.DoesNotExist:
-            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price)
+            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price )
     
     return redirect('order')
 
@@ -169,7 +169,7 @@ def add_to_cart_from_cart(request, item_id):
             cart_item.final_price = item.price * cart_item.quantity
             cart_item.save()
         except CartItem.DoesNotExist:
-            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price)
+            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price)
     
     return redirect('cart')
 
