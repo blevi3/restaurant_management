@@ -32,6 +32,7 @@ def profile(request):
     }
     return render(request, 'profile.html', context)
 
+@login_required
 def delete_account(request):
     if request.method == 'POST':
         # Delete the user's account

@@ -57,7 +57,7 @@ def available_tables(request):
     else:
         return render(request, 'reservation.html', {'form': form})
 
-@login_required
+'''
 def get_available_times(date1, table):
     
     reserved_times = Reservation.objects.filter(start_time__date=date1, table=table).order_by('start_time')
@@ -79,7 +79,7 @@ def get_available_times(date1, table):
             available_times.append(time_slot)
 
     return available_times
-
+'''
 @login_required
 def reservation_table(request, table_id, date1):
     table = get_object_or_404(Table, id=table_id)
@@ -89,7 +89,7 @@ def reservation_table(request, table_id, date1):
         reserved_times_values.append({'start_time': reserved_times[i].start_time.strftime("%Y-%m-%d %H:%M"), 'end_time': reserved_times[i].end_time.strftime("%Y-%m-%d %H:%M")})
     #date1 = request.POST.get('date')
     #available_times = get_available_times(date1, table)
-    
+    #print(available_times)
     if date1 == datetime.now().strftime("%Y-%m-%d"):  # Check if date1 is today
         now = datetime.now()
         start_of_day = datetime(now.year, now.month, now.day, 8, 0)  # 08:00 AM

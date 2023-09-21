@@ -72,9 +72,10 @@ class Reservation(models.Model):
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=30)
+    username = models.CharField(max_length=30, help_text="")
     email = models.EmailField(max_length=254)
     points = models.IntegerField(default=0)
+
     def __str__(self):
         return self.user.username
 
