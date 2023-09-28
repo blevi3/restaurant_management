@@ -1,7 +1,68 @@
 {% extends 'base.html' %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 {% block pagecontent %}
-    <h1>Table Reservation: {{ table }} for {{date1}}</h1>
+<style>
+  /* Style the container */
+  .reservation-container {
+      width: 60%;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f7f7f7;
+
+  }
+
+  /* Style the headings */
+  h1, h3 {
+      color: #333;
+  }
+
+  /* Style the form */
+  form {
+      margin-top: 20px;
+      padding: 20px;
+
+  }
+
+  /* Style the form fields */
+  label {
+      font-weight: bold;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
+
+  /* Style the button */
+  button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+  }
+
+  button:hover {
+      background-color: #0056b3;
+  }
+
+  /* Style the error message */
+  .error-message {
+      color: red;
+  }
+</style>
+
+<br>
+<div class="reservation-container">
+    <h1>Table Reservation: {{ table }} for <br> {{date1}}</h1>
     {% if reserved_time %}
   <ul>
     {% for time in reserved_time %}
@@ -134,7 +195,8 @@
   });
 </script>
 
-
+</div>
+<br>
 {% endblock %}
 
 

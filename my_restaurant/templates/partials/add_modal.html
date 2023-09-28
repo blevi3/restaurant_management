@@ -1,0 +1,77 @@
+
+<div class="modal" id="AddModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Add Item</h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            onclick="closeForm('AddModal')"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" id = "AddItemID" name="AddItemID" />
+            <div class="form-group">
+              <label for="AddType">Type</label>
+              <select
+                class="form-control"
+                id="AddType"
+                onchange="updateCategory('AddType', 'Addcategory')"
+                name = "type"
+              >
+                <option>Food</option>
+                <option>Drink</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="Addcategory">Category</label>
+              <select class="form-control" id="Addcategory" name = "category">
+                <option>Hamburger</option>
+                <option>Hot-Dog</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Addname"
+                name="add"
+                placeholder="Enter name"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="price">Price</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Addprice"
+                name="price"
+                placeholder="Enter price"
+              />
+            </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-danger close-btn"
+            data-dismiss="modal"
+            onclick="closeForm('AddModal')"
+          >
+            Close
+          </button>
+          <button type="submit" class="btn btn-success">Add</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

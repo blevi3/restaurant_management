@@ -27,18 +27,21 @@ class CreateCouponForm(forms.ModelForm):
         self.fields['product'].widget.attrs.update({'class': 'conditional-hidden'})
 
 class NewUserForm(UserCreationForm):
-	email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True)
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'placeholder': '', 'class': 'your-css-class'}),  # Remove help_text here
+    )
+    class Meta:
+        model = User
+        fields = ("username", "email", "password1", "password2")
 
-	class Meta:
-		model = User
-		fields = ("username", "email", "password1", "password2")
-
-	def save(self, commit=True):
-		user = super(NewUserForm, self).save(commit=False)
-		user.email = self.cleaned_data['email']
-		if commit:
-			user.save()
-		return user
+    def save(self, commit=True):
+        user = super(NewUserForm, self).save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user
 
 class NewItemForm(forms.ModelForm):
 
@@ -140,9 +143,14 @@ class ReservationForm(forms.ModelForm):
 
 	
 class ProfileForm(forms.ModelForm):
+    username = forms.CharField(
+        max_length=150,
+        help_text=''
+    )
     class Meta:
         model = Profile
         fields = ['username', 'email', 'points']
+
 
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()

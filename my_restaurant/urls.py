@@ -1,59 +1,42 @@
-# djangotemplates/example/urls.py
-
-from my_restaurant import views
-from django.urls import path, include
-
+from django.urls import path
+from .views import account_views, cart_views, coupon_views, menu_views, orders_views, reservation_views, stripe_views, views
 
 urlpatterns = [
     path('test', views.Testpage.as_view(), name='about'),
-
-    
     path('about', views.AboutPageView.as_view(), name='about'),
-    path('order', views.items_list, name='order'),
+    path('order', menu_views.items_list, name='order'),
     path('', views.home.as_view(), name='home'),
-
-    #path(r'^data/modify$', views.modifydata, name='data'),
-    path('add_to_cart/<int:item_id>', views.add_to_cart, name='add_to_cart'),
-    path('add_product_to_cart/<int:item_id>', views.add_recom_to_cart, name='add_product_to_cart'),
-    path('cart/', views.cart, name='cart'),
-    path('previous_orders/', views.previous_orders, name='previous_orders'),
-    path('remove_from_cart/<int:cart_item_id>', views.remove_from_cart, name='remove_from_cart'),
-    path('remove_item/<int:cart_item_id>', views.trash_item, name='trash_item'),
-    path('empty_cart/', views.empty_cart, name='empty_cart'),
-    path('add/<int:item_id>', views.add_to_cart_from_cart, name='add_to_cart_from_cart'),
-    path('all_orders/', views.all_orders, name='all_orders'),
-    path('cart_delivered/<int:id>', views.cart_delivered, name='cart_delivered'),
-    path('order/<int:id>', views.order, name='order'),
-    path('order_paid_admin/<int:id>', views.order_paid_admin, name='order_paid_admin'),
-    path('order_paid/<int:id>', views.order_paid, name='order_paid'),
-    path('accounts/register', views.register_request, name="register"),
-    path('drinks', views.drinks, name='drinks'),
-    path('menu', views.menu, name='menu'),
+    path('add_to_cart/<int:item_id>', cart_views.add_to_cart, name='add_to_cart'),
+    path('add_product_to_cart/<int:item_id>', cart_views.add_recom_to_cart, name='add_product_to_cart'),
+    path('cart/', cart_views.cart, name='cart'),
+    path('previous_orders/', orders_views.previous_orders, name='previous_orders'),
+    path('remove_from_cart/<int:cart_item_id>', cart_views.remove_from_cart, name='remove_from_cart'),
+    path('remove_item/<int:cart_item_id>', cart_views.trash_item, name='trash_item'),
+    path('empty_cart/', cart_views.empty_cart, name='empty_cart'),
+    path('add/<int:item_id>', cart_views.add_to_cart_from_cart, name='add_to_cart_from_cart'),
+    path('all_orders/', orders_views.all_orders, name='all_orders'),
+    path('cart_delivered/<int:id>', cart_views.cart_delivered, name='cart_delivered'),
+    path('order/<int:id>', orders_views.order, name='order'),
+    path('order_paid_admin/<int:id>', orders_views.order_paid_admin, name='order_paid_admin'),
+    path('order_paid/<int:id>', orders_views.order_paid, name='order_paid'),
+    path('accounts/register', account_views.register_request, name="register"),
+    path('drinks', menu_views.drinks, name='drinks'),
+    path('menu', menu_views.menu, name='menu'),
     path('gallery', views.gallery, name='gallery'),
-    path('all_reservations', views.all_reservations, name = "all_reservations"),
-    path('my_reservations', views.my_reservations, name = "my_reservations"),
-
-    #path('date_selection/', views.date_selection, name='date_selection'),
-    #path('available_tables/', views.available_tables, name='available_tables'),
-    path('tables/', views.available_tables, name='available_tables'),
-    path('reservation/<int:table_id>/<str:date1>', views.reservation_table, name='reservation_table'),
-    path('password_reset/', views.password_reset_request, name="password_reset"),
-    path('profile/', views.profile, name='profile'),
-    path('delete-account/', views.delete_account, name='delete_account'),
-
-    path('config/', views.stripe_config),
-    path('create-checkout-session/', views.create_checkout_session),
-    path('success/', views.SuccessView.as_view()), 
-    path('cancelled/', views.CancelledView.as_view()),
-    path('webhook/', views.stripe_webhook),
-
-    path('remove_coupon/', views.remove_coupon_from_cart, name='remove_coupon'),
-    path('create_coupon/', views.create_coupon, name='create_coupon'),
-    path('remove/<int:coupon_id>/', views.remove_coupon, name='remove_coupon'),
-    
-    path('coupon-redeem/', views.redeem_coupon, name='coupon_redeem'),
-
-
-
-    
+    path('all_reservations', reservation_views.all_reservations, name="all_reservations"),
+    path('my_reservations', reservation_views.my_reservations, name="my_reservations"),
+    path('tables/', reservation_views.available_tables, name='available_tables'),
+    path('reservation/<int:table_id>/<str:date1>', reservation_views.reservation_table, name='reservation_table'),
+    path('password_reset/', account_views.password_reset_request, name="password_reset"),
+    path('profile/', account_views.profile, name='profile'),
+    path('delete-account/', account_views.delete_account, name='delete_account'),
+    path('config/', stripe_views.stripe_config),
+    path('create-checkout-session/', stripe_views.create_checkout_session),
+    path('success/', stripe_views.SuccessView.as_view()), 
+    path('cancelled/', stripe_views.CancelledView.as_view()),
+    path('webhook/', stripe_views.stripe_webhook),
+    path('remove_coupon/', coupon_views.remove_coupon_from_cart, name='remove_coupon'),
+    path('create_coupon/', coupon_views.create_coupon, name='create_coupon'),
+    path('remove/<int:coupon_id>/', coupon_views.remove_coupon, name='remove_coupon'),
+    path('coupon-redeem/', coupon_views.redeem_coupon, name='coupon_redeem'),
 ]

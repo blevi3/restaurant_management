@@ -1,49 +1,142 @@
-<!-- profile.html -->
 {% extends 'base.html' %}
 
 {% block pagecontent %}
-  <div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-header">{{ user.username }}'s Profile</div>
-          <div class="card-body">
-            <p>Points: {{ points }}</p>
-            {% if messages %}
-              {% for message in messages %}
-                <div class="alert alert-success">{{ message }}</div>
-              {% endfor %}
-            {% endif %}
-            <form method="post">
-              {% csrf_token %}
-              {{ user_form.as_p }}
-              <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
-            </form>
 
-            <form method="post" action="{% url 'delete_account' %}">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger">Delete Account</button>
-            </form>
+<style>
+  /* Add this CSS to your stylesheet or in a <style> block */
+    .helptext{
+      display: none;
+    }
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-header {
+        text-align: center;
+    }
+    
+    .profile-header h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    
+    .points {
+        font-size: 18px;
+        color: #777;
+    }
+    
+    .profile-body {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .profile-actions {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .primary-btn {
+        background-color: #007bff;
+        color: #fff;
+    }
+    
+    .danger-btn {
+        background-color: #ff4444;
+        color: #fff;
+    }
+    
+    .info-btn {
+        background-color: #55acee;
+        color: #fff;
+    }
+    
+    .profile-coupons {
+        text-align: center;
+    }
+    
+    .coupon-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .coupon-item {
+        font-size: 16px;
+        margin: 5px;
+    }
+    
+    /* Media query for responsiveness (adjust as needed) */
+    @media screen and (max-width: 768px) {
+        .profile-container {
+            padding: 10px;
+        }
+        .profile-header h1 {
+            font-size: 20px;
+        }
+        .points {
+            font-size: 16px;
+        }
+        .btn {
+            font-size: 14px;
+        }
+        .coupon-item {
+            font-size: 14px;
+        }
+    }
+    
+</style>
 
-            <!-- Add a button to go to the coupon redemption page -->
-            <a href="{% url 'coupon_redeem' %}" class="btn btn-info mt-3">Redeem Coupon</a>
-          </div>
-          
-          Your Coupons's:
-            {% for coupon in user_coupons %}
-            <br>
-                {{coupon.code}}
-                {% if coupon.coupon_type == "percentage" %}
-                  {{coupon.product}}
-                  {{coupon.percentage}}
-                {% else %}
-                  {{coupon.fixed_amount}}
-                {% endif %}
-                
-            {% endfor %}
-
-        </div>
-      </div>
+<br>
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>{{ user.username }}'s Profile</h1>
+        <p class="points">Points: {{ points }}</p>
     </div>
-  </div>
+    <div class="profile-body">
+        <div class="profile-actions">
+            <form method="post">
+                {% csrf_token %}
+                {{ user_form.as_p }}
+                <button type="submit" class="btn primary-btn">Save Changes</button>
+            </form>
+            <form method="post" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn danger-btn">Delete Account</button>
+            </form>
+            <a href="{% url 'coupon_redeem' %}" class="btn info-btn">Redeem Coupon</a>
+        </div>
+        <div class="profile-coupons">
+          <hr>
+            <h2>Your Coupons:</h2>
+            <ul class="coupon-list">
+                {% for coupon in user_coupons %}
+                    <li class="coupon-item">
+                        {{ coupon.code }}
+                        {% if coupon.coupon_type == "percentage" %}
+                            - {{ coupon.percentage }}% off {{ coupon.product }}
+                        {% else %}
+                            - ${{ coupon.fixed_amount }} off {{ coupon.product }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}
