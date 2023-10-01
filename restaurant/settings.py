@@ -35,6 +35,10 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
+
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,9 +51,53 @@ INSTALLED_APPS = [
     'my_restaurant',
     'django.contrib.humanize',
     'crispy_forms',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    
+    
+    'allauth.socialaccount.providers.google',
     
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+
+SOCIALACCOUNT_ADAPTER = 'my_restaurant.My_adapter.MySocialAccountAdapter'
+
+GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'approval_prompt': 'force'}
+ACCOUNT_SESSION_REMEMBER = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 3600
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_QUERY_EMAIL = True
+ACCOUNT_LOGOUT_ON_GET= True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+ACCOUNT_UNIQUE_EMAIL = True
+
+ACCOUNT_EMAIL_REQUIRED = True
+STATELESS: False
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+
+
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend'
+    
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    },
+    
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -17,12 +17,13 @@ def cart(request):
     cart_item_ids = [item.item_id for item in cart_items]
     reduced_priced_product = None
 
+    table = request.POST.get('table')
+    if table:
+        cart.table = table
+        cart.save()
     if cart.discount == 0 and request.method == 'POST':
         coupon_form = CouponForm(request.POST)
-        table = request.POST.get('table')
-        if table:
-            cart.table = table
-            cart.save()
+        
         if coupon_form.is_valid():
             code = coupon_form.cleaned_data['code']
             try:
