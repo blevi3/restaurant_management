@@ -201,3 +201,16 @@ def add_recom_to_cart(request, item_id):
     
     return redirect('cart')
 
+@login_required
+def handle_scanned_qr(request):
+    user = request.user
+    print("qr scanned")
+    cart, created = Cart.objects.get_or_create(user=user, ordered=0, is_delivered = 0)
+    table = request.GET.get('table')
+    if not table:
+        return redirect('home')
+    
+    cart.table = table
+    cart.save()
+    
+    return redirect('cart')
