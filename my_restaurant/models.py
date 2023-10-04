@@ -71,7 +71,7 @@ class Reservation(models.Model):
         return f"{self.name} at Table {self.table} ({self.start_time.strftime('%Y-%m-%d %H:%M')})"
     
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,  unique=True)
     username = models.CharField(max_length=30, help_text="")
     email = models.EmailField(max_length=254)
     points = models.IntegerField(default=0)
