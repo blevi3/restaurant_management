@@ -21,6 +21,7 @@
 
     </style>
 
+
     <script>
       function redirectToCart() {
         
@@ -81,6 +82,63 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous"/>
     
+
+
+
+
+
+    <script>
+      // Function to show the location prompt
+      function showLocationPrompt() {
+          const locationPrompt = document.getElementById('location-prompt');
+          locationPrompt.style.display = 'block';
+  
+          // Handle the "Allow" button click
+          document.getElementById('allow-location').addEventListener('click', () => {
+              getLocation();
+              locationPrompt.style.display = 'none';
+          });
+  
+          // Handle the "Deny" button click
+          document.getElementById('deny-location').addEventListener('click', () => {
+              locationPrompt.style.display = 'none';
+              // Redirect or handle the denial as needed
+          });
+      }
+  
+      // Function to get user's location
+      function getLocation() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                  function (position) {
+                      // Handle successful location retrieval
+                      const latitude = position.coords.latitude;
+                      const longitude = position.coords.longitude;
+                      // Perform any additional logic or redirection here
+                      console.log(`User's location: Latitude=${latitude}, Longitude=${longitude}`);
+                  },
+                  function (error) {
+                      // Handle location retrieval error
+                      console.error('Error getting location:', error.message);
+                  }
+              );
+          } else {
+              console.error('Geolocation is not supported by this browser.');
+          }
+      }
+  
+      // Check if the user is trying to access restricted links
+      const restrictedUrls = ['/table/scan/', '/order'];
+      const currentUrl = window.location.pathname;
+      if (restrictedUrls.includes(currentUrl)) {
+          showLocationPrompt();
+      }
+  </script>
+
+
+
+
+
     
   </head>
   <body >
@@ -228,7 +286,8 @@
       
     </header>
     {% cart_preview  %}
-
+    <p id ="latitude", name = "latitude" value = "47.472484">47.472484</p>
+    <p id ="longitude", name = "longitude" value = "19.060647">19.060647</p>
     <!-- IS_LOGGED_IN flag
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
     <p>You are not logged in</p>

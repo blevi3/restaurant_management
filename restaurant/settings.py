@@ -108,7 +108,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'my_restaurant.middleware.LocationMiddleware.LocationMiddleware',
 ]
+ALLOWED_COORDINATE = ("47.472484", "19.060647")
+RADIUS = 100 # in meters
 
 ROOT_URLCONF = 'restaurant.urls'
 
