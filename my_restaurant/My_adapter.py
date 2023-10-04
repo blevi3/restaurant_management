@@ -13,7 +13,7 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
         print("adapteer")
         user = sociallogin.user
           
-        try:
+        if User.objects.filter(email=user.email).exists():
             customer = User.objects.get(email=user.email)  # if user exists, connect the account to the existing account and login
             active = customer.is_active
             print(customer)
@@ -37,13 +37,17 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
                 perform_login(request, customer, 'none')
                 raise ImmediateHttpResponse(redirect('home'))
                 
-        except User.DoesNotExist:
+        else:
             pw = randompw()
             username = self.generate_unique_username(user.email)
             user.username = username
             user.set_password(pw)
             user.save()
-            Profile.objects.create(user=user)
+            try:
+                profile = Profile.objects.get(user=user)
+            except Profile.DoesNotExist:
+                profile = Profile(user=user)
+                profile.save()
             print("create")
             
             message = "A legenda étterem weboldalán regisztált, átmeneti jelszava:\n {}\nKérjük ezt a jelszót mihamarabb változtassa meg!".format(pw)
