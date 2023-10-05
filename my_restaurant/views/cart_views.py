@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from ..models import Menuitem, Cart, CartItem, Coupons, Table
+from ..models import Menuitem, Cart, CartItem, Coupons, Table, Reservation, Qr_code_reads
 from ..forms import CouponForm  
 from .menu_views import get_recommendations  
 from django.conf import settings  
+from django.utils import timezone
+
 
 
 @login_required
@@ -120,7 +122,6 @@ def add_to_cart(request, item_id):
     
     return redirect('order')
 
-
 @login_required
 def remove_from_cart(request, cart_item_id):
     cart_item = get_object_or_404(CartItem, id=cart_item_id)
@@ -134,8 +135,6 @@ def remove_from_cart(request, cart_item_id):
     
     return redirect('cart')
 
-
-
 @login_required
 def trash_item(request, cart_item_id):
     cart_item = get_object_or_404(CartItem, id=cart_item_id)
@@ -145,8 +144,6 @@ def trash_item(request, cart_item_id):
     
     return redirect('cart')
 
-
-
 @login_required
 def empty_cart(request):
     carts = Cart.objects.filter(user=request.user, ordered=0)
@@ -155,8 +152,6 @@ def empty_cart(request):
             cart.delete()
     
     return redirect('cart')
-
-
 
 @login_required
 def add_to_cart_from_cart(request, item_id):
@@ -174,16 +169,20 @@ def add_to_cart_from_cart(request, item_id):
     
     return redirect('cart')
 
-
-
-
-def cart_delivered(request, id):
+@login_required  
+def order(request, id):
     cart = Cart.objects.get(pk = id)
-    if cart.orderd == 1:
-        cart.is_delivered = 1
-        cart.save()
-    return redirect('all_orders')
-
+    cart.ordered = 1
+    cart.save()
+    Qr_code_reads.objects.filter(user=request.user, ordered=0).update(ordered=1)
+    return redirect('cart')
+    
+def order_paid(request, id):
+    cart = Cart.objects.get(pk = id)
+    cart.ordered = 1
+    cart.is_paid = 1
+    cart.save()
+    return redirect('cart') 
 
 @login_required
 def add_recom_to_cart(request, item_id):
@@ -207,10 +206,51 @@ def handle_scanned_qr(request):
     print("qr scanned")
     cart, created = Cart.objects.get_or_create(user=user, ordered=0, is_delivered = 0)
     table = request.GET.get('table')
+    print(table)
     if not table:
         return redirect('home')
     
-    cart.table = table
-    cart.save()
-    
+    try:
+        table_obj = Table.objects.get(name=table)
+    except Table.DoesNotExist:
+        return redirect('home')
+
+    try:
+        time_30_minutes_ago = timezone.now() - timezone.timedelta(minutes=30)
+        reservation = Reservation.objects.filter(start_time__gte=time_30_minutes_ago).order_by('start_time').first()
+        #reservation = Reservation.objects.get(table=table_obj, taken = 0, start_time__lte=timezone.now())
+        right_user = reservation.user_id == user.id
+        print(reservation.user_id, " masik ",user.id)
+        reserved_hold_time_ended = reservation.start_time+timezone.timedelta(minutes=30) < timezone.now()
+        print("reserved_hold_time_ended: ",reserved_hold_time_ended)
+        reservation_taken = reservation.taken == 1
+        print("reservation taken: ",reservation_taken)
+
+        try:
+            Qr_read_within_1hour = Qr_code_reads.objects.get(user_id = user.id, table=table_obj, read_time__gte=timezone.now()-timezone.timedelta(minutes=60), finalized = 1) #occurred within the last 60 minutes.
+        except Qr_code_reads.DoesNotExist:
+            Qr_read_within_1hour = False
+    except Reservation.DoesNotExist:
+        reservation = None
+
+    if reservation:
+        if right_user or reserved_hold_time_ended or reservation_taken or Qr_read_within_1hour:
+            print("allowed to sit")
+            cart.table = table
+            reservation.taken = 1
+            reservation.save()
+            cart.save()
+            
+            if not Qr_code_reads.objects.filter(user=user).exists():
+                Qr_code_reads.objects.create(user=user, table=table_obj, read_time = timezone.now())
+            if Qr_code_reads.objects.filter(user=user, finalized = 0).exists():
+                Qr_code_reads.objects.filter(user=user, finalized = 0).update(finalized=1)
+                Qr_code_reads.objects.create(user=user, table=table_obj, read_time = timezone.now())
+
+            return redirect('cart')
+        else:
+            messages.error(request, 'Table reserved until: ', reservation.start_time+timezone.timedelta(minutes=15))
+            print('Table reserved until: ', reservation.start_time+timezone.timedelta(minutes=15))
+
+
     return redirect('cart')

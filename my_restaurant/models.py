@@ -55,6 +55,13 @@ class Table(models.Model):
     def __str__(self):
         return self.name
     
+class Qr_code_reads(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_time = models.DateTimeField(null=True)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=0)
+    finalized = models.BooleanField(default=0)
+    
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 class Reservation(models.Model):
@@ -65,6 +72,7 @@ class Reservation(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
     party_size = models.IntegerField(validators=[MinValueValidator(1)])
+    taken = models.BooleanField(default=False)
     
     def __str__(self):
         

@@ -16,14 +16,16 @@ urlpatterns = [
     path('empty_cart/', cart_views.empty_cart, name='empty_cart'),
     path('add/<int:item_id>', cart_views.add_to_cart_from_cart, name='add_to_cart_from_cart'),
     path('all_orders/', orders_views.all_orders, name='all_orders'),
-    path('cart_delivered/<int:id>', cart_views.cart_delivered, name='cart_delivered'),
-    path('order/<int:id>', orders_views.order, name='order'),
+    path('cart_delivered/<int:id>', orders_views.cart_delivered, name='cart_delivered'),
+    path('order/<int:id>', cart_views.order, name='order'),
     path('order_paid_admin/<int:id>', orders_views.order_paid_admin, name='order_paid_admin'),
-    path('order_paid/<int:id>', orders_views.order_paid, name='order_paid'),
+    path('order_paid/<int:id>', cart_views.order_paid, name='order_paid'),
     path('accounts/register', account_views.register_request, name="register"),
     path('drinks', menu_views.drinks, name='drinks'),
     path('menu', menu_views.menu, name='menu'),
     path('gallery', views.gallery, name='gallery'),
+    path('mark_reservation_taken/<int:reservation_id>/', reservation_views.mark_reservation_taken, name='mark_reservation_taken'),
+
     path('all_reservations', reservation_views.all_reservations, name="all_reservations"),
     path('my_reservations', reservation_views.my_reservations, name="my_reservations"),
     path('tables/', reservation_views.available_tables, name='available_tables'),
@@ -40,4 +42,6 @@ urlpatterns = [
     path('create_coupon/', coupon_views.create_coupon, name='create_coupon'),
     path('remove/<int:coupon_id>/', coupon_views.remove_coupon, name='remove_coupon'),
     path('coupon-redeem/', coupon_views.redeem_coupon, name='coupon_redeem'),
+
+
 ]
