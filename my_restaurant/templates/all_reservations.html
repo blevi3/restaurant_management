@@ -34,6 +34,40 @@
 			color: #666;
 		}
 	</style>
+
+	<!-- Add this script to your HTML template -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
+
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.mark-as-taken-btn').on('click', function() {
+				var button = $(this);
+				var reservationId = $(this).data('reservation-id');
+				var csrfToken = Cookies.get('csrftoken');
+				$.ajax({
+					url: '/mark_reservation_taken/' + reservationId + '/',
+					method: 'POST',
+					dataType: 'json',
+					headers: {
+						"X-CSRFToken": csrfToken
+					},
+					success: function(data) {
+						// Handle success, e.g., update the UI
+						console.log(data.message);
+						var takenText = $('<span>Taken</span>');
+                		button.replaceWith(takenText);
+					},
+					error: function(xhr, status, error) {
+						// Handle error if needed
+						console.error(error);
+					}
+				});
+			});
+		});
+	</script>
+
 </head>
 <body>
 	<div>
@@ -46,6 +80,8 @@
 			<th>End Time</th>
 			<th>Party Size</th>
 			<th>Table ID</th>
+			<th>Action</th>
+
 		</tr>
 		{% for reservation in reservations %}
 			<tr>
@@ -55,6 +91,13 @@
 				<td>{{ reservation.end_time|date:"F d, Y, H:i" }}</td>
 				<td>{{ reservation.party_size }}</td>
 				<td>{{ reservation.table_id }}</td>
+				<td>
+                    {% if not reservation.taken %}
+						<button class="mark-as-taken-btn btn btn-primary" data-reservation-id="{{ reservation.id }}">Mark as Taken</button>
+                    {% else %}
+                        Taken
+                    {% endif %}
+                </td>
 			</tr>
 		{% endfor %}
 	</table>
@@ -79,6 +122,7 @@
 				<td>{{ reservation.end_time|date:"F d, Y, H:i" }}</td>
 				<td>{{ reservation.party_size }}</td>
 				<td>{{ reservation.table_id }}</td>
+				
 			</tr>
 		{% endfor %}
 	</table>

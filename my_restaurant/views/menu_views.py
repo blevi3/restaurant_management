@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from ..models import Menuitem, CartItem
+from django.contrib.auth.decorators import login_required
 
 def drinks(request):
     drinks = Menuitem.objects.all().filter(type = 0)  
@@ -26,7 +27,7 @@ def menu(request):
 
     return render(request, 'foods.html', {'foods': foods, 'categories': cat})
 
-
+@login_required
 def items_list(request):
     
     item_list = Menuitem.objects.all()

@@ -24,18 +24,11 @@ def order_paid_admin(request, id):
     return redirect('all_orders')
 
 @staff_member_required
+def cart_delivered(request, id):
+    cart = Cart.objects.get(pk = id)
+    if cart.orderd == 1:
+        cart.is_delivered = 1
+        cart.save()
+    return redirect('all_orders')
 
-@login_required  
-def order(request, id):
-    cart = Cart.objects.get(pk = id)
-    cart.ordered = 1
-    cart.save()
-    return redirect('cart')
-    
-def order_paid(request, id):
-    cart = Cart.objects.get(pk = id)
-    cart.ordered = 1
-    cart.is_paid = 1
-    cart.save()
-    return redirect('cart') 
 

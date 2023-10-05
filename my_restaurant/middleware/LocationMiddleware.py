@@ -12,9 +12,9 @@ class LocationMiddleware:
     def __call__(self, request):
         print("LocationMiddleware is called")
         allowed_coordinate = settings.ALLOWED_COORDINATE
-        print("allowed coord: ",allowed_coordinate)
+        #print("allowed coord: ",allowed_coordinate)
         user_coordinate = self.get_user_coordinate(request)
-        print("user coord: ",user_coordinate)
+        #print("user coord: ",user_coordinate)
         if user_coordinate:
             if request.path == '/table/scan' or request.path == '/order':
                 # Check access only for the specific URLs
@@ -34,7 +34,7 @@ class LocationMiddleware:
         # Try to get latitude and longitude from GET parameters
         user_latitude = 47.472484  #request.GET.get('latitude')
         user_longitude = 19.060647 #request.GET.get('longitude')
-        print(request.POST)
+        #print(request.POST)
         # Check if both latitude and longitude are available
         if user_latitude is not None and user_longitude is not None:
             try:

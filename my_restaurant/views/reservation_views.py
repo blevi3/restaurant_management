@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
 
 @staff_member_required
@@ -18,6 +19,17 @@ def all_reservations(request):
 
     return render(request, 'all_reservations.html', {'reservations': reservations, "past_reservations": past_reservations})
 
+@staff_member_required
+def mark_reservation_taken(request, reservation_id):
+    # Get the reservation object
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+
+    # Mark the reservation as taken (set the 'taken' attribute to True)
+    reservation.taken = True
+    reservation.save()
+
+    # You can return a JSON response to indicate success or any other data if needed
+    return JsonResponse({'message': 'Reservation marked as taken successfully'})
 @login_required
 def my_reservations(request):
     now = timezone.now()
