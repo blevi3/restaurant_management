@@ -107,6 +107,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'my_restaurant.middleware.LocationMiddleware.LocationMiddleware',
 ]
 ALLOWED_COORDINATE = ("47.472484", "19.060647")
@@ -194,3 +195,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'g.laszlo2003@gmail.com'
 EMAIL_HOST_PASSWORD = 'jmjazbhagbpnpbpg'
 EMAIL_DEBUG = True
+
+
+#SECURE_SSL_REDIRECT = True
+
+#SESSION_COOKIE_SECURE = True
+
+#CSRF_COOKIE_SECURE = True
+
+#SECURE_BROWSER_XSS_FILTER = True

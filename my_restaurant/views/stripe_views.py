@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from ..models import Menuitem, Cart, CartItem, Profile , Coupons
 from .invoice_views import generate_pdf_receipt, send_email_with_pdf
+from django.utils import timezone
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -138,6 +139,8 @@ def stripe_webhook(request):
             cart.discount = 0
             cart.applied_coupon_type = None
             cart.reduced_price = 0
+            cart.order_time = timezone.now()
+
             cart.save()
             print("cart: ",cart)
             
