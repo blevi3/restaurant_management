@@ -1,6 +1,5 @@
 # middleware.py
 from django.http import HttpResponseForbidden
-from haversine import haversine
 from django.conf import settings
 import geopy.distance
 

@@ -6,7 +6,7 @@ from ..forms import CouponForm
 from .menu_views import get_recommendations  
 from django.conf import settings  
 from django.utils import timezone
-
+from django.contrib.admin.views.decorators import staff_member_required
 
 
 @login_required
@@ -173,10 +173,12 @@ def add_to_cart_from_cart(request, item_id):
 def order(request, id):
     cart = Cart.objects.get(pk = id)
     cart.ordered = 1
+    cart.order_time = timezone.now()
     cart.save()
     Qr_code_reads.objects.filter(user=request.user, ordered=0).update(ordered=1)
     return redirect('cart')
     
+@staff_member_required
 def order_paid(request, id):
     cart = Cart.objects.get(pk = id)
     cart.ordered = 1
