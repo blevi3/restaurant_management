@@ -40,6 +40,7 @@ class Cart(models.Model):
     table = models.CharField(max_length=50, default="null")
     applied_coupon_type = models.CharField(max_length=10, blank=True, null=True)
     reduced_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    order_time = models.DateTimeField(blank=True, null=True)
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
