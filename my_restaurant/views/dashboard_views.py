@@ -23,7 +23,6 @@ def dashboard(request):
     reservations = Reservation.objects.all()
     total_reservations = reservations.count()
     total_tables_booked = len(set(reservation.table for reservation in reservations))
-    sales_over_time = Cart.objects.filter(ordered=True).annotate(date=TruncDate('order_time')).values('date').annotate(total_sales=Sum('amount_to_be_paid')).order_by('date')
 
     
     import random
@@ -55,8 +54,18 @@ def dashboard(request):
     # Encode the Matplotlib chart as base64
     chart_image = base64.b64encode(buffer.read()).decode()
 
-
+    user_spent = Cart.objects.filter(is_paid=True).values('user').annotate(total_spent=Sum('amount_to_be_paid'))
     top_customers = Cart.objects.values('user__username').annotate(total_orders=Count('user')).order_by('-total_orders')[:10]
+    top_customers_with_spent = []
+    for customer in top_customers:
+        username = customer['user__username']
+        total_orders = customer['total_orders']
+        
+        # Order the user_spent queryset by user ID and get the first result
+        total_spent_result = user_spent.filter(user__username=username).order_by('user').first()
+        total_spent = total_spent_result['total_spent'] if total_spent_result else 0
+
+        top_customers_with_spent.append({'username': username, 'total_orders': total_orders, 'total_spent': total_spent})
 
     context =  {
         'total_sales': total_sales['total_sales'],
@@ -65,8 +74,7 @@ def dashboard(request):
         'customer_profiles': customer_profiles,
         'total_reservations': total_reservations,
         'total_tables_booked': total_tables_booked,
-        #'sales_over_time': sales_over_time,
-        'top_customers': top_customers,
+        'top_customers': top_customers_with_spent,
         'sales_chart_image': chart_image,
 
 

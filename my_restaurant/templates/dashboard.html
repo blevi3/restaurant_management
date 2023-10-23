@@ -27,10 +27,9 @@
 <h2>Top Customers:</h2>
 <ul>
     {% for customer in top_customers %}
-        <li>{{ customer.user__username }} - Total Orders: {{ customer.total_orders }}</li>
+        <li>{{ customer.username }} - Total Orders: {{ customer.total_orders }} - Total Spent: {{ customer.total_spent }}</li>
     {% endfor %}
 </ul>
-
 <p>Unique coupon codes used: {{ unique_coupons }}</p>
 
 
