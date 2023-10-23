@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import account_views, cart_views, coupon_views, menu_views, orders_views, reservation_views, stripe_views, views
+from .views import account_views, cart_views, coupon_views, menu_views, orders_views, reservation_views, stripe_views, views, dashboard_views
 
 urlpatterns = [
     path('test', views.Testpage.as_view(), name='about'),
@@ -42,6 +42,8 @@ urlpatterns = [
     path('create_coupon/', coupon_views.create_coupon, name='create_coupon'),
     path('remove/<int:coupon_id>/', coupon_views.remove_coupon, name='remove_coupon'),
     path('coupon-redeem/', coupon_views.redeem_coupon, name='coupon_redeem'),
+
+    path('dashboard/', dashboard_views.dashboard, name='dashboard'),
 
 
 ]

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block pagecontent %}
+
+
+<h2>Total Sales: ${{ total_sales }}</h2>
+
+<h2>Popular Items:</h2>
+<ul>
+    {% for item in popular_items %}
+        <li>{{ item.item__name }} ({{ item.total_sold }} sold)</li>
+    {% endfor %}
+</ul>
+
+
+<h2>Reservation Statistics:</h2>
+<p>Total Reservations: {{ total_reservations }}</p>
+<p>Total Tables Booked: {{ total_tables_booked }}</p>
+
+
+
+<h2>Sales Trends Over Time:</h2>
+<img src="data:image/png;base64,{{ sales_chart_image }}" alt="Sales Trends Over Time">
+
+
+
+<h2>Top Customers:</h2>
+<ul>
+    {% for customer in top_customers %}
+        <li>{{ customer.user__username }} - Total Orders: {{ customer.total_orders }}</li>
+    {% endfor %}
+</ul>
+
+<p>Unique coupon codes used: {{ unique_coupons }}</p>
+
+
+
+{% endblock %}

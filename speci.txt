@@ -32,4 +32,12 @@ Layout:
         * helyette bootstrap gecit letölteni, .navbar-collapse.collapse beállításainak manuális törlése
     
 
-    
+Admin Dashboard:
+
+Ilyenekre gondoltam:
+Osszes bevétel
+Népszerű termékek, hanyat vettek beloluk
+Kuponfelhasznalasok száma
+Felhasználok koltekezése és top userek meghatározasa
+ÁtvettFoglalások/összesFoglalás
+Sales trend (ugye rendeles ideje el van mentve ezert ezek alapjan minden egyes termekhez lehet fasza grafikont rajzolni napi/heti/havi felbontásban is)
