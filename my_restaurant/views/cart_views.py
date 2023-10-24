@@ -7,6 +7,8 @@ from .menu_views import get_recommendations
 from django.conf import settings  
 from django.utils import timezone
 from django.contrib.admin.views.decorators import staff_member_required
+from decimal import Decimal
+
 
 
 @login_required
@@ -76,8 +78,9 @@ def cart(request):
         else:
             cart_coupon = 0
 
-    final_price = sum(cart_item.quantity * cart_item.total_price for cart_item in cart_items)
-    cart.amount_to_be_paid = final_price if cart.reduced_price == 0 or final_price <= cart.reduced_price else cart.reduced_price
+    #final_price = sum(cart_item.quantity * cart_item.total_price for cart_item in cart_items)
+    #cart.amount_to_be_paid = final_price if cart.reduced_price == 0 or final_price <= cart.reduced_price else cart.reduced_price
+    calculate_total_price(cart)
     cart.save()
 
     recommendations = get_recommendations(cart_item_ids)
@@ -120,6 +123,8 @@ def add_to_cart(request, item_id):
         except CartItem.DoesNotExist:
             CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price )
     
+    calculate_total_price(cart)
+
     return redirect('order')
 
 @login_required
@@ -133,6 +138,7 @@ def remove_from_cart(request, cart_item_id):
     else:
         cart_item.delete()
     
+    calculate_total_price(cart_item.cart)
     return redirect('cart')
 
 @login_required
@@ -141,6 +147,8 @@ def trash_item(request, cart_item_id):
     
     if not cart_item.cart.ordered:
         cart_item.delete()
+    
+    calculate_total_price(cart_item.cart)
     
     return redirect('cart')
 
@@ -157,7 +165,7 @@ def empty_cart(request):
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
     cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
-    
+    print("cart",cart)
     if not created and not cart.ordered:
         try:
             cart_item = CartItem.objects.get(cart=cart, item=item)
@@ -166,12 +174,16 @@ def add_to_cart_from_cart(request, item_id):
             cart_item.save()
         except CartItem.DoesNotExist:
             CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price)
+    calculate_total_price(cart)
+    
+    print('end of add to cart from cart')
     
     return redirect('cart')
 
 @login_required  
 def order(request, id):
     cart = Cart.objects.get(pk = id)
+    cart.calculate_total_price()
     cart.ordered = 1
     cart.order_time = timezone.now()
     cart.save()
@@ -200,6 +212,7 @@ def add_recom_to_cart(request, item_id):
         except CartItem.DoesNotExist:
             CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price)
     
+    calculate_total_price(cart)
     return redirect('cart')
 
 @login_required
@@ -208,7 +221,6 @@ def handle_scanned_qr(request):
     print("qr scanned")
     cart, created = Cart.objects.get_or_create(user=user, ordered=0, is_delivered = 0)
     table = request.GET.get('table')
-    print(table)
     if not table:
         return redirect('home')
     
@@ -222,7 +234,6 @@ def handle_scanned_qr(request):
         reservation = Reservation.objects.filter(start_time__gte=time_30_minutes_ago).order_by('start_time').first()
         #reservation = Reservation.objects.get(table=table_obj, taken = 0, start_time__lte=timezone.now())
         right_user = reservation.user_id == user.id
-        print(reservation.user_id, " masik ",user.id)
         reserved_hold_time_ended = reservation.start_time+timezone.timedelta(minutes=30) < timezone.now()
         print("reserved_hold_time_ended: ",reserved_hold_time_ended)
         reservation_taken = reservation.taken == 1
@@ -256,3 +267,31 @@ def handle_scanned_qr(request):
 
 
     return redirect('cart')
+
+
+def calculate_total_price(cart):
+        print("calculate total price")
+        cart_items = CartItem.objects.filter(cart_id=cart.id)
+        print("cart items",cart_items)
+        total_price = Decimal('0.00')
+
+        for cart_item in cart_items:
+            total_price += cart_item.final_price
+        print("total price", total_price)
+
+        # Check if a fixed amount coupon is applied
+        discount = Coupons.objects.filter(id=cart.discount).first()
+        if cart.discount and cart.applied_coupon_type == 'fixed':
+            total_price -= discount.fixed_amount
+
+        # Check if percentage coupons are applied
+        if cart.discount and cart.applied_coupon_type == 'percentage':
+            percentage_coupon = Coupons.objects.get(id=cart.discount)
+            eligible_item = Menuitem.objects.get(name=percentage_coupon.product)
+            eligible_item_total_price = CartItem.objects.get(cart=cart, item=eligible_item).total_price
+            total_price -= (eligible_item_total_price * percentage_coupon.percentage / 100)
+        print("total price", total_price)
+        print("cart", cart.amount_to_be_paid)
+        cart.amount_to_be_paid = total_price
+        print("cart amount to be paid", cart.amount_to_be_paid)
+        cart.save()

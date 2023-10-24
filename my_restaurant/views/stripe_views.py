@@ -125,7 +125,6 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         user_id = session['client_reference_id']
-        print("user id: ",user_id)
         user = User.objects.get(id=user_id)
         cart = Cart.objects.filter(user=user, ordered=0, is_delivered=0, is_paid=0, is_ready=0).first()
 
@@ -142,7 +141,6 @@ def stripe_webhook(request):
             cart.order_time = timezone.now()
 
             cart.save()
-            print("cart: ",cart)
             
             
         print("Payment was successful. Cart updated.")
@@ -153,7 +151,6 @@ def stripe_webhook(request):
             subtotal += total_item_price
         profile = Profile.objects.get(id=user_id)
         profile.points += subtotal/100
-        print("user email: ",user.email)
         profile.save()
         pdf_response = generate_pdf_receipt(cart.id, user_items, user, session['payment_intent'])
 

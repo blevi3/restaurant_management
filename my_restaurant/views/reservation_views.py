@@ -101,7 +101,6 @@ def reservation_table(request, table_id, date1):
         reserved_times_values.append({'start_time': reserved_times[i].start_time.strftime("%Y-%m-%d %H:%M"), 'end_time': reserved_times[i].end_time.strftime("%Y-%m-%d %H:%M")})
     #date1 = request.POST.get('date')
     #available_times = get_available_times(date1, table)
-    #print(available_times)
     if date1 == datetime.now().strftime("%Y-%m-%d"):  # Check if date1 is today
         now = datetime.now()
         start_of_day = datetime(now.year, now.month, now.day, 8, 0)  # 08:00 AM

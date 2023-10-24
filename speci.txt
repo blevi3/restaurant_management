@@ -41,3 +41,6 @@ Kuponfelhasznalasok száma
 Felhasználok koltekezése és top userek meghatározasa
 ÁtvettFoglalások/összesFoglalás
 Sales trend (ugye rendeles ideje el van mentve ezert ezek alapjan minden egyes termekhez lehet fasza grafikont rajzolni napi/heti/havi felbontásban is)
+Új Felhasználók + aktív Felhasználók
+Aki 3 hónapja nem lépett be kapjon automatikusan egy kupont
+Szerver állapot jelentés

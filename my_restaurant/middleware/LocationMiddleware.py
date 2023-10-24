@@ -29,11 +29,9 @@ class LocationMiddleware:
             return self.get_response(request)
 
     def get_user_coordinate(self, request):
-        print("coordinates are called")
         # Try to get latitude and longitude from GET parameters
         user_latitude = 47.472484  #request.GET.get('latitude')
         user_longitude = 19.060647 #request.GET.get('longitude')
-        #print(request.POST)
         # Check if both latitude and longitude are available
         if user_latitude is not None and user_longitude is not None:
             try:

@@ -111,7 +111,6 @@ def send_email_with_pdf(order_id, pdf_buffer, recipient_email):
         message = 'Thank you for your order. Here is your receipt.'
         from_email = settings.EMAIL_HOST_USER
         to_email = [recipient_email]
-        print("to_email: ",to_email)
 
         email = EmailMessage(subject, message, from_email, to_email)
         pdf_buffer.seek(0)

@@ -74,7 +74,6 @@ def remove_coupon_from_cart(request):
 
             # Revert the prices of items that were discounted by the coupon
             cart_items = CartItem.objects.filter(cart=cart)
-            print("cart items",cart_items)
             if removed_coupon.coupon_type == 'fixed':
                 print("fixed")
                 # Revert fixed amount coupon

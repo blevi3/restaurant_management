@@ -13,7 +13,6 @@ def active_order_count(context):
     paid_carts = Cart.objects.filter(is_paid=True, is_delivered=False, ordered = True)
     unpaid_carts = Cart.objects.filter(is_paid=False, is_delivered=False, ordered = True)
     active_orders = paid_carts.count() + unpaid_carts.count()
-    print(active_orders)
     return active_orders
 
 @register.simple_tag(takes_context=True)
@@ -35,7 +34,6 @@ def cart_item_count(context):
 def cart_preview(context):
     request = context['request']
     preview_html = ''
-    print(request.user)
     if request.user.is_authenticated:
         try:
             #cart = get_object_or_404(Cart, user=request.user, is_delivered = 0)

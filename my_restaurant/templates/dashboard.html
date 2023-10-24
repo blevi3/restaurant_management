@@ -32,6 +32,49 @@
 </ul>
 <p>Unique coupon codes used: {{ unique_coupons }}</p>
 
+<h3>New Users:</h3>
+<p>Today: {{ new_users.day }}</p>
+<p>Last Week: {{ new_users.week }}</p>
+<p>Last Month: {{ new_users.month }}</p>
+<p>Last Half Year: {{ new_users.six_month }}</p>
+<p>Last Year: {{ new_users.year }}</p>
+
+<h3>Active Users (Logged in within the past 3 months):</h3>
+{% if active_users %}
+    <p>Total: {{ active_users }}</p>
+{% else %}
+    <p>Total: 0</p>
+{% endif %}
+
+<h3>Inactive Users (Have not logged in the past 3 months):</h3>
+{% if inactive_users %}
+    <p>Total: {{ inactive_users }}</p>
+{% else %}
+    <p>Total: 0</p>
+{% endif %}
+
+
+<button id="send-coupons-button">Send Coupons to Inactive Users</button>
+
+<script>
+    $(document).ready(function() {
+        $("#send-coupons-button").click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/send_coupons_to_inactive_users/', 
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(response) {
+                    alert('An error occurred while sending coupons.');
+                }
+            });
+        });
+    });
+</script>
 
 
 {% endblock %}

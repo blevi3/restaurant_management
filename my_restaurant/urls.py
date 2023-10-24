@@ -44,6 +44,7 @@ urlpatterns = [
     path('coupon-redeem/', coupon_views.redeem_coupon, name='coupon_redeem'),
 
     path('dashboard/', dashboard_views.dashboard, name='dashboard'),
+    path('send_coupons_to_inactive_users/', dashboard_views.send_coupons_to_inactive_users, name='send_coupons_to_inactive_users'),
 
 
 ]
