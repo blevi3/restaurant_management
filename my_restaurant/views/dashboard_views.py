@@ -12,6 +12,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.core.mail import send_mail
+from django.db import connection
+import psutil
 
 
 def dashboard(request):
@@ -25,6 +27,7 @@ def dashboard(request):
     chart_image = sales_chart()
     new_users_data = new_users()
     active_users_data = active_users()
+
     context =  {
         'total_sales': total_sales['total_sales'],
         'popular_items': popular_items,
@@ -36,7 +39,6 @@ def dashboard(request):
         'new_users': new_users_data,
         'active_users': active_users_data,
         'inactive_users': inactive_users_count,
-
         }
 
     return render(request, 'dashboard.html', context)
@@ -155,3 +157,32 @@ def send_coupons_to_inactive_users(request):
         coupon.save()
 
     return JsonResponse({'message': 'Coupons sent and assigned to inactive users.'})
+
+
+
+def server_status(request):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            db_result = cursor.fetchone()
+            db_status = 1 if db_result and db_result[0] == 1 else 0
+    except Exception as e:
+        db_status = 0
+
+    try:
+        cpu_usage = psutil.cpu_percent()
+        memory_usage = psutil.virtual_memory().percent
+        if cpu_usage < 80 and memory_usage < 80:
+            resource_status = 1
+        else:
+            resource_status = 0
+    except Exception as e:
+        resource_status = 0
+
+    combined_status = 1 if db_status == 1 and resource_status == 1 else 0
+
+    return JsonResponse({
+        'db_status': db_status,
+        'resource_status': resource_status,
+        'combined_status': combined_status
+    })

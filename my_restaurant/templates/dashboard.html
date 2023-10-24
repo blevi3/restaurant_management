@@ -1,7 +1,82 @@
 {% extends "base.html" %}
 
 {% block pagecontent %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .status-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        position: absolute;
+        top: 100px;
+        right: 10px;
+        cursor: help;
 
+    }
+    
+    .healthy {
+        background-color: green;
+    }
+    
+    .slow {
+        background-color: red;
+    }
+    
+    .unknown {
+        background-color: yellow;
+    }
+    
+    .tooltip {
+        position: absolute;
+        background-color: black;
+        color: white;
+        border-radius: 5px;
+        padding: 5px;
+        display: none;
+    }
+    </style>
+    
+    <script>
+        $(document).ready(function() {
+            updateServerStatus();
+            function updateServerStatus() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/server_status/',
+                    success: function(response) {
+                        if (response.combined_status === 1) {
+                            $('#server-status').removeClass('slow unknown').addClass('healthy');
+                            $('#server-status').attr('title', 'All Systems Healthy');
+                        } else if (response.db_status === 0) {
+                            $('#server-status').removeClass('healthy unknown').addClass('slow');
+                            $('#server-status').attr('title', 'Database Issues');
+                        } else if (response.resource_status === 0) {
+                            $('#server-status').removeClass('healthy unknown').addClass('slow');
+                            $('#server-status').attr('title', 'Resource Issues: Memory Low');
+                        }
+                    },
+                    error: function(response) {
+                        $('#server-status').removeClass('healthy slow').addClass('unknown');
+                        $('#server-status').attr('title', 'Status Unknown');
+                    }
+                });
+            }
+    
+            // Periodically check the server status (every 10 minutes)
+            setInterval(updateServerStatus, 600000);
+    
+            // Add tooltip display on hover
+            $('#server-status').hover(function () {
+                $('.tooltip').css('display', 'block');
+            }, function () {
+                $('.tooltip').css('display', 'none');
+            });
+        });
+    </script>
+    
+    <div id="server-status" class="status-dot unknown">
+        <div class="tooltip" id="tooltip-status">Status Unknown</div>
+    </div>
 
 <h2>Total Sales: ${{ total_sales }}</h2>
 
