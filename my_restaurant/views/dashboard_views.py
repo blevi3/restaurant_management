@@ -17,6 +17,7 @@ import psutil
 
 
 def dashboard(request):
+    time_frames = ['7', '30', '60', '180', '365']
     total_sales = Cart.objects.filter(is_paid=True).aggregate(total_sales=Sum('amount_to_be_paid'))
     popular_items = CartItem.objects.values('item__name').annotate(total_sold=Sum('quantity')).order_by('-total_sold')[:10]
 
@@ -24,7 +25,7 @@ def dashboard(request):
     unique_coupons_count = unique_coupons()
     total_reservations, total_tables_booked = reservations_statistics()
     top_customers = top_customers_with_spent()
-    chart_image = sales_chart()
+    chart_image = sales_chart(time_frames)
     new_users_data = new_users()
     active_users_data = active_users()
 
@@ -70,35 +71,39 @@ def top_customers_with_spent():
     return top_customers_with_spent
 
 
-def sales_chart():
-    import random
-    from datetime import datetime, timedelta
-    today = datetime.now().date()                                                   #sample data
-    dates = [today - timedelta(days=i) for i in range(30)]                          #sample data
-    total_sales_for_graph = [random.randint(1000, 5000) for _ in range(30)]         #sample data
+def sales_chart(time_frames):
+    charts = {}
 
-    #sales_data = list(sales_over_time)
-    #dates = [item['date'] for item in sales_data]
-    #total_sales_for_graph = [item['total_sales'] for item in sales_data]
+    for time_frame in time_frames:
+        days = int(time_frame)
+        import random
+        from datetime import datetime, timedelta
+        today = datetime.now().date()                                                   #sample data
+        dates = [today - timedelta(days=i) for i in range(days)]                          #sample data
+        total_sales_for_graph = [random.randint(1000, 5000) for _ in range(days)]         #sample data
 
-    # Combine the data into a list of dictionaries
-    plt.figure(figsize=(10, 6))
-    plt.plot(dates, total_sales_for_graph, marker='o', linestyle='-', color='b')    #sample data
-    #plt.plot(dates, total_sales_for_graph, marker='o', linestyle='-', color='b')
+        #sales_data = list(sales_over_time)
+        #dates = [item['date'] for item in sales_data]
+        #total_sales_for_graph = [item['total_sales'] for item in sales_data]
 
-    plt.title('Sales Trends Over Time (Sample Data)')
-    plt.xlabel('Date')
-    plt.ylabel('Total Sales')
-    plt.grid(True)
+        plt.figure(figsize=(10, 6))
+        plt.plot(dates, total_sales_for_graph, marker='o', linestyle='-', color='b')    #sample data
+        #plt.plot(dates, total_sales_for_graph, marker='o', linestyle='-', color='b')
 
-    # Save the Matplotlib chart to a BytesIO object
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    plt.close()
-    buffer.seek(0)
+        plt.title('Sales Trends Over Time (Sample Data)')
+        plt.xlabel('Date')
+        plt.ylabel('Total Sales')
+        plt.grid(True)
 
-    # Encode the Matplotlib chart as base64
-    return base64.b64encode(buffer.read()).decode()
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png')
+        plt.close()
+        buffer.seek(0)
+
+        chart_image= base64.b64encode(buffer.read()).decode()
+        charts[time_frame] = chart_image
+    return charts
+
 
 def new_users():
     today = timezone.now()
@@ -122,7 +127,6 @@ def new_users():
     }
     return new_users_data
 
-
 def active_users():
     three_months_ago = timezone.now() - timezone.timedelta(weeks=12)
     active_users = User.objects.filter(last_login__gte=three_months_ago).count()
@@ -132,7 +136,6 @@ def inactive_users():
     three_months_ago = timezone.now() - timezone.timedelta(minutes=12)
     inactive_users = User.objects.filter(last_login__lt=three_months_ago).count()
     return inactive_users
-
 
 @require_POST
 def send_coupons_to_inactive_users(request):
@@ -157,8 +160,6 @@ def send_coupons_to_inactive_users(request):
         coupon.save()
 
     return JsonResponse({'message': 'Coupons sent and assigned to inactive users.'})
-
-
 
 def server_status(request):
     try:

@@ -34,6 +34,15 @@
         padding: 5px;
         display: none;
     }
+
+    .time-frame-image {
+        display: none;
+    }
+    
+    /* CSS to show the active image */
+    .active-image {
+        display: block;
+    }
     </style>
     
     <script>
@@ -95,7 +104,28 @@
 
 
 <h2>Sales Trends Over Time:</h2>
-<img src="data:image/png;base64,{{ sales_chart_image }}" alt="Sales Trends Over Time">
+{% for time_frame, chart_image in sales_chart_image.items %}
+    <img src="data:image/png;base64,{{ chart_image }}" alt="{{ time_frame }} Days" class="time-frame-image{% if forloop.first %} active-image{% endif %}" data-time-frame="{{ time_frame }}">
+{% endfor %}
+
+<button class="time-frame-button" data-time-frame="7">1 Week</button>
+<button class="time-frame-button" data-time-frame="30">1 Month</button>
+<button class="time-frame-button" data-time-frame="60">2 Month</button>
+<button class="time-frame-button" data-time-frame="180">6 Months</button>
+<button class="time-frame-button" data-time-frame="365">1 Year</button>
+<script>
+    $(document).ready(function() {
+        $('.time-frame-button').click(function() {
+            var timeFrame = $(this).data('time-frame');
+
+            // Hide all images
+            $('.time-frame-image').removeClass('active-image');
+
+            // Show the selected image
+            $('.time-frame-image[data-time-frame="' + timeFrame + '"]').addClass('active-image');
+        });
+    });
+</script>
 
 
 
