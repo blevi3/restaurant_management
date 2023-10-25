@@ -73,14 +73,15 @@ def top_customers_with_spent():
 
 def sales_chart(time_frames):
     charts = {}
-
     for time_frame in time_frames:
         days = int(time_frame)
+
         import random
         from datetime import datetime, timedelta
         today = datetime.now().date()                                                   #sample data
         dates = [today - timedelta(days=i) for i in range(days)]                          #sample data
         total_sales_for_graph = [random.randint(1000, 5000) for _ in range(days)]         #sample data
+        
 
         #sales_data = list(sales_over_time)
         #dates = [item['date'] for item in sales_data]
@@ -94,6 +95,19 @@ def sales_chart(time_frames):
         plt.xlabel('Date')
         plt.ylabel('Total Sales')
         plt.grid(True)
+        if int(time_frame) == 7:
+            plt.xticks(dates, [date.strftime('%A') for date in dates], rotation=45)
+        elif int(time_frame) == 60:
+            weekly_dates = [min(dates) + timedelta(days=i * 7) for i in range(10)]
+            plt.xticks(weekly_dates, [date.strftime('%W') for date in weekly_dates], rotation=45)
+        elif int(time_frame) == 180:
+            monthly_dates = [min(dates) + timedelta(days=i * 30) for i in range(7)]
+            plt.xticks(monthly_dates, [date.strftime('%B') for date in monthly_dates], rotation=45)
+        elif int(time_frame) == 365:
+            monthly_dates = [min(dates) + timedelta(days=i * 30) for i in range(13)]
+            plt.xticks(monthly_dates, [date.strftime('%B') for date in monthly_dates], rotation=45)
+        else:
+            plt.xticks(dates, [date.strftime('%d') for date in dates])
 
         buffer = BytesIO()
         plt.savefig(buffer, format='png')
