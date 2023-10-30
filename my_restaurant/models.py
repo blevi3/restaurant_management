@@ -86,11 +86,11 @@ class Profile(models.Model):
     points = models.IntegerField(default=0)
     LANGUAGE_CHOICES = (
     ('en-us', 'English'),
-    ('nl', 'Dutch'),
+    ('nl', 'Dutch'),    
     ('hu', 'Hungarian')
     )
 
-    language = models.CharField(default='en-us', choices=LANGUAGE_CHOICES, max_length=5)
+    language = models.CharField(default='hu', choices=LANGUAGE_CHOICES, max_length=5)
 
     def __str__(self):
         return self.user.username

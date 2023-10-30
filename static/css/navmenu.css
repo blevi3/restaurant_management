@@ -8,6 +8,11 @@ body {
     background: #555;
 }
 
+#cssmenu ul{
+    padding-inline-start: 0px;
+    padding-inline-end: 0px;
+}
+
 header {
     position: relative;
     width: 100%;

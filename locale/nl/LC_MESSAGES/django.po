@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-30 12:05+0100\n"
+"POT-Creation-Date: 2023-10-30 12:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: .\my_restaurant\templates\base.html:260
+msgid "Home"
+msgstr "Startseite"
+
+#: .\my_restaurant\templates\base.html:264
+msgid "Drinks"
+msgstr "Getränke"
+
+#: .\my_restaurant\templates\base.html:265
+msgid "Foods"
+msgstr "Speisen"
+
+#: .\my_restaurant\templates\base.html:267
+#: .\venv\Lib\site-packages\django\forms\formsets.py:484
+#: .\venv\Lib\site-packages\django\forms\formsets.py:491
+msgid "Order"
+msgstr "Bestellung"
+
+#: .\my_restaurant\templates\base.html:272
+msgid "About"
+msgstr "Über uns"
+
+#: .\my_restaurant\templates\base.html:273
+msgid "Gallery"
+msgstr "Galerie"
+
+#: .\my_restaurant\templates\base.html:275
+msgid "Admin"
+msgstr "Admin"
+
+#: .\my_restaurant\templates\base.html:276
+msgid "Create Coupon"
+msgstr "Gutscheine"
+
+#: .\my_restaurant\templates\base.html:278
+msgid "All Reservation"
+msgstr "Alle Reservierungen"
+
+#: .\my_restaurant\templates\base.html:286
+msgid "Cart"
+msgstr "Warenkorb"
+
+#: .\my_restaurant\templates\base.html:289
+msgid "Reservation"
+msgstr "Reservierung"
+
+#: .\my_restaurant\templates\base.html:292
+msgid "Profile"
+msgstr "Profil"
+
+#: .\my_restaurant\templates\base.html:293
+msgid "Previous Orders"
+msgstr "Vorherige Bestellungen"
+
+#: .\my_restaurant\templates\base.html:294
+msgid "Reservations"
+msgstr "Reservierungen"
+
+#: .\my_restaurant\templates\base.html:295
+msgid "Logout"
+msgstr "Abmelden"
+
+#: .\my_restaurant\templates\base.html:299
+msgid "Login"
+msgstr "Anmelden"
+
+#: .\my_restaurant\templates\base.html:300
+msgid "Register"
+msgstr "Registrieren"
+
 #: .\my_restaurant\templates\base.html:308
 msgid "Hello world! This is an HTML5 Boilerplate."
-msgstr "Hallo wereld! Dit is een HTML5 Boilerplate."
+msgstr "Hallo Welt! Dies ist ein HTML5-Grundgerüst."
+
+#: .\my_restaurant\templates\base.html:310
+msgid "Toggle Dark Mode"
+msgstr "Dunklen Modus umschalten"
 
 #: .\venv\Lib\site-packages\django\contrib\messages\apps.py:15
 msgid "Messages"
@@ -591,11 +665,6 @@ msgid "Please submit at least %(num)d form."
 msgid_plural "Please submit at least %(num)d forms."
 msgstr[0] ""
 msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\forms\formsets.py:484
-#: .\venv\Lib\site-packages\django\forms\formsets.py:491
-msgid "Order"
-msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\formsets.py:499
 msgid "Delete"

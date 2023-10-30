@@ -70,7 +70,7 @@ msgstr "Profil"
 
 #: .\my_restaurant\templates\base.html:293
 msgid "Previous Orders"
-msgstr "Korábbi Rendeléseim"
+msgstr "Rendeléseim"
 
 #: .\my_restaurant\templates\base.html:294
 msgid "Reservations"
