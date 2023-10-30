@@ -38,7 +38,6 @@ def change_language(request):
         language_codes = [choice[0] for choice in Profile.LANGUAGE_CHOICES]
         print("prof lang: ", language_codes)
         
-        # Extract the two-letter language code from the new_language string
         new_language_code = new_language.split(',')[0].strip('()\'"')
         
         if new_language_code in language_codes:

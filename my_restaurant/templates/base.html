@@ -295,13 +295,55 @@
             <li><a class="dropdown-item" href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
           </ul>
         </li>
+        <li class="language-dropdown">
+          <img src="static/pics/{{user.profile.language}}.png" alt="English" id="current-language" width=30px></img>
+          {% csrf_token %}
+          <ul class="language-options">
+            {% for choice in user.profile.LANGUAGE_CHOICES %}
+              <li>
+                <a href="change_language" class="language" data-language="{{ choice.0 }}">
+                  <img src="static/pics/{{choice.0}}.png" alt="{{ choice.1 }}" width=30px></img>
+
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
         {% else %}
           <li><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
           <li><a href="{% url 'register' %}">{% trans "Register" %}</a></li>
 
         {% endif %}
+
       </ul>
       </nav>
+
+      <!-- Add this JavaScript code to your HTML file -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  $("#current-language").click(function() {
+    $(".language-options").toggle();
+  });
+
+  $(".language-options a").click(function() {
+    var newLanguage = $(this).data("language");
+    
+    var csrfToken = $("[name=csrfmiddlewaretoken]").val();
+    var data = {
+      language: newLanguage,
+      csrfmiddlewaretoken: csrfToken
+    };
+    
+    $.post("{% url 'change_language' %}", data, function(data) {
+      location.reload();
+    });
+  });
+});
+</script>
+
+
       
     </header>
     {% cart_preview  %}
@@ -309,22 +351,7 @@
 
     <button id="dark-mode-toggle" onclick="toggleTheme()">{% trans "Toggle Dark Mode" %}</button>
 
-    <form method="post" action="{% url 'change_language' %}">
-      {% csrf_token %}
-      <select name="language" id="language">
-        {{user.profile.points}}
-        {% for choice in user.profile.LANGUAGE_CHOICES %}
-        {{ choice.0 }}
-        {{ choice }}
-          <option value="{{ choice }}" {% if choice == user.profile.language %}selected{% endif %}>
-            {{ choice.1 }}
-          </option>
-        {% endfor %}
-      </select>
-      <input type="submit" value="Change Language">
-    </form>
-    
-    
+       
     <!-- IS_LOGGED_IN flag
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
     <p>You are not logged in</p>

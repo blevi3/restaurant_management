@@ -107,6 +107,19 @@ nav {
     font-weight: 700;
 }
 
+#cssmenu>ul>li>ul>li>img {
+    padding: 17px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: #ddd;
+    font-weight: 700;
+}
+
+.language-dropdown{
+    padding: 14px;
+}
+
 #cssmenu>ul>li:hover>a,
 #cssmenu ul li.active a {
     color: #fff
