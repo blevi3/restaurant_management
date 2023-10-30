@@ -1,3 +1,4 @@
+
 Project Scope:
     - functionality
     - layout
@@ -44,3 +45,8 @@ Sales trend (ugye rendeles ideje el van mentve ezert ezek alapjan minden egyes t
 Új Felhasználók + aktív Felhasználók
 Aki 3 hónapja nem lépett be kapjon automatikusan egy kupont
 Szerver állapot jelentés
+
+TODO:
+    - dark/light mode switch
+    - multi language support.
+    

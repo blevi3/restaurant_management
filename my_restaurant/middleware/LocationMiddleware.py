@@ -2,14 +2,17 @@
 from django.http import HttpResponseForbidden
 from django.conf import settings
 import geopy.distance
-
+from django.utils import translation
 class LocationMiddleware:
     def __init__(self, get_response):
+        
         self.get_response = get_response
         print("LocationMiddleware is loaded")
 
     def __call__(self, request):
         print("LocationMiddleware is called")
+        if request.user.is_authenticated:
+            translation.activate(request.user.profile.language)       
         allowed_coordinate = settings.ALLOWED_COORDINATE
         #print("allowed coord: ",allowed_coordinate)
         user_coordinate = self.get_user_coordinate(request)

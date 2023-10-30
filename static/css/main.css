@@ -168,6 +168,17 @@ html body{
 
 
 
+/* Dark Mode */
+.dark-mode {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Light Mode */
+.light-mode {
+  background-color: #fff;
+  color: #333;
+}
 
 
 body {

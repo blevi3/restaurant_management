@@ -47,6 +47,9 @@ urlpatterns = [
     path('send_coupons_to_inactive_users/', dashboard_views.send_coupons_to_inactive_users, name='send_coupons_to_inactive_users'),
     path('server_status/', dashboard_views.server_status, name='server_status'),
 
+    path('change_language/', views.change_language, name='change_language'),
+
+
 
 
 ]

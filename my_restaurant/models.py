@@ -84,10 +84,16 @@ class Profile(models.Model):
     username = models.CharField(max_length=30, help_text="")
     email = models.EmailField(max_length=254)
     points = models.IntegerField(default=0)
+    LANGUAGE_CHOICES = (
+    ('en-us', 'English'),
+    ('nl', 'Dutch'),
+    ('hu', 'Hungarian')
+    )
+
+    language = models.CharField(default='en-us', choices=LANGUAGE_CHOICES, max_length=5)
 
     def __str__(self):
         return self.user.username
-
 
 
 class Coupon(models.Model):
