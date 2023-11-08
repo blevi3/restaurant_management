@@ -34,10 +34,7 @@ from django.shortcuts import redirect
 def change_language(request):
     if request.method == 'POST':
         new_language = request.POST.get('language')
-        print("new lang: ", new_language)
-        language_codes = [choice[0] for choice in Profile.LANGUAGE_CHOICES]
-        print("prof lang: ", language_codes)
-        
+        language_codes = [choice[0] for choice in Profile.LANGUAGE_CHOICES]        
         new_language_code = new_language.split(',')[0].strip('()\'"')
         
         if new_language_code in language_codes:

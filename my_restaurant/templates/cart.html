@@ -8,6 +8,7 @@
     
   </style>
   <h1 class="text-center my-5">Your Cart</h1>
+  
   <div class = "table", id = 'table', name="table">Table: {{table}}
     <form method="POST" action="{% url 'cart' %}">
       {% csrf_token %}

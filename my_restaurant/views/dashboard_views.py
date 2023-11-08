@@ -1,7 +1,6 @@
 from django.db.models import Sum, Count
-from django.db.models.functions import TruncDate
 from django.shortcuts import render, redirect
-from ..models import Cart, CartItem, Profile, Reservation, Coupons
+from ..models import Cart, CartItem, Reservation, Coupons
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -14,8 +13,12 @@ from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.db import connection
 import psutil
+from datetime import datetime
+import pytz
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def dashboard(request):
     time_frames = ['7', '30', '60', '180', '365']
     total_sales = Cart.objects.filter(is_paid=True).aggregate(total_sales=Sum('amount_to_be_paid'))
@@ -44,17 +47,20 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
+from django.contrib.auth.decorators import login_required
 
 def unique_coupons():
     unique_coupon_codes = CartItem.objects.filter(cart__ordered=True).values('item__category', 'item__name').distinct()
     unique_coupons_count = len(unique_coupon_codes)
     return unique_coupons_count
-
+from django.contrib.auth.decorators import login_required
 def reservations_statistics():
     reservations = Reservation.objects.all()
     total_reservations = reservations.count()
     total_tables_booked = len(set(reservation.table for reservation in reservations))
     return total_reservations, total_tables_booked
+
+from django.contrib.auth.decorators import login_required
 def top_customers_with_spent():
     user_spent = Cart.objects.filter(is_paid=True).values('user').annotate(total_spent=Sum('amount_to_be_paid'))
     top_customers = Cart.objects.values('user__username').annotate(total_orders=Count('user')).order_by('-total_orders')[:10]
@@ -69,8 +75,10 @@ def top_customers_with_spent():
 
         top_customers_with_spent.append({'username': username, 'total_orders': total_orders, 'total_spent': total_spent})
     return top_customers_with_spent
+from django.contrib.auth.decorators import login_required
 
 
+from django.contrib.auth.decorators import login_required
 def sales_chart(time_frames):
     charts = {}
     for time_frame in time_frames:
@@ -118,9 +126,9 @@ def sales_chart(time_frames):
         charts[time_frame] = chart_image
     return charts
 
-
+from django.contrib.auth.decorators import login_required
 def new_users():
-    today = timezone.now()
+    today = datetime.now(pytz.timezone('Europe/Budapest'))
     one_day_ago = today - timezone.timedelta(days=1)
     one_week_ago = today - timezone.timedelta(weeks=1)
     one_month_ago = today - timezone.timedelta(weeks=4)
@@ -141,20 +149,23 @@ def new_users():
     }
     return new_users_data
 
+from django.contrib.auth.decorators import login_required
 def active_users():
-    three_months_ago = timezone.now() - timezone.timedelta(weeks=12)
+    three_months_ago = datetime.now(pytz.timezone('Europe/Budapest')) - timezone.timedelta(weeks=12)
     active_users = User.objects.filter(last_login__gte=three_months_ago).count()
     return active_users
 
+from django.contrib.auth.decorators import login_required
 def inactive_users():
-    three_months_ago = timezone.now() - timezone.timedelta(minutes=12)
+    three_months_ago = datetime.now(pytz.timezone('Europe/Budapest')) - timezone.timedelta(minutes=12)
     inactive_users = User.objects.filter(last_login__lt=three_months_ago).count()
     return inactive_users
 
+from django.contrib.auth.decorators import login_required
 @require_POST
 def send_coupons_to_inactive_users(request):
     # Logic to send emails and assign coupons
-    inactive_users = User.objects.filter(last_login__lt=timezone.now() - timezone.timedelta(minutes=3))
+    inactive_users = User.objects.filter(last_login__lt=datetime.now(pytz.timezone('Europe/Budapest')) - timezone.timedelta(minutes=3))
     for user in inactive_users:
         print(user.email)
         # Send email to the user
@@ -175,6 +186,7 @@ def send_coupons_to_inactive_users(request):
 
     return JsonResponse({'message': 'Coupons sent and assigned to inactive users.'})
 
+from django.contrib.auth.decorators import login_required
 def server_status(request):
     try:
         with connection.cursor() as cursor:

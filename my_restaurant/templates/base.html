@@ -272,8 +272,13 @@
         <li><a href="{% url 'about' %}">{% trans "About" %}</a></li>
         <li><a href="{% url 'gallery' %}">{% trans "Gallery" %}</a></li>
         {% if request.user.is_staff %}
-        <li class="nav-item"><a  href="/admin">{% trans "Admin" %}</a></li>
-        <li class="nav-item"><a  href="{% url 'create_coupon' %}">{% trans "Create Coupon" %}</a></li>
+        <li><a href='#'>Admin</a>
+          <ul>
+          <li class="nav-item"><a  href="/admin">{% trans "Admin" %}</a></li>
+          <li class="nav-item"><a  href="{% url 'create_coupon' %}">{% trans "Create Coupon" %}</a></li>
+          <li class="nav-item"><a  href="/dashboard">{% trans "Dashboard" %}</a></li>
+          </ul>
+        </li>
         <li><a href="/all_orders">Orders<span class="order-count">{% active_order_count %}</span></a></li>
         <li><a href="/all_reservations">{% trans "All Reservation" %}</a></li>
         {% endif %} 
@@ -347,7 +352,6 @@ $(document).ready(function() {
       
     </header>
     {% cart_preview  %}
-    <p>{% trans "Hello world! This is an HTML5 Boilerplate." %}</p>
 
     <button id="dark-mode-toggle" onclick="toggleTheme()">{% trans "Toggle Dark Mode" %}</button>
 

@@ -43,15 +43,15 @@
     .active-image {
         display: block;
     }
-    </style>
+</style>
     
-    <script>
+<script>
         $(document).ready(function() {
             updateServerStatus();
             function updateServerStatus() {
                 $.ajax({
                     type: 'GET',
-                    url: '/server_status/',
+                    url: '/server_status',
                     success: function(response) {
                         if (response.combined_status === 1) {
                             $('#server-status').removeClass('slow unknown').addClass('healthy');
@@ -81,7 +81,7 @@
                 $('.tooltip').css('display', 'none');
             });
         });
-    </script>
+</script>
     
     <div id="server-status" class="status-dot unknown">
         <div class="tooltip" id="tooltip-status">Status Unknown</div>

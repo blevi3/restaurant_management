@@ -108,7 +108,7 @@ def redeem_coupon(request):
 
     available_coupons = {
         "percentage_coupon_1": {
-            "name": "Sör1",
+            "name": "Mort Subite",
             "type": "percentage",
             "percentage": Decimal('10.00'),
             "product": "Mort Subite",
@@ -122,7 +122,7 @@ def redeem_coupon(request):
             "fixed_amount": Decimal('500.00'),
         },
         "percentage_coupon_2": {
-            "name": "Sör2",
+            "name": "Staropramen",
             "type": "percentage",
             "percentage": Decimal('15.00'),
             "product": "Staropramen",
@@ -171,7 +171,7 @@ def redeem_coupon(request):
                         coupon_type = "fixed",
                         percentage=None,
                         code=code,
-                        product=None,
+                        product=selected_coupon_data['product'],
                         fixed_amount=selected_coupon_data['fixed_amount'],
                         user_id = request.user.id,
 

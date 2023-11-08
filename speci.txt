@@ -49,4 +49,5 @@ Szerver állapot jelentés
 TODO:
     - dark/light mode switch
     - multi language support.
-    
+    - ételek és italok külön kezelése
+    - férfi/női fogyasztás monitorozása - profile uj mező: gender

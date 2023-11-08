@@ -3,9 +3,9 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from django.core.mail import EmailMessage
-from django.utils import timezone
 from django.conf import settings
-
+from datetime import datetime
+import pytz
 
 
 def generate_pdf_receipt(order_id, items, user, transaction_number):
@@ -31,7 +31,7 @@ def generate_pdf_receipt(order_id, items, user, transaction_number):
 
         transaction = [
             ("Transaction Number:", transaction_number),
-            ("Date:", timezone.now().strftime('%Y-%m-%d %H:%M:%S')),
+            ("Date:", datetime.now(pytz.timezone('Europe/Budapest')).strftime('%Y-%m-%d %H:%M:%S')),
             ("Cashier:", "John Doe"),
             ("Payment Method:", "Credit Card"),
         ]
