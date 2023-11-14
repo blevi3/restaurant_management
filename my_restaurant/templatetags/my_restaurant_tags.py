@@ -30,28 +30,29 @@ def cart_item_count(context):
             pass
     return count
 
+from ..views.cart_views import calculate_total_price
 @register.simple_tag(takes_context=True)
 def cart_preview(context):
     request = context['request']
     preview_html = ''
     if request.user.is_authenticated:
         try:
-            #cart = get_object_or_404(Cart, user=request.user, is_delivered = 0)
             cart = Cart.objects.get(user = request.user, is_delivered = 0)
+            items = CartItem.objects.filter(cart_id=cart)
+            item_names = [Menuitem.objects.get(id=item.item_id).name for item in items]
 
-            items = CartItem.objects.filter(cart_id = cart)
-            item_names =[]
-            for item in items:
-                menuitem = Menuitem.objects.get(id = item.item_id)
-                item_names.append(menuitem.name)
             preview_html = '<div class="cart_preview" style="display: none; z-index: 2;">'
+            preview_html += '<div class="cart-items">'
 
             for i in range(len(items)):
                 preview_html += f'<p>{item_names[i]} - {items[i].quantity} x {items[i].total_price}</p>'
 
+            preview_html += '</div>'
+            preview_html += f'<p class="cart-total">Total: {calculate_total_price(cart)}</p>'
             preview_html += f'<a href="{reverse("cart")}">View cart</a>'
             preview_html += '</div>'
         except Cart.DoesNotExist:
             pass
 
     return mark_safe(preview_html)
+

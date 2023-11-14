@@ -47,18 +47,34 @@
 
     <script>
       function positionDiv() {
-        var preview = document.querySelector('.preview');
-        var cartPreview = document.querySelector('.cart_preview');
-        var previewRect = preview.getBoundingClientRect();
-        var cartPreviewHeight = cartPreview.offsetHeight;
-        cartPreview.style.position = 'absolute';
-        cartPreview.style.left = previewRect.left-125+ 'px';
-        
+          var preview = document.querySelector('.preview');
+          var cartPreview = document.querySelector('.cart_preview');
+          var previewRect = preview.getBoundingClientRect();
+          var cartPreviewHeight = cartPreview.offsetHeight;
+          
+          cartPreview.style.position = 'fixed';
+          cartPreview.style.right = '0';
+          cartPreview.style.bottom = '0';
+          cartPreview.style.overflowY = 'auto';
+          cartPreview.style.padding = '20px';
+          cartPreview.style.color = '#fff';
+          
+          cartPreview.style.left = (previewRect.right + 10) + 'px';  // Adjust the 10px as needed
       }
-    
+  
       window.addEventListener('load', positionDiv);
       window.addEventListener('resize', positionDiv);
-    </script>
+  
+      document.addEventListener('click', function (event) {
+          var cartPreview = document.querySelector('.cart_preview');
+          var preview = document.querySelector('.preview');
+  
+          if (!cartPreview.contains(event.target) && !preview.contains(event.target)) {
+              cartPreview.style.display = 'none';
+          }
+      });
+  </script>
+  
 
     <script>
       // Function to toggle the theme
@@ -249,7 +265,7 @@
 
     <!--TODO class active JS-->
 
-    
+
     <header>
       <nav id='cssmenu'>
       <div id="head-mobile"></div>
@@ -290,7 +306,7 @@
           <a>
             <span class="cart-icon">{% trans "Cart" %}<span class="cart-count">{% cart_item_count %}</span>
           </a>
-        </li>        
+        </li>      
         <li><a href="{% url 'available_tables' %}">{% trans "Reservation" %}</a></li>
         <li><a href='#'>Profile</a>
           <ul>
