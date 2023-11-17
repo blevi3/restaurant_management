@@ -84,7 +84,7 @@ def remove_coupon_from_cart(request):
 
             elif removed_coupon.coupon_type == 'percentage':
                 for cart_item in cart_items:
-                    if cart_item.item.id == Menuitem.objects.get(name = removed_coupon.product).id:
+                    if cart_item.item.id == Menuitem.objects.filter(name = removed_coupon.product).first().id:
                         # Retrieve the original price from the Menuitem model
                         original_price = Menuitem.objects.get(id=cart_item.item.id).price
                         print("oroginal proce",original_price)

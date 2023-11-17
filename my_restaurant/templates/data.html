@@ -36,9 +36,14 @@
                       <p class="item-price">{{ item.price }} Ft</p>
                     </td>
                     <td class="cart-button">
-                      <a href="{% url 'add_to_cart' item.id %}">
+                      {% if item.type == 1 %} <!-- Check if the item type is food -->
+                        <button class="btn btn-primary" onclick="showFoodModal('{{ item.name }}', '{{ item.id }}')">Order</button>
+                      {% else %}
+                      <a href="#" onclick="addToCart('{{ item.id }}')">
                         <img src="static\pics\cart.png" alt="Add to cart" width="30" height="30">
-                      </a>
+                    </a>
+                    
+                      {% endif %}
                     </td>
                     {% if request.user.is_staff %}
                     <td>
@@ -80,8 +85,11 @@
     {% include "partials/add_modal.html" %}
 
     {% include "partials/modify_modal.html" %}
+
     
     {% endif %} 
+    <div id="snackbar">Item added to the cart!</div>
+    {% include "partials/food_modal.html" %}
 
     <script>
       var categoryTabs = document.querySelectorAll(".category-tab");
@@ -207,6 +215,34 @@
         }
       }
       
+
+
+      #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #4CAF50; /* Green background color */
+        color: #fff;
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        right: 30px;
+        bottom: 30px;
+        font-size: 17px;
+        animation: fadeinout 3s; /* Combined fadein and fadeout into a single animation */
+      
+      }
+      
+      #snackbar.show {
+        visibility: visible;
+      }
+      
+      @keyframes fadeinout {
+        from, to { opacity: 0; } /* Start and end with opacity 0 */
+        50% { opacity: 1; } /* Peak opacity at 50% of the animation duration */
+      }
+
     </style>
     
     <script>
@@ -249,5 +285,121 @@
     checkbox.addEventListener('change', filterCategories);
   });
 </script>
-    
+
+
+
+<script>
+  function showFoodModal(itemName, itemId) {
+    // Customize this part based on your modal structure
+    var modal = document.getElementById("foodModal");
+    var itemNameElement = modal.querySelector(".modal-item-name");
+    var itemIdInput = modal.querySelector("#foodItemId");
+    var commentTextarea = modal.querySelector("#foodComment");
+
+    itemNameElement.textContent = itemName;
+    itemIdInput.value = itemId;
+    commentTextarea.value = "";
+
+    modal.style.display = "block";
+  }
+</script>
+
+
+
+<script>
+  function closeFoodModal() {
+    document.getElementById("foodModal").style.display = "none";
+  }
+
+  function addToCartWithComments() {
+    var itemId = document.getElementById("foodItemId").value;
+    var comment = document.getElementById("foodComment").value;
+  
+    fetch(`/add_to_cart/${itemId}?foodComment=${encodeURIComponent(comment)}`)
+      .then(response => response.json())
+      .then(data => {
+        showSnackbar(data.message);
+        updateCartCount();
+        updateCartPreview(data.item_name, data.item_price, data.quantity);
+
+        closeFoodModal(); // Close the food modal after successful addition
+        // Add any additional UI updates here (e.g., updating cart preview)
+      })
+      .catch(error => {
+        console.error("Failed to add to cart:", error);
+      });
+      event.preventDefault();
+  }
+  function showSnackbar() {
+    var snackbar = document.getElementById("snackbar");
+    console.log(snackbar);
+    snackbar.className = "show";
+    setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  }
+
+  function updateCartCount() {
+    // Update the cart count on the page
+    var cartCountElement = $(".cart-count");
+    if (cartCountElement) {
+        var currentCount = parseInt(cartCountElement.text()) || 0;
+        cartCountElement.text(currentCount + 1);
+    }
+}
+
+function updateCartPreview(itemName, itemPrice, itemAmount) {
+  var cartPreviewElement = $(".cart_preview");
+  var cartItems = $(".cart-items");
+  var total_price = $(".cart-total");
+
+  if (cartPreviewElement) {
+    var previewHtml = '';
+    var existingItem = cartItems.find(`:contains('${itemName}')`);
+
+    if (existingItem.length) {
+
+      existingItem.text(`${itemName} - ${itemAmount} x ${itemPrice}`);
+    } else {
+      previewHtml = `<p>${itemName} - ${itemAmount} x ${itemPrice}</p>`;
+      cartPreviewElement.find('.cart-items').append(previewHtml);
+    }
+
+    // Extract numeric value from total_price.text() and convert to a number
+    var currentTotal = parseFloat(total_price.text().match(/\d+\.\d+/)[0]);
+    total_price.text((currentTotal + parseFloat(itemPrice)).toFixed(2));
+  }
+}
+
+
+
+
+
+
+
+
+
+
+  function addToCart(itemId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", `/add_to_cart/${itemId}`, true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var responseData = JSON.parse(xhr.responseText);
+            showSnackbar(responseData.message);
+            updateCartCount(responseData.cart_item_count);
+            updateCartPreview(responseData.item_name, responseData.item_price, responseData.quantity);
+
+        } else {
+            console.error("Failed to add to cart:", xhr.statusText);
+        }
+    };
+    xhr.send();
+
+    // Optionally, you can prevent the default behavior here as well to be extra sure
+    event.preventDefault();
+  }
+  </script>
+   
+  
+  ### a refresh miatt eltunik a snackbar
     {% endblock %}

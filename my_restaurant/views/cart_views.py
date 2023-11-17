@@ -10,6 +10,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from decimal import Decimal
 from datetime import datetime
 import pytz
+from django.http import JsonResponse
 
 
 @login_required
@@ -113,19 +114,34 @@ def cart(request):
 def add_to_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
     cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
-    
+    name = item.name
+    price = item.price
+    quantity = 1
     if not created and not cart.ordered:
         try:
             cart_item = CartItem.objects.get(cart=cart, item=item)
+            quantity = cart_item.quantity + 1
             cart_item.quantity += 1
             cart_item.final_price = item.price * cart_item.quantity
+            cart_item.comment = request.GET.get('foodComment', '')  # Use the correct key here
+            print(cart_item.comment)
             cart_item.save()
         except CartItem.DoesNotExist:
-            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price )
+            CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price, comment=request.GET.get('foodComment', ''))  # Use the correct key here
     
     calculate_total_price(cart)
 
-    return redirect('order')
+    response_data = {
+        'message': 'Item added to the cart successfully',
+        'item_name': name,
+        'item_price': price,
+        'quantity': quantity,
+        }
+
+
+
+    return JsonResponse(response_data)
+
 
 @login_required
 def remove_from_cart(request, cart_item_id):
@@ -273,6 +289,7 @@ def calculate_total_price(cart):
 
         for cart_item in cart_items:
             total_price += cart_item.final_price
+        print("total price: ",total_price)
 
         discount = Coupons.objects.filter(id=cart.discount).first()
         if cart.discount and cart.applied_coupon_type == 'fixed':
@@ -280,8 +297,8 @@ def calculate_total_price(cart):
 
         if cart.discount and cart.applied_coupon_type == 'percentage':
             percentage_coupon = Coupons.objects.get(id=cart.discount)
-            eligible_item = Menuitem.objects.get(name=percentage_coupon.product)
+            eligible_item = Menuitem.objects.filter(name=percentage_coupon.product).first()
             eligible_item_total_price = CartItem.objects.get(cart=cart, item=eligible_item).total_price
-            total_price -= (eligible_item_total_price * percentage_coupon.percentage / 100)
+            total_price -= (eligible_item_total_price * percentage_coupon.percentage / 10)
         cart.amount_to_be_paid = total_price
         cart.save()

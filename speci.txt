@@ -49,5 +49,8 @@ Szerver állapot jelentés
 TODO:
     - dark/light mode switch
     - multi language support.
-    - ételek és italok külön kezelése
+    - ételek és italok külön kezelése pl a kajaknal azt kene h felugrik egy ablak, amiben ott van h mit akarsz eppen rendelni pl hamburger, a név alatt a hozzávalók, alatta meg egy mennyiség gomb meg egy komment szekcio ahova a különleges hulyesegeket lehet írni
     - férfi/női fogyasztás monitorozása - profile uj mező: gender
+
+BUGS:
+    - kuponoknál, ha kosarba rakok eg ykupont csak frissites utan mutatja h mekkora a kedvezmeny a tablazatban.
