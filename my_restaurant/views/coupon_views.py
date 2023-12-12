@@ -70,8 +70,7 @@ def remove_coupon_from_cart(request):
         if cart.discount != 0:
             # Get the coupon code and associated discount
             removed_coupon = Coupons.objects.get(id=cart.discount)
-            cart.discount = 0
-
+            
             # Revert the prices of items that were discounted by the coupon
             cart_items = CartItem.objects.filter(cart=cart)
             if removed_coupon.coupon_type == 'fixed':
@@ -79,6 +78,7 @@ def remove_coupon_from_cart(request):
                 # Revert fixed amount coupon
                 cart.amount_to_be_paid += removed_coupon.fixed_amount
                 cart.reduced_price = 0
+                cart.discount = 0
                 cart.applied_coupon_type = None
                 cart.save()
 
@@ -91,12 +91,13 @@ def remove_coupon_from_cart(request):
 
                         # Update the CartItem's total_price with the original price
                         cart_item.total_price = original_price
-                        cart.applied_coupon_type = None
 
                         cart_item.save()
-
+                cart.discount = 0
+                cart.applied_coupon_type = None
                 cart.save()
-                messages.success(request, 'Coupon removed successfully.')
+            cart.save()
+            messages.success(request, 'Coupon removed successfully.')
         else:
             messages.warning(request, 'No coupon to remove.')
 

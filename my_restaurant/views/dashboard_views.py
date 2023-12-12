@@ -32,6 +32,7 @@ def dashboard(request):
     new_users_data = new_users()
     active_users_data = active_users()
 
+
     context =  {
         'total_sales': total_sales['total_sales'],
         'popular_items': popular_items,
@@ -43,6 +44,7 @@ def dashboard(request):
         'new_users': new_users_data,
         'active_users': active_users_data,
         'inactive_users': inactive_users_count,
+
         }
 
     return render(request, 'dashboard.html', context)

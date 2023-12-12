@@ -44,11 +44,13 @@ def cart_preview(context):
             preview_html = '<div class="cart_preview" style="display: none; z-index: 2;">'
             preview_html += '<div class="cart-items">'
             calculate_total_price(cart)
+            total = 0
             for i in range(len(items)):
                 preview_html += f'<p>{item_names[i]} - {items[i].quantity} x {items[i].total_price}</p>'
 
             preview_html += '</div>'
-            preview_html += f'<p class="cart-total">Total: {cart.amount_to_be_paid}</p>'
+            
+            preview_html += f'<p class="cart-total">Total: {float(cart.amount_to_be_paid)} Ft</p>'
             
             preview_html += f'<a href="{reverse("cart")}">View cart</a>'
             preview_html += '</div>'

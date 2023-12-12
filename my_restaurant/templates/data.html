@@ -362,10 +362,11 @@ function updateCartPreview(itemName, itemPrice, itemAmount) {
       previewHtml = `<p>${itemName} - ${itemAmount} x ${itemPrice}</p>`;
       cartPreviewElement.find('.cart-items').append(previewHtml);
     }
-
+    console.log(cartPreviewElement.find('.cart-items').text());
     // Extract numeric value from total_price.text() and convert to a number
     var currentTotal = parseFloat(total_price.text().match(/\d+\.\d+/)[0]);
-    total_price.text((currentTotal + parseFloat(itemPrice)).toFixed(2));
+    total_price.text("Total: "+(currentTotal + parseFloat(itemPrice)).toFixed(1)+" Ft");
+    console.log(total_price.text());
   }
 }
 

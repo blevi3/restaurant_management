@@ -9,7 +9,7 @@ urlpatterns = [
     path('add_to_cart/<int:item_id>', cart_views.add_to_cart, name='add_to_cart'),
     path('add_product_to_cart/<int:item_id>', cart_views.add_recom_to_cart, name='add_product_to_cart'),
     path('cart', cart_views.cart, name='cart'),
-    path('table/scan', cart_views.handle_scanned_qr, name='scan'),
+    path('table/scan/', cart_views.handle_scanned_qr, name='scan'),
     path('previous_orders', orders_views.previous_orders, name='previous_orders'),
     path('remove_from_cart/<int:cart_item_id>', cart_views.remove_from_cart, name='remove_from_cart'),
     path('remove_item/<int:cart_item_id>', cart_views.trash_item, name='trash_item'),
@@ -46,6 +46,7 @@ urlpatterns = [
     path('dashboard', dashboard_views.dashboard, name='dashboard'),
     path('send_coupons_to_inactive_users', dashboard_views.send_coupons_to_inactive_users, name='send_coupons_to_inactive_users'),
     path('server_status', dashboard_views.server_status, name='server_status'),
+
 
     path('change_language', views.change_language, name='change_language'),
 

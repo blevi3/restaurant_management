@@ -2,6 +2,9 @@
 
 {% block pagecontent %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 <style>
     .status-dot {
         width: 20px;
@@ -11,7 +14,6 @@
         top: 100px;
         right: 10px;
         cursor: help;
-
     }
     
     .healthy {
@@ -44,6 +46,7 @@
         display: block;
     }
 </style>
+
     
 <script>
         $(document).ready(function() {
