@@ -87,10 +87,11 @@ def remove_coupon_from_cart(request):
                     if cart_item.item.id == Menuitem.objects.filter(name = removed_coupon.product).first().id:
                         # Retrieve the original price from the Menuitem model
                         original_price = Menuitem.objects.get(id=cart_item.item.id).price
-                        print("oroginal proce",original_price)
+                        print("original proce",original_price)
 
                         # Update the CartItem's total_price with the original price
-                        cart_item.total_price = original_price
+                        cart_item.total_price = original_price+cart_item.get_extras_price()
+
 
                         cart_item.save()
                 cart.discount = 0

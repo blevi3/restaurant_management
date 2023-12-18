@@ -4,14 +4,30 @@ from django.contrib.auth.models import User
 
 User._meta.get_field('email')._unique = True
 User._meta.get_field('username')._unique = True
+
+
+class Extra(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    category = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.name
+    
+
 class Menuitem(models.Model):
     name = models.CharField(max_length=100)
     type = models.BooleanField()
     category = models.CharField(max_length=100)
     price = models.IntegerField()
+    extras = models.ManyToManyField(Extra, blank=True)
+
     def __str__(self):
         return f"{self.name, self.type, self.category, self.price}"
     
+
+
+
 class Coupons(models.Model):
     COUPON_TYPE_CHOICES = [
         ('fixed', 'Fixed Amount'),
@@ -49,6 +65,10 @@ class CartItem(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     comment = models.TextField(blank=True, null=True)
+    extras = models.ManyToManyField(Extra, blank=True)
+
+    def get_extras_price(self):
+        return sum(extra.price for extra in self.extras.all())
 
 class Table(models.Model):
     name = models.CharField(max_length=50)

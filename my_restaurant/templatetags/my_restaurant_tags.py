@@ -45,9 +45,12 @@ def cart_preview(context):
             preview_html += '<div class="cart-items">'
             calculate_total_price(cart)
             total = 0
-            for i in range(len(items)):
-                preview_html += f'<p>{item_names[i]} - {items[i].quantity} x {items[i].total_price}</p>'
-
+            for item in items:
+                item_name = Menuitem.objects.get(id=item.item_id).name
+                extras_price = sum(extra.price for extra in item.extras.all())
+                item_total_price = item.final_price + extras_price
+                total += item_total_price * item.quantity
+                preview_html += f'<p>{item_name} - {item.quantity} x {item_total_price} Ft</p>'
             preview_html += '</div>'
             
             preview_html += f'<p class="cart-total">Total: {float(cart.amount_to_be_paid)} Ft</p>'
@@ -59,3 +62,12 @@ def cart_preview(context):
 
     return mark_safe(preview_html)
 
+
+
+@register.filter(name='calculate_original_price')
+def calculate_original_price(item):
+    return Menuitem.objects.get(id=item.item_id).price + item.get_extras_price()
+
+@register.filter(name='calculate_original_total_price')
+def calculate_original_total_price(item):
+    return (Menuitem.objects.get(id=item.item_id).price + item.get_extras_price()) * item.quantity

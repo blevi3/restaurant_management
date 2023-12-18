@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from ..models import Menuitem, Cart, CartItem, Coupons, Table, Reservation, Qr_code_reads
+from ..models import Menuitem, Cart, CartItem, Coupons, Table, Reservation, Qr_code_reads, Extra
 from ..forms import CouponForm  
 from .menu_views import get_recommendations  
 from django.conf import settings  
@@ -10,6 +10,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from datetime import datetime, timedelta
 import pytz
 from django.http import JsonResponse
+import json
+from django.db.models import Count
 
 @login_required
 def cart(request):
@@ -42,20 +44,28 @@ def cart(request):
 
 @login_required
 def add_to_cart(request, item_id):
-    item = get_object_or_404(Menuitem, pk=item_id)
-    cart, _ = Cart.objects.get_or_create(user=request.user, is_delivered=0)
+    if request.method == 'POST':
 
-    quantity = handle_cart_item(cart, item, request.GET.get('foodComment', ''))
-    print("quan1",quantity)
-    calculate_total_price(cart)
-    response_data = {
-        'message': 'Item added to the cart successfully',
-        'item_name': item.name,
-        'item_price': item.price,
-        'quantity': quantity,
-    }
+        data = json.loads(request.body.decode('utf-8'))
+        item = get_object_or_404(Menuitem, pk=item_id)
+        cart, _ = Cart.objects.get_or_create(user=request.user, is_delivered=0)
+        extras = data.get('extras', []) 
+        print("extras",extras)
 
-    return JsonResponse(response_data)
+        quantity = handle_cart_item(cart, item, data.get('foodComment', ''), extras)
+
+        calculate_total_price(cart)
+
+        response_data = {
+            'message': 'Item added to the cart successfully',
+            'item_name': item.name,
+            'item_price': item.price,
+            'quantity': quantity,
+        }
+
+        return JsonResponse(response_data)
+    return JsonResponse({'error': 'Invalid method'}, status=400)
+
 
 @login_required
 def remove_from_cart(request, cart_item_id):
@@ -63,15 +73,23 @@ def remove_from_cart(request, cart_item_id):
     
     if not cart_item.cart.ordered and cart_item.quantity > 1:
         cart_item.quantity -= 1
-        cart_item.final_price = cart_item.item.price * cart_item.quantity
+        cart_item.final_price = (cart_item.item.price + cart_item.get_extras_price()) * cart_item.quantity
         cart_item.save()
     else:
         if cart_item.cart.applied_coupon_type:
-            cart_item.cart.discount = 0
-            cart_item.cart.applied_coupon_type = None
-            cart_item.cart.save()
-        cart_item.delete()
-    
+            # Check if other items in the cart still have the same coupon
+            items_with_coupon = CartItem.objects.filter(cart=cart_item.cart, item__name=cart_item.item.name ).exclude(id=cart_item.id)
+
+            if items_with_coupon.exists():
+                # If other items have the same coupon, do not remove it
+                cart_item.delete()
+            else:
+                # Remove the coupon if no other items have it
+                cart_item.cart.discount = 0
+                cart_item.cart.applied_coupon_type = None
+                cart_item.cart.save()
+                cart_item.delete()
+
     calculate_total_price(cart_item.cart)
     return redirect('cart')
 
@@ -81,10 +99,19 @@ def trash_item(request, cart_item_id):
     
     if not cart_item.cart.ordered:
         if cart_item.cart.applied_coupon_type:
-            cart_item.cart.discount = 0
-            cart_item.cart.applied_coupon_type = None
-            cart_item.cart.save()
-        cart_item.delete()    
+            # Check if other items in the cart still have the same coupon
+            items_with_coupon = CartItem.objects.filter(cart=cart_item.cart, item__name=cart_item.item.name).exclude(id=cart_item.id)
+
+            if items_with_coupon.exists():
+                # If other items have the same coupon, do not remove it
+                cart_item.delete()
+            else:
+                # Remove the coupon if no other items have it
+                cart_item.cart.discount = 0
+                cart_item.cart.applied_coupon_type = None
+                cart_item.cart.save()
+                cart_item.delete()
+
     return redirect('cart')
 
 @login_required
@@ -99,13 +126,28 @@ def empty_cart(request):
 @login_required
 def add_to_cart_from_cart(request, item_id):
     item = get_object_or_404(Menuitem, pk=item_id)
+    extras_str = request.POST.get('extras', '')
+    extras = [int(extra_id) for extra_id in extras_str.split(',') if extra_id.isdigit()]
+    print(extras)
     cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
     if not created and not cart.ordered:
+
         try:
-            cart_item = CartItem.objects.get(cart=cart, item=item)
-            cart_item.quantity += 1
-            cart_item.final_price = item.price * cart_item.quantity
-            cart_item.save()
+            cart_items = CartItem.objects.annotate(num_extras=Count('extras')).filter(
+                cart=cart,
+                item=item,
+            ).filter(num_extras=len(extras)).distinct()
+            for cart_item in cart_items:
+                if set(cart_item.extras.values_list('id', flat=True)) == set(extras):      
+                    cart_item.quantity += 1
+                    coupon = Coupons.objects.get(id=cart_item.cart.discount)
+                    if cart_item.cart.applied_coupon_type == 'percentage' and coupon.product == item.name:
+                        print("couponed item adding")
+                        print(item.price, cart_item.get_extras_price(), cart_item.quantity, coupon.percentage)
+                        cart_item.final_price = (item.price + cart_item.get_extras_price()) * cart_item.quantity * (1 - coupon.percentage  / 100)
+                    else:
+                        cart_item.final_price = (item.price + cart_item.get_extras_price() ) * cart_item.quantity
+                    cart_item.save()
         except CartItem.DoesNotExist:
             CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price)
     calculate_total_price(cart)
@@ -268,7 +310,8 @@ def apply_coupon(request, cart, user, coupon):
                     print(percentage_discount)
                     for item in eligible_items:
                         print(item.total_price)
-                        item.total_price -= (percentage_discount * item.total_price / 100)
+                        extras = item.get_extras_price()
+                        item.total_price -= (percentage_discount * (item.total_price) / 100)
                         item.save()
                     cart.discount = coupon.id
                     cart.applied_coupon_type = 'percentage'
@@ -288,31 +331,106 @@ def apply_coupon(request, cart, user, coupon):
     cart.save()
 
 
-def handle_cart_item(cart, item, comment):
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
-    if not cart.ordered and not cart.is_delivered:
-        cart_item.quantity += 1
-        cart_item.total_price = item.price
-        cart_item.final_price = item.price * cart_item.quantity
-        cart_item.comment = comment
+def handle_cart_item(cart, item, comment, extras=[]):
+    existing_cart_items = CartItem.objects.filter(cart=cart, item=item, comment=comment)
+    print('new_extras', extras)
+
+    # Check if there are any existing cart items with the same extras
+    for existing_cart_item in existing_cart_items:
+        existing_extras = set(existing_cart_item.extras.all())
+        new_extras = set(extras)
+
+        new_item_extras = set()
+
+        for extra in new_extras:
+            new_item_extras.update(Extra.objects.filter(id=extra))
+            print('new_extras', new_extras)
+            print('existing_extras', existing_extras)
+
+            if existing_extras == new_item_extras:
+                print('same extras')
+                # If extras are the same, increase the quantity and save
+                existing_cart_item.quantity += 1
+                existing_cart_item.final_price = (item.price) * existing_cart_item.quantity
+                existing_cart_item.total_price = item.price
+                existing_cart_item.save()
+                return existing_cart_item.quantity
+
+    # If no matching cart items are found, create a new one
+    if cart.discount:
+        discount = Coupons.objects.get(id=cart.discount)
+        if discount.coupon_type == 'percentage':
+            print("percentage")
+            cart_item = CartItem.objects.create(
+                cart=cart,
+                item=item,
+                quantity=1,
+                final_price=item.price * (1 - discount.percentage / 100),
+                total_price=item.price * (1 - discount.percentage / 100),
+                comment=comment
+            )
+            cart_item.extras.set(extras)
+            cart_item.final_price = (cart_item.total_price + cart_item.get_extras_price()) * cart_item.quantity #sorrend fontos mert a total price a final price-bol szamolodik
+            cart_item.total_price = cart_item.total_price + cart_item.get_extras_price()
+
+            cart_item.save()
+
+
+    else:
+        cart_item = CartItem.objects.create(
+            cart=cart,
+            item=item,
+            quantity=1,
+            final_price=item.price,
+            total_price=item.price,
+            comment=comment
+        )
+        cart_item.extras.set(extras)
+        cart_item.final_price = (cart_item.total_price + cart_item.get_extras_price()) * cart_item.quantity
+        cart_item.total_price = cart_item.total_price
         cart_item.save()
+
     return cart_item.quantity
 
+def get_extras(request, item_id):
+    item = get_object_or_404(Menuitem, pk=item_id)
+    #extras = item.extras.all()
+    print(item.category)
+    extras = Extra.objects.filter(category=item.category)
+    data = [{'id': extra.id, 'name': extra.name, 'price': extra.price} for extra in extras]
+    print(data)
+    return JsonResponse(data, safe=False)
+
 def calculate_total_price(cart):
-    total_price = sum(cart_item.final_price for cart_item in CartItem.objects.filter(cart=cart))
+    total_price = 0
+
+    for cart_item in CartItem.objects.filter(cart=cart):
+        total_price += cart_item.final_price + cart_item.get_extras_price()
+
     total_price -= get_discount_amount(cart)
     cart.amount_to_be_paid = max(total_price, cart.reduced_price)
     cart.save()
 
 def get_discount_amount(cart):
     discount = 0
+
     if cart.discount:
         if cart.applied_coupon_type == 'fixed':
             discount = Coupons.objects.get(id=cart.discount).fixed_amount
         elif cart.applied_coupon_type == 'percentage':
             percentage_coupon = Coupons.objects.get(id=cart.discount)
             eligible_item = Menuitem.objects.filter(name=percentage_coupon.product).first()
-            eligible_item_total_price = CartItem.objects.get(cart=cart, item=eligible_item).final_price
-            print(eligible_item_total_price)
+
+            # Calculate total price for eligible item with extras
+            eligible_item_total_price = 0
+            cart_items = CartItem.objects.filter(cart=cart, item=eligible_item)
+
+            for cart_item in cart_items:
+                eligible_item_total_price += cart_item.final_price + cart_item.get_extras_price()
+
+            # Adjust the discount calculation to consider the total price with extras
             discount = eligible_item_total_price * percentage_coupon.percentage / 100
+
     return discount
+
+

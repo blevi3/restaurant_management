@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block pagecontent %}
 <link rel="stylesheet" href="/static/css/cart.css" type="text/css" />
 {% load static %}
+{% load my_restaurant_tags %}
 
 
 <div class="container">
@@ -25,6 +26,7 @@
         <th>Item name</th>
         <th>Price / Item</th>
         <th>Total Price</th>
+        <th>Extras</th>
         <th>Quantity</th>
         {% if not ordered %}
         <th></th>
@@ -33,40 +35,55 @@
     </thead>
     <tbody>
       {% for item in cart_items %}
-      <tr>
-        <td>{{ item.item.name }}</td>
-        <td>{% if item.item.name == reduced_priced_product %}
-            
-           <del style= "text-decoration: line-through">{% widthratio item.final_price item.quantity 1 %} Ft</del>&nbsp  {% widthratio item.total_price 1 1 %} Ft
-            {% else %}
-            {% widthratio item.total_price 1 1 %} Ft
-            {% endif %}
-        </td>
-        <td>{% if item.item.name == reduced_priced_product %}
-            <del style= "text-decoration: line-through">{% widthratio item.final_price 1 1 %} Ft</del>&nbsp {% widthratio item.total_price 1 item.quantity %} Ft
-            {% else %}
-              {% widthratio item.final_price 1 1 %} Ft
-            {% endif %}
-          </td>
-        <td>
-          {% if not ordered %}
-          <a href="{% url 'add_to_cart_from_cart' item.item_id %}"
-            ><button class="btn btn-primary">+</button></a>
-            {% endif %}
-          &nbsp {{ item.quantity }} &nbsp
-          {% if not ordered %}
-          <a href="{% url 'remove_from_cart' item.id%}"
-            ><button type="submit" class="btn btn-danger">-</button></a>
-            {% endif %}
-        </td>
-        {% if not ordered %}
-        <td>
-          <a href="{% url 'trash_item' item.id %}"><img src="\static\pics\trash.png"  width="30" height="30"></a>
-        </td>
-        {% endif %}
-      </tr>
-
+  <tr>
+    <td>{{ item.item.name }}</td>
+    <td>
+      {% if item.item.name == reduced_priced_product %}
+        <del style="text-decoration: line-through">{{ item | calculate_original_price }}</del>
+        &nbsp; {{ item.total_price }} Ft
+      {% else %}
+        {{ item.total_price }} Ft
+      {% endif %}
+    </td>
+    <td>
+      {% if item.item.name == reduced_priced_product %}
+        <del style="text-decoration: line-through">{{ item | calculate_original_total_price }}</del>
+        &nbsp; {{ item.final_price }} Ft
+      {% else %}
+      {{ item.final_price }}
+      {% endif %}
+    </td>
+    <td>
+      {% for extra in item.extras.all %}
+        {{ extra.name }} (+{{ extra.price }} Ft)<br>
       {% endfor %}
+    </td>
+    <td>
+      {% if not ordered %}
+      <input type="hidden" name="extras" id="extras" value="{% for extra in item.extras.all %}{{ extra.id }}{% if not forloop.last %},{% endif %}{% endfor %}{% if not forloop.last %},{% endif %}">
+
+        <form method="POST" action="{% url 'add_to_cart_from_cart' item.item_id %}">
+          {% csrf_token %}
+          <input type="hidden" name="extras" value="{% for extra in item.extras.all %}{{ extra.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+          <button class="btn btn-primary">+</button>
+      </form>    
+      {% endif %}
+      &nbsp {{ item.quantity }} &nbsp
+      {% if not ordered %}
+        <a href="{% url 'remove_from_cart' item.id%}">
+          <button type="submit" class="btn btn-danger">-</button>
+        </a>
+      {% endif %}
+    </td>
+    {% if not ordered %}
+      <td>
+        <a href="{% url 'trash_item' item.id %}">
+          <img src="\static\pics\trash.png"  width="30" height="30">
+        </a>
+      </td>
+    {% endif %}
+  </tr>
+{% endfor %}
     </tbody>
   </table>
 

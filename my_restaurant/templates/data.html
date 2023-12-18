@@ -296,15 +296,38 @@
     var itemIdInput = modal.querySelector("#foodItemId");
     var commentTextarea = modal.querySelector("#foodComment");
 
+
     itemNameElement.textContent = itemName;
     itemIdInput.value = itemId;
     commentTextarea.value = "";
+
+    $.ajax({
+      url: `/get_extras/${itemId}/`,  // Update the URL based on your actual endpoint
+      type: 'GET',
+      success: function (data) {
+        // Populate the extras container with the fetched extras
+        var extrasContainer = $('#extras-container');
+        extrasContainer.empty();
+        for (var i = 0; i < data.length; i++) {
+          var extra = data[i];
+          var checkbox = `<input type="checkbox" name="extras" value="${extra.id}"> ${extra.name} (+${extra.price})<br>`;
+          extrasContainer.append(checkbox);
+        }
+  
+        // Set the selected item ID in the hidden input
+        $('#foodItemId').val(itemId);
+      },
+      error: function (error) {
+        console.error('Error fetching extras:', error);
+      }
+    });
 
     modal.style.display = "block";
   }
 </script>
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
 
 <script>
   function closeFoodModal() {
@@ -314,22 +337,53 @@
   function addToCartWithComments() {
     var itemId = document.getElementById("foodItemId").value;
     var comment = document.getElementById("foodComment").value;
-  
-    fetch(`/add_to_cart/${itemId}?foodComment=${encodeURIComponent(comment)}`)
-      .then(response => response.json())
-      .then(data => {
-        showSnackbar(data.message);
-        updateCartCount();
-        updateCartPreview(data.item_name, data.item_price, data.quantity);
+    var csrfToken = Cookies.get('csrftoken');
+    var selectedExtras = getSelectedExtras();
 
-        closeFoodModal(); // Close the food modal after successful addition
-        // Add any additional UI updates here (e.g., updating cart preview)
-      })
-      .catch(error => {
-        console.error("Failed to add to cart:", error);
-      });
+    
+    fetch(`/add_to_cart/${itemId}`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,  // Include CSRF token if using CSRF protection
+      },
+      body: JSON.stringify({
+          'foodComment': comment,
+          'extras': selectedExtras
+
+      }),
+  })
+  .then(response => response.json())
+  .then(data => {
+      showSnackbar(data.message);
+      updateCartCount();
+      updateCartPreview(data.item_name, data.item_price, data.quantity);
+
+      closeFoodModal(); // Close the food modal after successful addition
+      // Add any additional UI updates here (e.g., updating cart preview)
+  })
+  .catch(error => {
+      console.error("Failed to add to cart:", error);
+  });
+
       event.preventDefault();
   }
+
+  function getSelectedExtras() {
+    var selectedExtras = [];
+
+    // Check each checkbox with the name "extras" and add the value to the selectedExtras array
+    var checkboxes = document.querySelectorAll('input[name="extras"]:checked');
+    checkboxes.forEach(function (checkbox) {
+        selectedExtras.push(checkbox.value);
+    });
+
+    return selectedExtras;
+}
+
+
+
+
   function showSnackbar() {
     var snackbar = document.getElementById("snackbar");
     console.log(snackbar);
@@ -369,12 +423,6 @@ function updateCartPreview(itemName, itemPrice, itemAmount) {
     console.log(total_price.text());
   }
 }
-
-
-
-
-
-
 
 
 

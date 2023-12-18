@@ -50,6 +50,7 @@ urlpatterns = [
 
     path('change_language', views.change_language, name='change_language'),
 
+    path('get_extras/<int:item_id>/', cart_views.get_extras, name='get_extras'),
 
 
 
