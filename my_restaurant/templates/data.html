@@ -34,6 +34,16 @@
                     <td class="item-info">
                       <p class="item-name">{{ item.name }}</p>
                       <p class="item-price">{{ item.price }} Ft</p>
+                      {% if item.ingredients.exists %}
+                      <p class="item-ingredients">
+                        <strong>Ingredients:</strong>
+                        <ul>
+                            {% for ingredient in item.ingredients.all %}
+                                <li>{{ ingredient.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </p>
+                      {% endif %}
                     </td>
                     <td class="cart-button">
                       {% if item.type == 1 %} <!-- Check if the item type is food -->
@@ -264,7 +274,7 @@
     </script>
     
     
-    <script>
+<script>
   // Function to show or hide tables based on the selected categories
   function filterCategories() {
     var checkboxes = document.querySelectorAll('input[name="category"]');

@@ -174,11 +174,15 @@ def add_to_cart_from_cart(request, item_id):
 @login_required  
 def order(request, id):
     cart = Cart.objects.get(pk = id)
-    calculate_total_price(cart)
-    cart.ordered = 1
-    cart.order_time = datetime.now(pytz.timezone('Europe/Budapest'))
-    cart.save()
-    Qr_code_reads.objects.filter(user=request.user, ordered=0).update(ordered=1)
+    if cart.user_id == request.user.id:
+        calculate_total_price(cart)
+        cart.ordered = 1
+        cart.order_time = datetime.now(pytz.timezone('Europe/Budapest'))
+        cart.save()
+        Qr_code_reads.objects.filter(user=request.user, ordered=0).update(ordered=1)
+    else:
+        print("not authorized")
+        messages.error(request, 'You are not authorized to order this cart.')
     return redirect('cart')
 
 @staff_member_required

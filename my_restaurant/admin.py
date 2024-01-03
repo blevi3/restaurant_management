@@ -1,5 +1,5 @@
 from django.contrib import admin
-from my_restaurant.models import Cart, CartItem, Menuitem, Table, Reservation , Coupons, Qr_code_reads, Profile, Extra
+from my_restaurant.models import *
 from django.contrib.auth.models import User
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
@@ -35,4 +35,8 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Extra)
 class ExtraAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
     pass

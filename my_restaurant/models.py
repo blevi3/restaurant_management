@@ -14,6 +14,12 @@ class Extra(models.Model):
     def __str__(self):
         return self.name
     
+class Ingredient(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 
 class Menuitem(models.Model):
     name = models.CharField(max_length=100)
@@ -21,12 +27,19 @@ class Menuitem(models.Model):
     category = models.CharField(max_length=100)
     price = models.IntegerField()
     extras = models.ManyToManyField(Extra, blank=True)
+    ingredients = models.ManyToManyField(Ingredient, blank=True)
 
     def __str__(self):
         return f"{self.name, self.type, self.category, self.price}"
     
 
+class MenuItemIngredient(models.Model):
+    menu_item = models.ForeignKey(Menuitem, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
 
+    def __str__(self):
+        return f"{self.menu_item.name} - {self.ingredient.name} ({self.quantity} units)"
 
 class Coupons(models.Model):
     COUPON_TYPE_CHOICES = [
