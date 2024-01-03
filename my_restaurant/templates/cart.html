@@ -58,23 +58,23 @@
         {{ extra.name }} (+{{ extra.price }} Ft)<br>
       {% endfor %}
     </td>
-    <td>
+    <td class="d-flex align-items-center">
       {% if not ordered %}
-      <input type="hidden" name="extras" id="extras" value="{% for extra in item.extras.all %}{{ extra.id }}{% if not forloop.last %},{% endif %}{% endfor %}{% if not forloop.last %},{% endif %}">
-
-        <form method="POST" action="{% url 'add_to_cart_from_cart' item.item_id %}">
-          {% csrf_token %}
-          <input type="hidden" name="extras" value="{% for extra in item.extras.all %}{{ extra.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
-          <button class="btn btn-primary">+</button>
+      <form method="POST" action="{% url 'add_to_cart_from_cart' item.item_id %}">
+        {% csrf_token %}
+        <input type="hidden" name="extras" value="{% for extra in item.extras.all %}{{ extra.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+        <button type="submit" class="btn btn-primary mr-2">+</button>
       </form>    
-      {% endif %}
-      &nbsp {{ item.quantity }} &nbsp
-      {% if not ordered %}
-        <a href="{% url 'remove_from_cart' item.id%}">
-          <button type="submit" class="btn btn-danger">-</button>
-        </a>
+    
+      <span class="mr-2">{{ item.quantity }}</span>
+    
+      <a href="{% url 'remove_from_cart' item.id%}">
+        <button type="submit" class="btn btn-danger">-</button>
+      </a>
       {% endif %}
     </td>
+    
+    
     {% if not ordered %}
       <td>
         <a href="{% url 'trash_item' item.id %}">

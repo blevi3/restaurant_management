@@ -91,6 +91,7 @@ def remove_coupon_from_cart(request):
 
                         # Update the CartItem's total_price with the original price
                         cart_item.total_price = original_price+cart_item.get_extras_price()
+                        cart_item.final_price = cart_item.total_price*cart_item.quantity+cart_item.get_extras_price()
 
 
                         cart_item.save()

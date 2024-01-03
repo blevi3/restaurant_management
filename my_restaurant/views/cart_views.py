@@ -15,6 +15,7 @@ from django.db.models import Count
 
 @login_required
 def cart(request):
+    print("cart")
     cart, created = Cart.objects.get_or_create(user=request.user, is_delivered=0)
 
     update_table(request, cart)
@@ -46,11 +47,17 @@ def cart(request):
 def add_to_cart(request, item_id):
     if request.method == 'POST':
 
-        data = json.loads(request.body.decode('utf-8'))
+        if not request.body:
+            return JsonResponse({'error': 'Empty request body'}, status=400)
+
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data in the request body'}, status=400)
         item = get_object_or_404(Menuitem, pk=item_id)
+        print("item",item)
         cart, _ = Cart.objects.get_or_create(user=request.user, is_delivered=0)
         extras = data.get('extras', []) 
-        print("extras",extras)
 
         quantity = handle_cart_item(cart, item, data.get('foodComment', ''), extras)
 
@@ -73,7 +80,7 @@ def remove_from_cart(request, cart_item_id):
     
     if not cart_item.cart.ordered and cart_item.quantity > 1:
         cart_item.quantity -= 1
-        cart_item.final_price = (cart_item.item.price + cart_item.get_extras_price()) * cart_item.quantity
+        cart_item.final_price = (cart_item.total_price + cart_item.get_extras_price()) * cart_item.quantity
         cart_item.save()
     else:
         if cart_item.cart.applied_coupon_type:
@@ -89,6 +96,8 @@ def remove_from_cart(request, cart_item_id):
                 cart_item.cart.applied_coupon_type = None
                 cart_item.cart.save()
                 cart_item.delete()
+        else:
+            cart_item.delete()
 
     calculate_total_price(cart_item.cart)
     return redirect('cart')
@@ -111,12 +120,15 @@ def trash_item(request, cart_item_id):
                 cart_item.cart.applied_coupon_type = None
                 cart_item.cart.save()
                 cart_item.delete()
+        else:
+            cart_item.delete()
 
     return redirect('cart')
 
 @login_required
 def empty_cart(request):
     carts = Cart.objects.filter(user=request.user, ordered=0)
+    print("carts")
     for cart in carts:
         if not cart.ordered:
             cart.delete()
@@ -140,14 +152,19 @@ def add_to_cart_from_cart(request, item_id):
             for cart_item in cart_items:
                 if set(cart_item.extras.values_list('id', flat=True)) == set(extras):      
                     cart_item.quantity += 1
-                    coupon = Coupons.objects.get(id=cart_item.cart.discount)
-                    if cart_item.cart.applied_coupon_type == 'percentage' and coupon.product == item.name:
-                        print("couponed item adding")
-                        print(item.price, cart_item.get_extras_price(), cart_item.quantity, coupon.percentage)
-                        cart_item.final_price = (item.price + cart_item.get_extras_price()) * cart_item.quantity * (1 - coupon.percentage  / 100)
-                    else:
+                    try:
+                        coupon = Coupons.objects.get(id=cart_item.cart.discount)
+                        if cart_item.cart.applied_coupon_type == 'percentage' and coupon.product == item.name:
+                            print("couponed item adding")
+                            #print(item.price, cart_item.get_extras_price(), cart_item.quantity, coupon.percentage)
+                            cart_item.final_price = (item.price + cart_item.get_extras_price()) * cart_item.quantity * (1 - coupon.percentage  / 100)
+                        else:
+                            cart_item.final_price = (item.price + cart_item.get_extras_price() ) * cart_item.quantity
+                        cart_item.save()
+                    except Coupons.DoesNotExist:
+                        print("no coupon")
                         cart_item.final_price = (item.price + cart_item.get_extras_price() ) * cart_item.quantity
-                    cart_item.save()
+                        cart_item.save()
         except CartItem.DoesNotExist:
             CartItem.objects.create(cart=cart, item=item, quantity=1, final_price=item.price, total_price=item.price)
     calculate_total_price(cart)
@@ -312,6 +329,7 @@ def apply_coupon(request, cart, user, coupon):
                         print(item.total_price)
                         extras = item.get_extras_price()
                         item.total_price -= (percentage_discount * (item.total_price) / 100)
+                        item.final_price = (item.total_price + extras) * item.quantity
                         item.save()
                     cart.discount = coupon.id
                     cart.applied_coupon_type = 'percentage'
@@ -331,30 +349,42 @@ def apply_coupon(request, cart, user, coupon):
     cart.save()
 
 
-def handle_cart_item(cart, item, comment, extras=[]):
+def handle_cart_item(cart, item, comment="", extras=[]):
     existing_cart_items = CartItem.objects.filter(cart=cart, item=item, comment=comment)
-    print('new_extras', extras)
-
+    print('extras', extras)
+    print('existing_cart_item', existing_cart_items)
     # Check if there are any existing cart items with the same extras
     for existing_cart_item in existing_cart_items:
-        existing_extras = set(existing_cart_item.extras.all())
-        new_extras = set(extras)
+        
+        if extras:
+            existing_extras = set(existing_cart_item.extras.all())
+            new_extras = set(extras)
 
-        new_item_extras = set()
+            new_item_extras = set()
 
-        for extra in new_extras:
-            new_item_extras.update(Extra.objects.filter(id=extra))
-            print('new_extras', new_extras)
-            print('existing_extras', existing_extras)
+            for extra in new_extras:
+                new_item_extras.update(Extra.objects.filter(id=extra))
+                print('new_extras', new_extras)
+                print('existing_extras', existing_extras)
 
-            if existing_extras == new_item_extras:
-                print('same extras')
-                # If extras are the same, increase the quantity and save
-                existing_cart_item.quantity += 1
-                existing_cart_item.final_price = (item.price) * existing_cart_item.quantity
-                existing_cart_item.total_price = item.price
-                existing_cart_item.save()
-                return existing_cart_item.quantity
+                if existing_extras == new_item_extras:
+                    print('same extras')
+                    # If extras are the same, increase the quantity and save
+                    existing_cart_item.quantity += 1
+                    existing_cart_item.final_price = (item.price) * existing_cart_item.quantity
+                    existing_cart_item.total_price = item.price
+                    existing_cart_item.save()
+                    return existing_cart_item.quantity
+
+
+        if extras == None and Menuitem.objects.get(id=existing_cart_item.item.id).type == 0:
+            print('ital')
+            existing_cart_item.quantity += 1
+            existing_cart_item.final_price = (existing_cart_item.total_price) * existing_cart_item.quantity
+            existing_cart_item.save()
+            existing_cart_item.cart.save()
+            return existing_cart_item.quantity
+        
 
     # If no matching cart items are found, create a new one
     if cart.discount:
@@ -369,7 +399,8 @@ def handle_cart_item(cart, item, comment, extras=[]):
                 total_price=item.price * (1 - discount.percentage / 100),
                 comment=comment
             )
-            cart_item.extras.set(extras)
+            if extras:
+                cart_item.extras.set(extras)
             cart_item.final_price = (cart_item.total_price + cart_item.get_extras_price()) * cart_item.quantity #sorrend fontos mert a total price a final price-bol szamolodik
             cart_item.total_price = cart_item.total_price + cart_item.get_extras_price()
 
@@ -385,7 +416,8 @@ def handle_cart_item(cart, item, comment, extras=[]):
             total_price=item.price,
             comment=comment
         )
-        cart_item.extras.set(extras)
+        if extras:
+            cart_item.extras.set(extras)
         cart_item.final_price = (cart_item.total_price + cart_item.get_extras_price()) * cart_item.quantity
         cart_item.total_price = cart_item.total_price
         cart_item.save()
@@ -406,7 +438,7 @@ def calculate_total_price(cart):
 
     for cart_item in CartItem.objects.filter(cart=cart):
         total_price += cart_item.final_price + cart_item.get_extras_price()
-
+    cart_item.save()
     total_price -= get_discount_amount(cart)
     cart.amount_to_be_paid = max(total_price, cart.reduced_price)
     cart.save()
