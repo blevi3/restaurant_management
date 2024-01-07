@@ -442,7 +442,7 @@ def calculate_total_price(cart):
 
     for cart_item in CartItem.objects.filter(cart=cart):
         total_price += cart_item.final_price + cart_item.get_extras_price()
-    cart_item.save()
+        cart_item.save()
     total_price -= get_discount_amount(cart)
     cart.amount_to_be_paid = max(total_price, cart.reduced_price)
     cart.save()

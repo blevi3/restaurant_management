@@ -43,8 +43,6 @@ def items_list(request):
             ingredient_ids = request.POST.getlist('modify_ingredients')
             item.ingredients.set(ingredient_ids)
 
-            
-
         elif 'remove' in request.POST:
             item = get_object_or_404(Menuitem, pk=request.POST['remove'])
             item.delete()

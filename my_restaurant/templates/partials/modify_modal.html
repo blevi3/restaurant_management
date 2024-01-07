@@ -28,13 +28,36 @@
               <input type="number" class="form-control" id="price" name="price" placeholder="Enter price" />
           </div>
 
+          <script>
+
+          </script>
+
           <div class="form-group">
               <label for="modify_ingredients">Ingredients</label>
-              <select multiple class="form-control" id="modify_ingredients" name="modify_ingredients">
-                  {% for ingredient in ingredients %}
-                      <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
-                  {% endfor %}
-              </select>
+              <select multiple class="form-control" id="modify_ingredients" name="modify_ingredients"  data-item-type="">
+                {% for ingredient in ingredients %}
+                    <option value="{{ ingredient.id }}" data-type="{{ ingredient.type }}">{{ ingredient.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <script> 
+                $(document).on("click", ".modify-button", function () {
+                  var itemType = $(this).data('item-type');
+                  $('#modify_ingredients').data('item-type', itemType);            
+                    $('#modify_ingredients option').each(function () {
+                        var optionType = $(this).data('type');
+    
+                        if (optionType == itemType.toLowerCase()) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                });
+            </script>
+            
+
+ 
           </div>
           
         </div>

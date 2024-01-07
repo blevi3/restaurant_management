@@ -62,6 +62,8 @@
                         type="submit"
                         class="btn btn-primary modify-button"
                         id="modify-button"
+                        data-item-type="{{ item.category }}"
+
                         onclick="openForm('myModal')"
                       >
                         Modify
@@ -91,6 +93,30 @@
     <button class="btn btn-primary" type="submit" onclick="openForm('AddModal')">
       Add
     </button>
+
+
+
+
+    <script>
+      $(document).on("click", ".modify-button", function () {
+        var itemInfo = $(this).closest("tr").find(".item-info");
+        var tdNameValue = itemInfo.find(".item-name").text();
+        var tdPriceValue = itemInfo.find(".item-price").text().slice(0, -3);
+        var inputValue = $(this).closest("tr").find("input#editdata").val();
+    
+        var itemType = $(this).data("item-type");
+
+        document.getElementById("editItemID").value = inputValue;
+        document.getElementById("name").value = tdNameValue;
+        document.getElementById("price").value = tdPriceValue;
+        document.getElementById("modify_ingredients").setAttribute("data-item-type", itemType.toLowerCase());
+
+        document.getElementById("myModal").style.display = "block";
+
+      });
+    </script>
+    
+
 
     {% include "partials/add_modal.html" %}
 
@@ -255,24 +281,7 @@
 
     </style>
     
-    <script>
-      $(document).on("click", ".modify-button", function () {
-        var itemInfo = $(this).closest("tr").find(".item-info");
-        var tdNameValue = itemInfo.find(".item-name").text();
-        var tdPriceValue = itemInfo.find(".item-price").text().slice(0, -3);
-        var inputValue = $(this).closest("tr").find("input#editdata").val();
-    
-        console.log(tdNameValue);
-        console.log(tdPriceValue);
-    
-        document.getElementById("editItemID").value = inputValue;
-        document.getElementById("name").value = tdNameValue;
-        document.getElementById("price").value = tdPriceValue;
-    
-        document.getElementById("myModal").style.display = "block";
-      });
-    </script>
-    
+
     
 <script>
   // Function to show or hide tables based on the selected categories
@@ -474,6 +483,4 @@
 
 </script>
    
-  
-  ### a refresh miatt eltunik a snackbar
-    {% endblock %}
+      {% endblock %}
