@@ -1,6 +1,7 @@
 <!-- djangotemplates/example/templates/base.html -->
 
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -20,6 +21,7 @@
       }
 
     </style>
+
 
     <script>
       function redirectToCart() {
@@ -45,18 +47,50 @@
 
     <script>
       function positionDiv() {
-        var preview = document.querySelector('.preview');
-        var cartPreview = document.querySelector('.cart_preview');
-        var previewRect = preview.getBoundingClientRect();
-        var cartPreviewHeight = cartPreview.offsetHeight;
-        cartPreview.style.position = 'absolute';
-        cartPreview.style.left = previewRect.left-125+ 'px';
-        
+          var preview = document.querySelector('.preview');
+          var cartPreview = document.querySelector('.cart_preview');
+          var previewRect = preview.getBoundingClientRect();
+          var cartPreviewHeight = cartPreview.offsetHeight;
+          
+          cartPreview.style.position = 'fixed';
+          cartPreview.style.right = '0';
+          cartPreview.style.bottom = '0';
+          cartPreview.style.overflowY = 'auto';
+          cartPreview.style.padding = '20px';
+          cartPreview.style.color = '#fff';
+          
+          cartPreview.style.left = (previewRect.right + 10) + 'px';  // Adjust the 10px as needed
       }
-    
+  
       window.addEventListener('load', positionDiv);
       window.addEventListener('resize', positionDiv);
+  
+      document.addEventListener('click', function (event) {
+          var cartPreview = document.querySelector('.cart_preview');
+          var preview = document.querySelector('.preview');
+  
+          if (!cartPreview.contains(event.target) && !preview.contains(event.target)) {
+              cartPreview.style.display = 'none';
+          }
+      });
+  </script>
+  
+
+    <script>
+      // Function to toggle the theme
+      function toggleTheme() {
+        const body = document.body;
+        if (body.classList.contains('dark-mode')) {
+          body.classList.remove('dark-mode');
+        } else {
+          body.classList.add('dark-mode');
+        }
+      }
+    
+      // Attach the toggleTheme function to the button click event
+      document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
     </script>
+    
 
     <!-- This is how to include a static file -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
@@ -81,6 +115,63 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous"/>
     
+
+
+
+
+
+    <script>
+      // Function to show the location prompt
+      function showLocationPrompt() {
+          const locationPrompt = document.getElementById('location-prompt');
+          locationPrompt.style.display = 'block';
+  
+          // Handle the "Allow" button click
+          document.getElementById('allow-location').addEventListener('click', () => {
+              getLocation();
+              locationPrompt.style.display = 'none';
+          });
+  
+          // Handle the "Deny" button click
+          document.getElementById('deny-location').addEventListener('click', () => {
+              locationPrompt.style.display = 'none';
+              // Redirect or handle the denial as needed
+          });
+      }
+  
+      // Function to get user's location
+      function getLocation() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                  function (position) {
+                      // Handle successful location retrieval
+                      const latitude = position.coords.latitude;
+                      const longitude = position.coords.longitude;
+                      // Perform any additional logic or redirection here
+                      console.log(`User's location: Latitude=${latitude}, Longitude=${longitude}`);
+                  },
+                  function (error) {
+                      // Handle location retrieval error
+                      console.error('Error getting location:', error.message);
+                  }
+              );
+          } else {
+              console.error('Geolocation is not supported by this browser.');
+          }
+      }
+  
+      // Check if the user is trying to access restricted links
+      const restrictedUrls = ['/table/scan/', '/order'];
+      const currentUrl = window.location.pathname;
+      if (restrictedUrls.includes(currentUrl)) {
+          showLocationPrompt();
+      }
+  </script>
+
+
+
+
+
     
   </head>
   <body >
@@ -173,6 +264,8 @@
     -->
 
     <!--TODO class active JS-->
+
+
     <header>
       <nav id='cssmenu'>
       <div id="head-mobile"></div>
@@ -180,25 +273,30 @@
       
       <ul>
         <li class="active">
-          <a class="nav-link" href="{% url 'home' %}">Home </a>
+          <a class="nav-link" href="{% url 'home' %}">{% trans "Home" %} </a>
         </li>
         <li><a href='#'>Menu</a>
           <ul>
-            <li><a  href="{% url 'drinks' %}">Drinks</a></li>
-            <li><a  href="{% url 'menu' %}">Food</a></li>
+            <li><a  href="{% url 'drinks' %}">{% trans "Drinks" %}</a></li>
+            <li><a  href="{% url 'menu' %}">{% trans "Foods" %}</a></li>
             {% if user.is_authenticated %}
-            <li><a  href="{% url 'order' %}">Order</a></li>
+            <li><a  href="{% url 'order' %}">{% trans "Order" %}</a></li>
             {% endif %} 
               </li>
           </ul>
         </li>
-        <li><a href="{% url 'about' %}">About</a></li>
-        <li><a href="{% url 'gallery' %}">Gallery</a></li>
+        <li><a href="{% url 'about' %}">{% trans "About" %}</a></li>
+        <li><a href="{% url 'gallery' %}">{% trans "Gallery" %}</a></li>
         {% if request.user.is_staff %}
-        <li class="nav-item"><a  href="/admin">Admin</a></li>
-        <li class="nav-item"><a  href="{% url 'create_coupon' %}">Create Coupon</a></li>
+        <li><a href='#'>Admin</a>
+          <ul>
+          <li class="nav-item"><a  href="/admin">{% trans "Admin" %}</a></li>
+          <li class="nav-item"><a  href="{% url 'create_coupon' %}">{% trans "Create Coupon" %}</a></li>
+          <li class="nav-item"><a  href="/dashboard">{% trans "Dashboard" %}</a></li>
+          </ul>
+        </li>
         <li><a href="/all_orders">Orders<span class="order-count">{% active_order_count %}</span></a></li>
-        <li><a href="/all_reservations">All reservation</a></li>
+        <li><a href="/all_reservations">{% trans "All Reservation" %}</a></li>
         {% endif %} 
       </ul> 
       <ul class = "right">
@@ -206,29 +304,74 @@
         
         <li class="preview" onclick="redirectToCart()">
           <a>
-            <span class="cart-icon">Cart<span class="cart-count">{% cart_item_count %}</span>
+            <span class="cart-icon">{% trans "Cart" %}<span class="cart-count">{% cart_item_count %}</span>
           </a>
-        </li>        
-        <li><a href="{% url 'available_tables' %}">Reservation</a></li>
+        </li>      
+        <li><a href="{% url 'available_tables' %}">{% trans "Reservation" %}</a></li>
         <li><a href='#'>Profile</a>
           <ul>
-            <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'previous_orders' %}">previous_orders</a></li>
-            <li><a class="dropdown-item" href="{% url 'my_reservations' %}">Reservations</a></li>
-            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+            <li><a class="dropdown-item" href="{% url 'profile' %}">{% trans "Profile" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'previous_orders' %}">{% trans "Previous Orders" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_reservations' %}">{% trans "Reservations" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
+          </ul>
+        </li>
+        <li class="language-dropdown">
+          <img src="static/pics/{{user.profile.language}}.png" alt="English" id="current-language" width=30px></img>
+          {% csrf_token %}
+          <ul class="language-options">
+            {% for choice in user.profile.LANGUAGE_CHOICES %}
+              <li>
+                <a href="change_language" class="language" data-language="{{ choice.0 }}">
+                  <img src="static/pics/{{choice.0}}.png" alt="{{ choice.1 }}" width=30px></img>
+
+                </a>
+              </li>
+            {% endfor %}
           </ul>
         </li>
         {% else %}
-          <li><a href="{% url 'login' %}">Login</a></li>
-          <li><a href="{% url 'register' %}">Register</a></li>
+          <li><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
+          <li><a href="{% url 'register' %}">{% trans "Register" %}</a></li>
 
         {% endif %}
+
       </ul>
       </nav>
+
+      <!-- Add this JavaScript code to your HTML file -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  $("#current-language").click(function() {
+    $(".language-options").toggle();
+  });
+
+  $(".language-options a").click(function() {
+    var newLanguage = $(this).data("language");
+    
+    var csrfToken = $("[name=csrfmiddlewaretoken]").val();
+    var data = {
+      language: newLanguage,
+      csrfmiddlewaretoken: csrfToken
+    };
+    
+    $.post("{% url 'change_language' %}", data, function(data) {
+      location.reload();
+    });
+  });
+});
+</script>
+
+
       
     </header>
     {% cart_preview  %}
 
+    <button id="dark-mode-toggle" onclick="toggleTheme()">{% trans "Toggle Dark Mode" %}</button>
+
+       
     <!-- IS_LOGGED_IN flag
     {% if user.is_authenticated %} Hi {{ user.username }}! {% else %}
     <p>You are not logged in</p>

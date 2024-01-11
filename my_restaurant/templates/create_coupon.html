@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 
 {% block pagecontent %}
+<style>
+  .coupon-column {
+    display: flex;
+  }
+  .coupon-list {
+    
+    padding: 0;
+    margin: 0;
+    padding-right: 20px;
+  }
+  .coupon-item {
+    list-style: none;
+    margin-bottom: 10px;
+  }
+</style>
 
 <script>
   $(document).ready(function() {
@@ -66,17 +81,42 @@
   </form>
  <hr>  
  <h2>List of Coupons</h2>
-  <ul>
-    {% for coupon in coupons %}
-      <li>
-        {{ coupon.products }} - {{ coupon.percentage }}% off - Code: {{ coupon.code }}
-        <form method="post" action="{% url 'remove_coupon' coupon.id %}">
-          {% csrf_token %}
-          <button type="submit">Remove</button>
-        </form>
-      </li>
-    {% empty %}
-      <li>No coupons available.</li>
-    {% endfor %}
-  </ul>
+ <div class="coupon-column">
+   <div class="coupon-list">
+     <h3>Non-Unique Coupons</h3>
+     <ul>
+       {% for coupon in coupons %}
+         {% if not coupon.is_unique %}
+         <li class="coupon-item">
+           {{ coupon.product }} - {{ coupon.percentage }}% off - Code: {{ coupon.code }}
+           <form method="post" action="{% url 'remove_coupon' coupon.id %}">
+             {% csrf_token %}
+             <button type="submit">Remove</button>
+           </form>
+         </li>
+         {% endif %}
+       {% empty %}
+         <li>No non-unique coupons available.</li>
+       {% endfor %}
+     </ul>
+   </div>
+   <div class="coupon-list">
+     <h3>Unique Coupons</h3>
+     <ul>
+       {% for coupon in coupons %}
+         {% if coupon.is_unique %}
+         <li class="coupon-item">
+           {{ coupon.product }} - {{ coupon.percentage }}% off - Code: {{ coupon.code }}
+           <form method="post" action="{% url 'remove_coupon' coupon.id %}">
+             {% csrf_token %}
+             <button type="submit">Remove</button>
+           </form>
+         </li>
+         {% endif %}
+       {% empty %}
+         <li>No unique coupons available.</li>
+       {% endfor %}
+     </ul>
+   </div>
+ </div>
 {% endblock %}

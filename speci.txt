@@ -1,3 +1,4 @@
+
 Project Scope:
     - functionality
     - layout
@@ -32,4 +33,27 @@ Layout:
         * helyette bootstrap gecit letölteni, .navbar-collapse.collapse beállításainak manuális törlése
     
 
+Admin Dashboard:
+
+Ilyenekre gondoltam:
+Osszes bevétel
+Népszerű termékek, hanyat vettek beloluk
+Kuponfelhasznalasok száma
+Felhasználok koltekezése és top userek meghatározasa
+ÁtvettFoglalások/összesFoglalás
+Sales trend (ugye rendeles ideje el van mentve ezert ezek alapjan minden egyes termekhez lehet fasza grafikont rajzolni napi/heti/havi felbontásban is)
+Új Felhasználók + aktív Felhasználók
+Aki 3 hónapja nem lépett be kapjon automatikusan egy kupont
+Szerver állapot jelentés
+
+TODO:
+    - dark/light mode switch
+    - ételek és italok külön kezelése pl a kajaknal azt kene h felugrik egy ablak, amiben ott van h mit akarsz eppen rendelni pl hamburger, a név alatt a hozzávalók, alatta meg egy mennyiség gomb meg egy komment szekcio ahova a különleges hulyesegeket lehet írni
+    - Ételek tesztre szabásának lehetsősége
+    - férfi/női fogyasztás monitorozása - profile uj mező: gender
+
+BUGS:
+    - qr kodos asztal beolvasas nem megy - elv jó ujra
+
+    - addition to ingredients: Uj mezo ami tarolja h melyik kategoriahoz lehet hozzárendelni azt a hozzávalót
     

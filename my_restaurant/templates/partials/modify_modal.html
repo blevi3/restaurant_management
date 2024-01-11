@@ -18,29 +18,47 @@
             {% csrf_token %}
             <input type="hidden" id = "editItemID" name="editItemID" />
             
-
-            <div class="form-group">
+          <div class="form-group">
               <label for="name">Name</label>
-              <input
-                type="text"
-                class="form-control"
-                id="name"
-                name="edit"
-                placeholder="Enter name"
-              />
-            </div>
-
-            <div class="form-group">
+              <input type="text" class="form-control" id="name" name="edit" placeholder="Enter name" />
+          </div>
+  
+          <div class="form-group">
               <label for="price">Price</label>
-              <input
-                type="number"
-                class="form-control"
-                id="price"
-                name="price"
-                placeholder="Enter price"
+              <input type="number" class="form-control" id="price" name="price" placeholder="Enter price" />
+          </div>
 
-              />
-            </div>
+          <script>
+
+          </script>
+
+          <div class="form-group">
+              <label for="modify_ingredients">Ingredients</label>
+              <select multiple class="form-control" id="modify_ingredients" name="modify_ingredients"  data-item-type="">
+                {% for ingredient in ingredients %}
+                    <option value="{{ ingredient.id }}" data-type="{{ ingredient.type }}">{{ ingredient.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <script> 
+                $(document).on("click", ".modify-button", function () {
+                  var itemType = $(this).data('item-type');
+                  $('#modify_ingredients').data('item-type', itemType);            
+                    $('#modify_ingredients option').each(function () {
+                        var optionType = $(this).data('type');
+    
+                        if (optionType == itemType.toLowerCase()) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                });
+            </script>
+            
+
+ 
+          </div>
           
         </div>
         <div class="modal-footer">

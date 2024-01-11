@@ -8,6 +8,11 @@ body {
     background: #555;
 }
 
+#cssmenu ul{
+    padding-inline-start: 0px;
+    padding-inline-end: 0px;
+}
+
 header {
     position: relative;
     width: 100%;
@@ -100,6 +105,19 @@ nav {
     text-decoration: none;
     color: #ddd;
     font-weight: 700;
+}
+
+#cssmenu>ul>li>ul>li>img {
+    padding: 17px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: #ddd;
+    font-weight: 700;
+}
+
+.language-dropdown{
+    padding: 14px;
 }
 
 #cssmenu>ul>li:hover>a,

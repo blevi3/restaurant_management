@@ -45,19 +45,30 @@
                 id="Addname"
                 name="add"
                 placeholder="Enter name"
+                required
               />
             </div>
 
             <div class="form-group">
               <label for="price">Price</label>
               <input
-                type="text"
+                type="number"
                 class="form-control"
                 id="Addprice"
                 name="price"
                 placeholder="Enter price"
+                required
               />
             </div>
+
+            <div class="form-group">
+              <label for="ingredients">Ingredients</label>
+              <select multiple class="form-control" id="ingredients" name="ingredients">
+                  {% for ingredient in ingredients %}
+                      <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+                  {% endfor %}
+              </select>
+          </div>
           
         </div>
         <div class="modal-footer">

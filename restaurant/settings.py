@@ -54,12 +54,13 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    
+
     
     'allauth.socialaccount.providers.google',
     
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
 
 
 SOCIALACCOUNT_ADAPTER = 'my_restaurant.My_adapter.MySocialAccountAdapter'
@@ -108,7 +109,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'my_restaurant.middleware.LocationMiddleware.LocationMiddleware',
 ]
+ALLOWED_COORDINATE = ("47.472484", "19.060647")
+RADIUS = 100 # in meters
 
 ROOT_URLCONF = 'restaurant.urls'
 
@@ -173,7 +177,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
+LOCALE_PATHS = ( os.path.join(BASE_DIR, 'locale'), )
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -192,3 +196,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'g.laszlo2003@gmail.com'
 EMAIL_HOST_PASSWORD = 'jmjazbhagbpnpbpg'
 EMAIL_DEBUG = True
+
+
+#SECURE_SSL_REDIRECT = True
+
+#SESSION_COOKIE_SECURE = True
+
+#CSRF_COOKIE_SECURE = True
+
+#SECURE_BROWSER_XSS_FILTER = True
