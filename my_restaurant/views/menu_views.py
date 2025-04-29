@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from ..models import Menuitem, CartItem
+from ..models import Menuitem, CartItem, Ingredient
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 
 def drinks(request):
     drinks = Menuitem.objects.all().filter(type = 0)  
@@ -26,36 +28,39 @@ def menu(request):
 
     return render(request, 'foods.html', {'foods': foods, 'categories': cat})
 
-
+@staff_member_required
 def items_list(request):
     
     item_list = Menuitem.objects.all()
+    all_ingredient = Ingredient.objects.all()
     categories = item_list.values_list('category', flat=True).distinct()
     if request.method == 'POST':
-        
-
         if 'edit' in request.POST:
             item = get_object_or_404(Menuitem, pk=request.POST['editItemID'])
             item.name = request.POST.get('edit')
             item.price = request.POST.get('price')
-    
             item.save()
+            ingredient_ids = request.POST.getlist('modify_ingredients')
+            item.ingredients.set(ingredient_ids)
+
         elif 'remove' in request.POST:
             item = get_object_or_404(Menuitem, pk=request.POST['remove'])
             item.delete()
         elif 'add' in request.POST:
+            ingredient_ids = request.POST.getlist('ingredients')
             if request.POST.get('type') == "Food":
                 newtype = 1
             else:
                 newtype = 0
-            Menuitem.objects.create(
+            menu_item = Menuitem.objects.create(
                 name=request.POST.get('add'),
                 price=request.POST.get('price'),
                 type = newtype,
                 category = request.POST.get('category')
             )
+            menu_item.ingredients.set(ingredient_ids)
             
-    return render(request, 'data.html', {'item_list': item_list, 'categories': categories})
+    return render(request, 'data.html', {'item_list': item_list, 'categories': categories, 'ingredients': all_ingredient})
 
 
 

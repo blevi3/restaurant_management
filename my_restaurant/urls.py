@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import account_views, cart_views, coupon_views, menu_views, orders_views, reservation_views, stripe_views, views
+from .views import account_views, cart_views, coupon_views, menu_views, orders_views, reservation_views, stripe_views, views, dashboard_views
 
 urlpatterns = [
     path('test', views.Testpage.as_view(), name='about'),
@@ -8,36 +8,50 @@ urlpatterns = [
     path('', views.home.as_view(), name='home'),
     path('add_to_cart/<int:item_id>', cart_views.add_to_cart, name='add_to_cart'),
     path('add_product_to_cart/<int:item_id>', cart_views.add_recom_to_cart, name='add_product_to_cart'),
-    path('cart/', cart_views.cart, name='cart'),
+    path('cart', cart_views.cart, name='cart'),
     path('table/scan/', cart_views.handle_scanned_qr, name='scan'),
-    path('previous_orders/', orders_views.previous_orders, name='previous_orders'),
+    path('previous_orders', orders_views.previous_orders, name='previous_orders'),
     path('remove_from_cart/<int:cart_item_id>', cart_views.remove_from_cart, name='remove_from_cart'),
     path('remove_item/<int:cart_item_id>', cart_views.trash_item, name='trash_item'),
-    path('empty_cart/', cart_views.empty_cart, name='empty_cart'),
+    path('empty_cart', cart_views.empty_cart, name='empty_cart'),
     path('add/<int:item_id>', cart_views.add_to_cart_from_cart, name='add_to_cart_from_cart'),
-    path('all_orders/', orders_views.all_orders, name='all_orders'),
-    path('cart_delivered/<int:id>', cart_views.cart_delivered, name='cart_delivered'),
-    path('order/<int:id>', orders_views.order, name='order'),
+    path('all_orders', orders_views.all_orders, name='all_orders'),
+    path('cart_delivered/<int:id>', orders_views.cart_delivered, name='cart_delivered'),
+    path('order/<int:id>', cart_views.order, name='order'),
     path('order_paid_admin/<int:id>', orders_views.order_paid_admin, name='order_paid_admin'),
-    path('order_paid/<int:id>', orders_views.order_paid, name='order_paid'),
+    path('order_paid/<int:id>', cart_views.order_paid, name='order_paid'),
     path('accounts/register', account_views.register_request, name="register"),
     path('drinks', menu_views.drinks, name='drinks'),
     path('menu', menu_views.menu, name='menu'),
     path('gallery', views.gallery, name='gallery'),
+    path('mark_reservation_taken/<int:reservation_id>', reservation_views.mark_reservation_taken, name='mark_reservation_taken'),
+
     path('all_reservations', reservation_views.all_reservations, name="all_reservations"),
     path('my_reservations', reservation_views.my_reservations, name="my_reservations"),
-    path('tables/', reservation_views.available_tables, name='available_tables'),
+    path('tables', reservation_views.available_tables, name='available_tables'),
     path('reservation/<int:table_id>/<str:date1>', reservation_views.reservation_table, name='reservation_table'),
-    path('password_reset/', account_views.password_reset_request, name="password_reset"),
-    path('profile/', account_views.profile, name='profile'),
-    path('delete-account/', account_views.delete_account, name='delete_account'),
+    path('password_reset', account_views.password_reset_request, name="password_reset"),
+    path('profile', account_views.profile, name='profile'),
+    path('delete-account', account_views.delete_account, name='delete_account'),
     path('config/', stripe_views.stripe_config),
     path('create-checkout-session/', stripe_views.create_checkout_session),
-    path('success/', stripe_views.SuccessView.as_view()), 
-    path('cancelled/', stripe_views.CancelledView.as_view()),
+    path('success', stripe_views.SuccessView.as_view()), 
+    path('cancelled', stripe_views.CancelledView.as_view()),
     path('webhook/', stripe_views.stripe_webhook),
-    path('remove_coupon/', coupon_views.remove_coupon_from_cart, name='remove_coupon'),
-    path('create_coupon/', coupon_views.create_coupon, name='create_coupon'),
-    path('remove/<int:coupon_id>/', coupon_views.remove_coupon, name='remove_coupon'),
-    path('coupon-redeem/', coupon_views.redeem_coupon, name='coupon_redeem'),
+    path('remove_coupon', coupon_views.remove_coupon_from_cart, name='remove_coupon'),
+    path('create_coupon', coupon_views.create_coupon, name='create_coupon'),
+    path('remove/<int:coupon_id>', coupon_views.remove_coupon, name='remove_coupon'),
+    path('coupon-redeem', coupon_views.redeem_coupon, name='coupon_redeem'),
+
+    path('dashboard', dashboard_views.dashboard, name='dashboard'),
+    path('send_coupons_to_inactive_users', dashboard_views.send_coupons_to_inactive_users, name='send_coupons_to_inactive_users'),
+    path('server_status', dashboard_views.server_status, name='server_status'),
+
+
+    path('change_language', views.change_language, name='change_language'),
+
+    path('get_extras/<int:item_id>/', cart_views.get_extras, name='get_extras'),
+
+
+
 ]

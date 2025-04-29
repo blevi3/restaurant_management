@@ -1,70 +1,94 @@
-{% extends 'base.html' %} {% load humanize %} 
+{% extends 'base.html' %}
+{% load humanize %}
 
-  <body>
-    {% block pagecontent %}
-  <form>
-    {% for category in categories %}
-      <label>
-        <input type="checkbox" name="category" value="{{ category }}" checked> {{ category }}
-      </label>
-    {% endfor %}
-  </form>
+{% block pagecontent %}
+<div class="container">
+  <div class="category-swipe">
+    <div class="category-tabs">
+      {% for category in categories %}
+        <div class="category-tab" data-category="{{ category }}">{{ category }}</div>
+      {% endfor %}
+    </div>
+  </div>
 
-  {% if item_list %}
-  {% for category in categories %}
-    <h2>{{ category }}</h2>
-    <table class="table table-striped" id="tbl-{{category}}">
-      <thead>
-        <tr>
-          <th>Drinks</th>
-          <th>Price</th>
-          <th></th>
-          {% if request.user.is_staff %}
-          <th>Modify</th>
-          <th>Remove</th>
-          {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in item_list %}
-          {% if item.category == category %}
-            <tr>
-              <td id="tdName">{{ item.name }}</td>
-              <td id="tdPrice">{{ item.price }} Ft</td> 
-              <td><a href="{% url 'add_to_cart' item.id %}"><img src="static\pics\cart.png" alt="Add to cart" width="30" height="30"></a></td>
-              {% if request.user.is_staff %}
-              <td>
-                <input type="hidden" id = "editdata" name="editdata" value="{{ item.id }}" />
-                <button
-                  type="submit"
-                  class="btn btn-primary modify-button"
-                  id="modify-button"
-                  onclick="openForm('myModal')"
-                >
-                  Modify
-                </button>
-              </td>
-              <td>
-                <form method="post" class="form-inline">
-                  {% csrf_token %}
-                  <input type="hidden" name="remove" value="{{ item.id }}" />
-                  <button type="submit" class="btn  btn-danger" >Remove</button>
-                </form>
-              </td>
-              {% endif %}
-            </tr>
-          {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endfor %}
-{% else %}
-  <p>No items found.</p>
-{% endif %}
+  <div class="menu-items">
+    <div id="items-container">
+      {% for category in categories %}
+        <div class="category-section" id="category-{{ category }}">
+          <h2>{{ category }}</h2>
+          <table class="table table-striped mobile-friendly-table" id="tbl-{{category}}">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th></th>
+                {% if request.user.is_staff %}
+                <th>Modify</th>
+                <th>Remove</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in item_list %}
+                {% if item.category == category %}
+                  <tr>
+                    <td class="item-info">
+                      <p class="item-name">{{ item.name }}</p>
+                      <p class="item-price">{{ item.price }} Ft</p>
+                      {% if item.ingredients.exists %}
+                      <p class="item-ingredients">
+                        <strong>Ingredients:</strong>
+                        <ul>
+                            {% for ingredient in item.ingredients.all %}
+                                <li>{{ ingredient.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </p>
+                      {% endif %}
+                    </td>
+                    <td class="cart-button">
+                      {% if item.type == 1 %} <!-- Check if the item type is food -->
+                        <button class="btn btn-primary" onclick="showFoodModal('{{ item.name }}', '{{ item.id }}')">Order</button>
+                      {% else %}
+                      <a href="#" onclick="addToCart('{{ item.id }}')">
+                        <img src="static\pics\cart.png" alt="Add to cart" width="30" height="30">
+                    </a>
+                    
+                      {% endif %}
+                    </td>
+                    {% if request.user.is_staff %}
+                    <td>
+                      <input type="hidden" id="editdata" name="editdata" value="{{ item.id }}" />
+                      <button
+                        type="submit"
+                        class="btn btn-primary modify-button"
+                        id="modify-button"
+                        data-item-type="{{ item.category }}"
 
-
-
-
+                        onclick="openForm('myModal')"
+                      >
+                        Modify
+                      </button>
+                    </td>
+                    <td>
+                      <form method="post" class="form-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="remove" value="{{ item.id }}" />
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                      </form>
+                    </td>
+                    {% endif %}
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+          
+          
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
     {% if request.user.is_staff %}
     <button class="btn btn-primary" type="submit" onclick="openForm('AddModal')">
       Add
@@ -72,33 +96,194 @@
 
 
 
-    {% include "partials/add_modal.html" %}
 
-
-
-    {% include "partials/modify_modal.html" %}
-    
-    {% endif %} 
-    
-    
     <script>
       $(document).on("click", ".modify-button", function () {
-
-        var tdPriceValue = $(this).closest("td").siblings("#tdPrice").text().slice(0, -3);;
-        console.log("tdNameValue");
-        var tdNameValue = $(this).closest("td").siblings("#tdName").text();
+        var itemInfo = $(this).closest("tr").find(".item-info");
+        var tdNameValue = itemInfo.find(".item-name").text();
+        var tdPriceValue = itemInfo.find(".item-price").text().slice(0, -3);
         var inputValue = $(this).closest("tr").find("input#editdata").val();
-        
+    
+        var itemType = $(this).data("item-type");
+
         document.getElementById("editItemID").value = inputValue;
         document.getElementById("name").value = tdNameValue;
         document.getElementById("price").value = tdPriceValue;
-        
-      
+        document.getElementById("modify_ingredients").setAttribute("data-item-type", itemType.toLowerCase());
+
         document.getElementById("myModal").style.display = "block";
+
       });
     </script>
     
+
+
+    {% include "partials/add_modal.html" %}
+
+    {% include "partials/modify_modal.html" %}
+
+    
+    {% endif %} 
+    <div id="snackbar">Item added to the cart!</div>
+    {% include "partials/food_modal.html" %}
+
     <script>
+      var categoryTabs = document.querySelectorAll(".category-tab");
+      categoryTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          var category = tab.getAttribute("data-category");
+          var categorySection = document.getElementById("category-" + category);
+          if (categorySection) {
+            window.scrollTo({ top: categorySection.offsetTop, behavior: "smooth" });
+          }
+        });
+      });
+    </script>
+    
+    <style>
+      .category-swipe {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    
+      .category-tabs {
+        display: flex;
+        padding: 10px;
+      }
+    
+      .category-tab {
+        cursor: pointer;
+        padding: 10px 20px;
+        border: 1px solid #ccc;
+        margin: 0 10px;
+        border-radius: 5px;
+        background-color: #f2f2f2;
+      }
+    
+      .menu-items {
+        padding: 20px;
+      }
+    
+      .category-section {
+        margin-bottom: 40px;
+      }
+
+
+
+      .mobile-friendly-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      
+      .mobile-friendly-table th, .mobile-friendly-table td {
+        padding: 10px;
+        text-align: left;
+      }
+      
+      .item-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .item-name {
+        font-weight: bold;
+      }
+      
+      .cart-button {
+        text-align: right;
+      }
+      
+
+
+      .mobile-friendly-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      
+      .mobile-friendly-table th, .mobile-friendly-table td {
+        padding: 10px;
+        text-align: left;
+      }
+      
+      .item-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .item-name {
+        font-weight: bold;
+      }
+      
+      .cart-button {
+        text-align: right;
+      }
+      
+      /* Mobile-first responsive design */
+      @media screen and (max-width: 768px) {
+        .item-info {
+          flex-direction: column;
+        }
+      
+        .cart-button {
+          text-align: center;
+          margin-top: 10px;
+        }
+      }
+      
+      /* Desktop styles (for screens wider than 768px) */
+      @media screen and (min-width: 769px) {
+        .mobile-friendly-table {
+          max-width: 100%;
+        }
+      
+        .item-info {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between; /* Align price to the left of the cell */
+          align-items: center;
+        }
+      
+        .cart-button {
+          text-align: right;
+        }
+      }
+      
+
+
+      #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #4CAF50; /* Green background color */
+        color: #fff;
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        right: 30px;
+        bottom: 30px;
+        font-size: 17px;
+        animation: fadeinout 3s; /* Combined fadein and fadeout into a single animation */
+      
+      }
+      
+      #snackbar.show {
+        visibility: visible;
+      }
+      
+      @keyframes fadeinout {
+        from, to { opacity: 0; } /* Start and end with opacity 0 */
+        50% { opacity: 1; } /* Peak opacity at 50% of the animation duration */
+      }
+
+    </style>
+    
+
+    
+<script>
   // Function to show or hide tables based on the selected categories
   function filterCategories() {
     var checkboxes = document.querySelectorAll('input[name="category"]');
@@ -119,5 +304,183 @@
     checkbox.addEventListener('change', filterCategories);
   });
 </script>
+
+
+
+<script>
+  function showFoodModal(itemName, itemId) {
+    // Customize this part based on your modal structure
+    var modal = document.getElementById("foodModal");
+    var itemNameElement = modal.querySelector(".modal-item-name");
+    var itemIdInput = modal.querySelector("#foodItemId");
+    var commentTextarea = modal.querySelector("#foodComment");
+
+
+    itemNameElement.textContent = itemName;
+    itemIdInput.value = itemId;
+    commentTextarea.value = "";
+
+    $.ajax({
+      url: `/get_extras/${itemId}/`,  // Update the URL based on your actual endpoint
+      type: 'GET',
+      success: function (data) {
+        // Populate the extras container with the fetched extras
+        var extrasContainer = $('#extras-container');
+        extrasContainer.empty();
+        for (var i = 0; i < data.length; i++) {
+          var extra = data[i];
+          var checkbox = `<input type="checkbox" name="extras" value="${extra.id}"> ${extra.name} (+${extra.price})<br>`;
+          extrasContainer.append(checkbox);
+        }
+  
+        // Set the selected item ID in the hidden input
+        $('#foodItemId').val(itemId);
+      },
+      error: function (error) {
+        console.error('Error fetching extras:', error);
+      }
+    });
+
+    modal.style.display = "block";
+  }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
+
+<script>
+  function closeFoodModal() {
+    document.getElementById("foodModal").style.display = "none";
+  }
+
+  function addToCartWithComments() {
+    var itemId = document.getElementById("foodItemId").value;
+    var comment = document.getElementById("foodComment").value;
+    var csrfToken = Cookies.get('csrftoken');
+    var selectedExtras = getSelectedExtras();
+
     
-    {% endblock %}
+    fetch(`/add_to_cart/${itemId}`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,  // Include CSRF token if using CSRF protection
+      },
+      body: JSON.stringify({
+          'foodComment': comment,
+          'extras': selectedExtras
+
+      }),
+  })
+  .then(response => response.json())
+  .then(data => {
+      showSnackbar(data.message);
+      updateCartCount();
+      updateCartPreview(data.item_name, data.item_price, data.quantity);
+
+      closeFoodModal(); // Close the food modal after successful addition
+      // Add any additional UI updates here (e.g., updating cart preview)
+  })
+  .catch(error => {
+      console.error("Failed to add to cart:", error);
+  });
+
+      event.preventDefault();
+  }
+
+  function getSelectedExtras() {
+    var selectedExtras = [];
+
+    // Check each checkbox with the name "extras" and add the value to the selectedExtras array
+    var checkboxes = document.querySelectorAll('input[name="extras"]:checked');
+    checkboxes.forEach(function (checkbox) {
+        selectedExtras.push(checkbox.value);
+    });
+
+    return selectedExtras;
+  }
+
+
+
+
+  function showSnackbar() {
+    var snackbar = document.getElementById("snackbar");
+    console.log(snackbar);
+    snackbar.className = "show";
+    setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  }
+
+    function updateCartCount() {
+      // Update the cart count on the page
+      var cartCountElement = $(".cart-count");
+      if (cartCountElement) {
+          var currentCount = parseInt(cartCountElement.text()) || 0;
+          cartCountElement.text(currentCount + 1);
+      }
+  }
+
+  function updateCartPreview(itemName, itemPrice, itemAmount) {
+    var cartPreviewElement = $(".cart_preview");
+    var cartItems = $(".cart-items");
+    var total_price = $(".cart-total");
+
+    if (cartPreviewElement) {
+      var previewHtml = '';
+      var existingItem = cartItems.find(`:contains('${itemName}')`);
+
+      if (existingItem.length) {
+
+        existingItem.text(`${itemName} - ${itemAmount} x ${itemPrice}`);
+      } else {
+        previewHtml = `<p>${itemName} - ${itemAmount} x ${itemPrice}</p>`;
+        cartPreviewElement.find('.cart-items').append(previewHtml);
+      }
+      console.log(cartPreviewElement.find('.cart-items').text());
+      // Extract numeric value from total_price.text() and convert to a number
+      var currentTotal = parseFloat(total_price.text().match(/\d+\.\d+/)[0]);
+      total_price.text("Total: "+(currentTotal + parseFloat(itemPrice)).toFixed(1)+" Ft");
+      console.log(total_price.text());
+    }
+  }
+
+
+
+
+  function addToCart(itemId) {
+    var xhr = new XMLHttpRequest();
+    var csrfToken = Cookies.get('csrftoken');
+    event.preventDefault();
+
+    var isFood = false;
+
+    var requestData = {
+        'foodComment': isFood ? document.getElementById("foodComment").value : null,
+        'extras': isFood ? getSelectedExtras() : null
+    };
+
+    xhr.open("POST", `/add_to_cart/${itemId}`, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var responseData = JSON.parse(xhr.responseText);
+            console.log(responseData);
+            showSnackbar(responseData.message);
+            updateCartCount(responseData.cart_item_count);
+            updateCartPreview(responseData.item_name, responseData.item_price, responseData.quantity);
+        } else {
+            console.error("Failed to add to cart:", xhr.statusText);
+        }
+    };
+
+    xhr.send(JSON.stringify(requestData));
+
+    // Optionally, you can prevent the default behavior here as well to be extra sure
+    event.preventDefault();
+  }
+
+
+</script>
+   
+      {% endblock %}

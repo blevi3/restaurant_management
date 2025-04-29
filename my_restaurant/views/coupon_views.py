@@ -70,34 +70,36 @@ def remove_coupon_from_cart(request):
         if cart.discount != 0:
             # Get the coupon code and associated discount
             removed_coupon = Coupons.objects.get(id=cart.discount)
-            cart.discount = 0
-
+            
             # Revert the prices of items that were discounted by the coupon
             cart_items = CartItem.objects.filter(cart=cart)
-            print("cart items",cart_items)
             if removed_coupon.coupon_type == 'fixed':
                 print("fixed")
                 # Revert fixed amount coupon
                 cart.amount_to_be_paid += removed_coupon.fixed_amount
                 cart.reduced_price = 0
+                cart.discount = 0
                 cart.applied_coupon_type = None
                 cart.save()
 
             elif removed_coupon.coupon_type == 'percentage':
                 for cart_item in cart_items:
-                    if cart_item.item.id == Menuitem.objects.get(name = removed_coupon.product).id:
+                    if cart_item.item.id == Menuitem.objects.filter(name = removed_coupon.product).first().id:
                         # Retrieve the original price from the Menuitem model
                         original_price = Menuitem.objects.get(id=cart_item.item.id).price
-                        print("oroginal proce",original_price)
+                        print("original proce",original_price)
 
                         # Update the CartItem's total_price with the original price
-                        cart_item.total_price = original_price
-                        cart.applied_coupon_type = None
+                        cart_item.total_price = original_price+cart_item.get_extras_price()
+                        cart_item.final_price = cart_item.total_price*cart_item.quantity+cart_item.get_extras_price()
+
 
                         cart_item.save()
-
+                cart.discount = 0
+                cart.applied_coupon_type = None
                 cart.save()
-                messages.success(request, 'Coupon removed successfully.')
+            cart.save()
+            messages.success(request, 'Coupon removed successfully.')
         else:
             messages.warning(request, 'No coupon to remove.')
 
@@ -109,7 +111,7 @@ def redeem_coupon(request):
 
     available_coupons = {
         "percentage_coupon_1": {
-            "name": "Sör1",
+            "name": "Mort Subite",
             "type": "percentage",
             "percentage": Decimal('10.00'),
             "product": "Mort Subite",
@@ -123,7 +125,7 @@ def redeem_coupon(request):
             "fixed_amount": Decimal('500.00'),
         },
         "percentage_coupon_2": {
-            "name": "Sör2",
+            "name": "Staropramen",
             "type": "percentage",
             "percentage": Decimal('15.00'),
             "product": "Staropramen",
@@ -172,7 +174,7 @@ def redeem_coupon(request):
                         coupon_type = "fixed",
                         percentage=None,
                         code=code,
-                        product=None,
+                        product=selected_coupon_data['product'],
                         fixed_amount=selected_coupon_data['fixed_amount'],
                         user_id = request.user.id,
 

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block pagecontent %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<style>
+    .status-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        position: absolute;
+        top: 100px;
+        right: 10px;
+        cursor: help;
+    }
+    
+    .healthy {
+        background-color: green;
+    }
+    
+    .slow {
+        background-color: red;
+    }
+    
+    .unknown {
+        background-color: yellow;
+    }
+    
+    .tooltip {
+        position: absolute;
+        background-color: black;
+        color: white;
+        border-radius: 5px;
+        padding: 5px;
+        display: none;
+    }
+
+    .time-frame-image {
+        display: none;
+    }
+    
+    /* CSS to show the active image */
+    .active-image {
+        display: block;
+    }
+</style>
+
+    
+<script>
+        $(document).ready(function() {
+            updateServerStatus();
+            function updateServerStatus() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/server_status',
+                    success: function(response) {
+                        if (response.combined_status === 1) {
+                            $('#server-status').removeClass('slow unknown').addClass('healthy');
+                            $('#server-status').attr('title', 'All Systems Healthy');
+                        } else if (response.db_status === 0) {
+                            $('#server-status').removeClass('healthy unknown').addClass('slow');
+                            $('#server-status').attr('title', 'Database Issues');
+                        } else if (response.resource_status === 0) {
+                            $('#server-status').removeClass('healthy unknown').addClass('slow');
+                            $('#server-status').attr('title', 'Resource Issues: Memory Low');
+                        }
+                    },
+                    error: function(response) {
+                        $('#server-status').removeClass('healthy slow').addClass('unknown');
+                        $('#server-status').attr('title', 'Status Unknown');
+                    }
+                });
+            }
+    
+            // Periodically check the server status (every 10 minutes)
+            setInterval(updateServerStatus, 600000);
+    
+            // Add tooltip display on hover
+            $('#server-status').hover(function () {
+                $('.tooltip').css('display', 'block');
+            }, function () {
+                $('.tooltip').css('display', 'none');
+            });
+        });
+</script>
+    
+    <div id="server-status" class="status-dot unknown">
+        <div class="tooltip" id="tooltip-status">Status Unknown</div>
+    </div>
+
+<h2>Total Sales: ${{ total_sales }}</h2>
+
+<h2>Popular Items:</h2>
+<ul>
+    {% for item in popular_items %}
+        <li>{{ item.item__name }} ({{ item.total_sold }} sold)</li>
+    {% endfor %}
+</ul>
+
+
+<h2>Reservation Statistics:</h2>
+<p>Total Reservations: {{ total_reservations }}</p>
+<p>Total Tables Booked: {{ total_tables_booked }}</p>
+
+
+
+<h2>Sales Trends Over Time:</h2>
+{% for time_frame, chart_image in sales_chart_image.items %}
+    <img src="data:image/png;base64,{{ chart_image }}" alt="{{ time_frame }} Days" class="time-frame-image{% if forloop.first %} active-image{% endif %}" data-time-frame="{{ time_frame }}">
+{% endfor %}
+
+<button class="time-frame-button" data-time-frame="7">1 Week</button>
+<button class="time-frame-button" data-time-frame="30">1 Month</button>
+<button class="time-frame-button" data-time-frame="60">2 Month</button>
+<button class="time-frame-button" data-time-frame="180">6 Months</button>
+<button class="time-frame-button" data-time-frame="365">1 Year</button>
+<script>
+    $(document).ready(function() {
+        $('.time-frame-button').click(function() {
+            var timeFrame = $(this).data('time-frame');
+
+            // Hide all images
+            $('.time-frame-image').removeClass('active-image');
+
+            // Show the selected image
+            $('.time-frame-image[data-time-frame="' + timeFrame + '"]').addClass('active-image');
+        });
+    });
+</script>
+
+
+
+<h2>Top Customers:</h2>
+<ul>
+    {% for customer in top_customers %}
+        <li>{{ customer.username }} - Total Orders: {{ customer.total_orders }} - Total Spent: {{ customer.total_spent }}</li>
+    {% endfor %}
+</ul>
+<p>Unique coupon codes used: {{ unique_coupons }}</p>
+
+<h3>New Users:</h3>
+<p>Today: {{ new_users.day }}</p>
+<p>Last Week: {{ new_users.week }}</p>
+<p>Last Month: {{ new_users.month }}</p>
+<p>Last Half Year: {{ new_users.six_month }}</p>
+<p>Last Year: {{ new_users.year }}</p>
+
+<h3>Active Users (Logged in within the past 3 months):</h3>
+{% if active_users %}
+    <p>Total: {{ active_users }}</p>
+{% else %}
+    <p>Total: 0</p>
+{% endif %}
+
+<h3>Inactive Users (Have not logged in the past 3 months):</h3>
+{% if inactive_users %}
+    <p>Total: {{ inactive_users }}</p>
+{% else %}
+    <p>Total: 0</p>
+{% endif %}
+
+
+<button id="send-coupons-button">Send Coupons to Inactive Users</button>
+
+<script>
+    $(document).ready(function() {
+        $("#send-coupons-button").click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/send_coupons_to_inactive_users/', 
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(response) {
+                    alert('An error occurred while sending coupons.');
+                }
+            });
+        });
+    });
+</script>
+
+
+{% endblock %}

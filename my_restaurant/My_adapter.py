@@ -10,17 +10,14 @@ import string
 
 class MySocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin): 
-        print("adapteer")
         user = sociallogin.user
           
         if User.objects.filter(email=user.email).exists():
             customer = User.objects.get(email=user.email)  # if user exists, connect the account to the existing account and login
             active = customer.is_active
-            print(customer)
             if active:
                 sociallogin.state['process'] = 'connect'                
                 perform_login(request, customer, 'none')
-                print("login")
                 raise ImmediateHttpResponse(redirect('home'))
             else:
                
@@ -30,7 +27,6 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
                 email.send()
                 customer.set_password(pw)                
                 customer.is_active = True
-                print(customer.is_active)
                 customer.save()
                 sociallogin.state['process'] = 'connect' 
 
@@ -48,7 +44,6 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
             except Profile.DoesNotExist:
                 profile = Profile(user=user)
                 profile.save()
-            print("create")
             
             message = "A legenda étterem weboldalán regisztált, átmeneti jelszava:\n {}\nKérjük ezt a jelszót mihamarabb változtassa meg!".format(pw)
             email = EmailMessage("Jelszó változás!", message ,to=[user.email])

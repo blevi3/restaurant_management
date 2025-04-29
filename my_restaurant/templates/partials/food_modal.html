@@ -1,0 +1,57 @@
+<div id="foodModal" class="modal" style="display: none;">
+  <div class="modal-content">
+      <span class="close" onclick="closeFoodModal()">&times;</span>
+      <h2>Add Food to Cart</h2>
+      <p class="modal-item-name"></p>
+      <textarea id="foodComment" placeholder="Add comments..."></textarea>
+      <input type="hidden" id="foodItemId" value="">
+      <div id="extras-container">
+      </div>
+      <button class="btn btn-primary" onclick="addToCartWithComments()">Add to Cart</button>
+  </div>
+</div>
+
+<style>
+  #foodModal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px; /* Adjust the max-width as needed */
+    margin: 0 auto;
+  }
+  
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .close:hover {
+    color: #000;
+  }
+  
+  textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+</style>
